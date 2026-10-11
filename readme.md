@@ -13,9 +13,9 @@ The project specification is available [on Canvas](https://canvas.auckland.ac.nz
 
 Update this readme file to contain the names of each team member and your GitHub login.
 
-- \*Replace this text: Jim Zhou - FridgeProtector1
+- Jim Zhou - FridgeProtector1
 - Hargun Singh - Hargun2005
-- _Replace this text: Team Member Name 3 - GitHub Login_
+- Rohit Balaji - RohitB2005
 - _Replace this text: Team Member Name 4 - GitHub Login_
 
 ## Running LAVS
