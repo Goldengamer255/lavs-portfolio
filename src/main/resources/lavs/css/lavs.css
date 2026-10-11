@@ -1,0 +1,109 @@
+/* AI-assisted: colour variable setup, button/card rule patterns and property suggestions (typed by me) */
+.root {
+    -lavs-blue: #393A7B;
+    -lavs-red: #D95733;
+    -lavs-yellow: #F8F40C;
+    -lavs-bg: #F4F5F7;
+    -lavs-border: #C9CBD3;
+    -lavs-muted: #6B6F80;
+    -fx-font-size: 13px;
+}
+
+.primary-button {
+    -fx-background-color: -lavs-blue;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: derive(-lavs-blue, -15%);
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-border-color: -lavs-border;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 32;
+}
+
+.screen {
+    -fx-background-color: -lavs-bg;
+}
+
+.card-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2033;
+}
+
+.card-subtitle, .hint-text {
+    -fx-text-fill: -lavs-muted;
+    -fx-font-size: 12px;
+}
+
+.field-label {
+    -fx-text-fill: -lavs-muted;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.secondary-button {
+    -fx-background-color: white;
+    -fx-text-fill: -lavs-blue;
+    -fx-font-weight: bold;
+    -fx-border-color: -lavs-blue;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.secondary-button:hover {
+    -fx-background-color: derive(-lavs-blue, 90%);
+}
+
+.error-banner {
+    -fx-background-color: derive(-lavs-red, 85%);
+    -fx-border-color: -lavs-red;
+    -fx-text-fill: #5A1E10;
+    -fx-padding: 8 12;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.button-spinner {
+    -fx-progress-color: white;
+}
+
+.text-field:error, .combo-box:error, .date-picker:error {
+    -fx-border-color: -lavs-red;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 3;
+}
+
+.screen-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2033;
+}
+
+.section-title {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2033;
+}
+
+.summary-value {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2033;
+}
+
+.field-error {
+    -fx-text-fill: -lavs-red;
+    -fx-font-size: 11px;
+}
