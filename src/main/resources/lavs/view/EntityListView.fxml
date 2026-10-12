@@ -10,16 +10,16 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox spacing="8.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox spacing="8.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.support.EntityListController">
    <padding>
       <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
    </padding>
    <children>
       <HBox alignment="CENTER_LEFT" spacing="8.0">
          <children>
-            <Button fx:id="addButton" mnemonicParsing="false" styleClass="primary-button" text="+ Add" />
-            <Button fx:id="editButton" mnemonicParsing="false" styleClass="secondary-button" text="Edit" />
-            <Button fx:id="deleteButton" mnemonicParsing="false" styleClass="secondary-button" text="Delete" />
+            <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAdd" styleClass="primary-button" text="+ Add" />
+            <Button fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" styleClass="secondary-button" text="Edit" />
+            <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#handleDelete" styleClass="secondary-button" text="Delete" />
             <Region HBox.hgrow="ALWAYS" />
             <ProgressIndicator fx:id="listSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
          </children>
