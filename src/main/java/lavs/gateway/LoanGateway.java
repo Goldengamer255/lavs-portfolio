@@ -1,4 +1,4 @@
-package lavs.domain.gateway;
+package lavs.gateway;
 
 import lavs.domain.Loan;
 import lavs.domain.NewLoan;

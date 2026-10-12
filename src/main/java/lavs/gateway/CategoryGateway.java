@@ -1,4 +1,4 @@
-package lavs.domain.gateway;
+package lavs.gateway;
 
 import java.util.List;
 

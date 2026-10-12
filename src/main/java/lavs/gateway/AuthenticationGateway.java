@@ -1,4 +1,4 @@
-package lavs.domain.gateway;
+package lavs.gateway;
 
 public interface AuthenticationGateway {
     // this should return true if login is successful, false otherwise. The errorCode and errorMessage should provide more information in case of failure.

@@ -1,4 +1,4 @@
-package lavs.domain.gateway;
+package lavs.gateway;
 
 public record OperationResult<T>(
     T value,
@@ -17,4 +17,13 @@ public record OperationResult<T>(
     public static <T> OperationResult<T> failure(int errorCode, String errorMessage, long transactionId) {
         return new OperationResult<>(null, errorCode, errorMessage, transactionId);
     }
+
+    public boolean isUnavailable() {
+    return errorCode == 10;
+    }   
+
+    public boolean isRejected() {
+    return errorCode == 3;
+    }
+    
 }
