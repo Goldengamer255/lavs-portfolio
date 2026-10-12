@@ -3,8 +3,8 @@ package lavs.domain;
 public record Address( 
     Long id,
     String customerNumber,
-    String Line1,
-    String Line2,
+    String line1,
+    String line2,
     String suburb,
     String city,
     String country,

@@ -8,5 +8,5 @@ public interface LoanGateway {
 
     OperationResult<Loan> retrieve(String loanNumber);
 
-    OperationResult<Loan> changeStatus(String loanNumber, String newStatus);
+    OperationResult<String> changeStatus(String loanNumber, String newStatus);
 }

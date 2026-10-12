@@ -8,7 +8,7 @@ public record Page<T>(
     long size,
     long total
 ) {
-    public page{
+    public Page {
         items = List.copyOf(items);
     }
 }

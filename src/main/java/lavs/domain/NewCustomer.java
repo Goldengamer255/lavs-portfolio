@@ -1,10 +1,12 @@
 // src/main/java/lavs/domain/NewCustomer.java
 package lavs.domain;
 
+import java.time.LocalDate;
+
 public record NewCustomer(
     String firstName,
     String familyName,
-    String dateOfBirth,
+    LocalDate dateOfBirth,
     String nationality,
     long organisation,
     String title

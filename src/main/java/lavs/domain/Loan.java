@@ -1,5 +1,7 @@
 package lavs.domain;
 
+import java.time.LocalDate;
+
 public record Loan(
     String loanNumber,
     String customerNumber, 
@@ -9,7 +11,7 @@ public record Loan(
     String rateType,
     String rateFrequency,
     String paymentFrequency,
-    String startDate,
-    String renewalDate,
+    LocalDate startDate,
+    LocalDate renewalDate,
     String status
 ) {}
