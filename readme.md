@@ -12,7 +12,7 @@ The project specification is available [on Canvas](https://canvas.auckland.ac.nz
 
 Update this readme file to contain the names of each team member and your GitHub login.
 
-* *Replace this text: Team Member Name 1 - GitHub Login*
+* Jim Zhou - FridgeProtector1
 * *Replace this text: Team Member Name 2 - GitHub Login*
 * *Replace this text: Team Member Name 3 - GitHub Login*
 * *Replace this text: Team Member Name 4 - GitHub Login*
