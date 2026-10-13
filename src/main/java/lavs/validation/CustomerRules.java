@@ -13,4 +13,19 @@ public class CustomerRules {
         //TODO: Checks at least one mailing address is present and at least one phone or email
         return new ValidationReport(List.of());
     }
+
+    public DeleteCheck canDeleteAddress(List<Address> addresses, long addressId) {
+        // TODO: this method must block deleting the last mailing address
+        return new DeleteCheck(true, null);
+    }
+
+    public DeleteCheck canDeletePhone(List<Phone> phones, List<Email> emails, long phoneId) {
+        // TODO: this method must block deleting the last contact method (phone or email)
+        return new DeleteCheck(true, null);
+    }
+
+    public DeleteCheck canDeleteEmail(List<Phone> phones, List<Email> emails, long emailId) {
+        // TODO: this method must block deleting the last contact method (phone or email)
+        return new DeleteCheck(true, null);
+    }
 }
