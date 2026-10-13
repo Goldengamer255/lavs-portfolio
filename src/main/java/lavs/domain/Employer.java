@@ -1,0 +1,5 @@
+package lavs.domain;
+
+/** Service response data, independent of mainframe message classes. */
+// AI-assisted: service contract scaffolding for team review.
+public record Employer(long id, String customerNumber, String name, String position, double salary, String type) {}
