@@ -13,9 +13,11 @@ import lavs.gateway.OperationResult;
 public interface CustomerService {
     OperationResult<Page<CustomerSummary>> search(String name, long page, long size);
     OperationResult<Customer> get(String customerNumber);
+    /** Uses the organisation configured for the application, not a form field. */
     OperationResult<SaveResult<Customer>> create(CustomerInput input);
     OperationResult<SaveResult<Customer>> update(String customerNumber, CustomerInput input);
-    OperationResult<Customer> changeStatus(String customerNumber, String status);
+    /** Returns the echoed status without re-reading the full record. */
+    OperationResult<String> changeStatus(String customerNumber, String status);
     ValidationReport validateCustomer(CustomerInput input, boolean creating);
 
     /** Checks existing customer prerequisites; loan-level guarantor rules are separate. */
