@@ -14,5 +14,6 @@ public interface CustomerGateway {
     OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size);
 
     OperationResult<Address> addAddress(Address address);
+    
     OperationResult<Boolean> deleteAddress(String customerNumber, long addressId);
 }

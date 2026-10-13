@@ -19,11 +19,11 @@ public record OperationResult<T>(
     }
 
     public boolean isUnavailable() {
-    return errorCode == 10;
+        return errorCode == 10;
     }   
 
     public boolean isRejected() {
-    return errorCode == 3;
+        return errorCode == 3;
     }
     
 }
