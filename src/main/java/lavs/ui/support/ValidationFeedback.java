@@ -102,7 +102,7 @@ public final class ValidationFeedback {
     private void apply(ValidationReport report) {
         Map<String, String> messages = new LinkedHashMap<>();
         for (ValidationIssue issue : report.errors()) {
-            messages.putIfAbsent(issue.fieldKey(), issue.message());
+            messages.merge(issue.fieldKey(), issue.message(), (first, second) -> first + "\n" + second);
         }
         for (String key : fields.keySet()) {
             String message = messages.remove(key);
