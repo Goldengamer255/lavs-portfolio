@@ -1,5 +1,6 @@
 package lavs.validation;
 
+/** Field keys for the Phone form, matching the components of {@code PhoneInput}. */
 public enum PhoneField implements FieldKey {
     COUNTRY_CODE("countryCode"),
     NUMBER("number"),

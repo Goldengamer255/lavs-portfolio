@@ -1,5 +1,6 @@
 package lavs.validation;
 
+/** Field keys for the Address form, matching the components of {@code AddressInput}. */
 public enum AddressField implements FieldKey {
     LINE1("line1"),
     LINE2("line2"),
@@ -22,7 +23,4 @@ public enum AddressField implements FieldKey {
     public String key() {
         return key;
     }
-
 }
-
-

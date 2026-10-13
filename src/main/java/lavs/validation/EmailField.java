@@ -1,5 +1,6 @@
 package lavs.validation;
 
+/** Field keys for the Email form, matching the components of {@code EmailInput}. */
 public enum EmailField implements FieldKey {
     ADDRESS("address"),
     TYPE("type"),

@@ -1,5 +1,6 @@
 package lavs.validation;
 
+/** Field keys for the Customer form, matching the components of {@code CustomerInput}. */
 // AI-assisted: enum pattern structure.
 public enum CustomerField implements FieldKey {
     FIRST_NAME("firstName"),
