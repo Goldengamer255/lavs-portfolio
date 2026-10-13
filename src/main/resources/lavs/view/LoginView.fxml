@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="600.0" prefWidth="900.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane prefHeight="600.0" prefWidth="900.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.LoginController">
    <children>
       <VBox maxHeight="-Infinity" maxWidth="400.0" spacing="10.0" styleClass="card">
          <children>
@@ -24,7 +24,7 @@
                   <Insets top="8.0" />
                </VBox.margin>
                <children>
-                  <Button fx:id="loginButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="primary-button" text="Log In" />
+                  <Button fx:id="loginButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" styleClass="primary-button" text="Log In" />
                   <ProgressIndicator fx:id="loginSpinner" mouseTransparent="true" prefHeight="20.0" prefWidth="20.0" styleClass="button-spinner" visible="false" StackPane.alignment="CENTER_RIGHT">
                      <StackPane.margin>
                         <Insets right="12.0" />
