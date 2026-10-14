@@ -8,6 +8,4 @@ public record Employer(
     String position,
     double salary,
     String type
-) {
-
-}
+) {}
