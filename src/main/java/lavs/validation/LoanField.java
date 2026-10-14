@@ -1,6 +1,7 @@
 package lavs.validation;
 
-public enum LoanField implements FieldKey{
+/** Field keys for the Loan form, matching the components of {@code LoanInput}. */
+public enum LoanField implements FieldKey {
     PRINCIPAL("principal"),
     PAYMENT_AMOUNT("paymentAmount"),
     RATE_TYPE("rateType"),

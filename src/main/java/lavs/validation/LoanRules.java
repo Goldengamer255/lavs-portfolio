@@ -1,7 +1,5 @@
 package lavs.validation;
 
-import lavs.service.ValidationReport;
-
 import java.util.List;
 
 public class LoanRules {
