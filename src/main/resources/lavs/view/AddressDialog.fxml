@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane hgap="16.0" prefWidth="520.0" vgap="6.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/24.0.1">
+  <columnConstraints>
+    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0" prefWidth="100.0" />
+    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints vgrow="SOMETIMES" />
+    <RowConstraints vgrow="SOMETIMES" />
+    <RowConstraints vgrow="SOMETIMES" />
+    <RowConstraints vgrow="SOMETIMES" />
+    <RowConstraints vgrow="SOMETIMES" />
+  </rowConstraints>
+   <padding>
+      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+   </padding>
+   <children>
+      <VBox spacing="4.0">
+         <children>
+            <Label styleClass="field-label" text="Type" />
+            <ComboBox fx:id="typeCombo" maxWidth="1.7976931348623157E308" prefWidth="150.0" />
+            <Label fx:id="typeError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.rowIndex="1">
+         <children>
+            <Label styleClass="field-label" text="Line 1" />
+            <TextField fx:id="line1Field" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="line1Error" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.rowIndex="2">
+         <children>
+            <Label styleClass="field-label" text="Suburb" />
+            <TextField fx:id="suburbField" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="suburbError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.rowIndex="3">
+         <children>
+            <Label styleClass="field-label" text="Post code" />
+            <TextField fx:id="postCodeField" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="postCodeError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.rowIndex="4">
+         <children>
+            <CheckBox fx:id="primaryCheck" mnemonicParsing="false" text="Primary address" />
+            <Label fx:id="primaryError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.columnIndex="1">
+         <children>
+            <Label styleClass="field-label" text="Other type (if Other)" />
+            <TextField fx:id="otherTypeField" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="otherTypeError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <children>
+            <Label styleClass="field-label" text="Line 2 (optional)" />
+            <TextField fx:id="line2Field" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="line2Error" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+         <children>
+            <Label styleClass="field-label" text="City" />
+            <TextField fx:id="cityField" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="cityError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+         <children>
+            <Label styleClass="field-label" text="Country" />
+            <TextField fx:id="countryField" maxWidth="1.7976931348623157E308" />
+            <Label fx:id="countryError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+      <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+         <children>
+            <CheckBox fx:id="mailingCheck" mnemonicParsing="false" text="Mailing address" />
+            <Label fx:id="mailingError" styleClass="field-error" text="Error" visible="false" />
+         </children>
+      </VBox>
+   </children>
+</GridPane>
