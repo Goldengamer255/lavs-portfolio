@@ -13,6 +13,4 @@ public record Address(
     String otherType,
     boolean isMailing,
     boolean isPrimary
-) {
-
-} 
+) {} 
