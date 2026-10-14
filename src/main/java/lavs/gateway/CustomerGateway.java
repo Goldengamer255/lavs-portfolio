@@ -6,6 +6,8 @@ import lavs.domain.Customer;
 import lavs.domain.CustomerSummary;
 import lavs.domain.Email;
 import lavs.domain.EmailSummary;
+import lavs.domain.Employer;
+import lavs.domain.EmployerSummary;
 import lavs.domain.NewCustomer;
 import lavs.domain.Page;
 import lavs.domain.Phone;
@@ -55,4 +57,16 @@ public interface CustomerGateway {
     OperationResult<Page<EmailSummary>> listEmails(String customerNumber, long page, long size);
 
     OperationResult<Email> retrieveEmail(String customerNumber, long emailId);
+
+    //Employer related methods
+
+    OperationResult<Employer> addEmployer(Employer employer);
+
+    OperationResult<Boolean> deleteEmployer(String customerNumber, long employerId);
+
+    OperationResult<Employer> updateEmployer(Employer employer);
+
+    OperationResult<Page<EmployerSummary>> listEmployers(String customerNumber, long page, long size);
+
+    OperationResult<Employer> retrieveEmployer(String customerNumber, long employerId);
 }                                                                                      
