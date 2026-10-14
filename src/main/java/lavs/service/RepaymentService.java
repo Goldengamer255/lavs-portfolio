@@ -11,7 +11,7 @@ import lavs.gateway.OperationResult;
  * sizes are positive and network operations must run on the shared worker.
  */
 
-// AI-assisted: RepaymentService interface constructors.
+// AI-assisted: RepaymentService interface.
 public interface RepaymentService {
     OperationResult<LoanSummary> getSummary(String loanNumber);
 
