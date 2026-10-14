@@ -20,15 +20,18 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
+import lavs.domain.Address;
 import lavs.domain.Customer;
 import lavs.domain.LoanSummaryItem;
 import lavs.domain.Page;
 import lavs.gateway.OperationResult;
+import lavs.service.CategoryService;
 import lavs.service.CustomerService;
 import lavs.service.CustomerInput;
 import lavs.service.SaveResult;
 import lavs.service.ValidationIssue;
 import lavs.service.ValidationReport;
+import lavs.ui.support.EntityListController;
 import lavs.ui.support.TaskRunner;
 import lavs.ui.support.ValidationFeedback;
 import lavs.validation.CustomerField;
@@ -49,6 +52,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private static final NumberFormat MONEY_FORMAT = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-NZ"));
 
     private final CustomerService customers;
+    private final CategoryService categories;
     private final Navigator navigator;
     private final TaskRunner tasks;
     private final BooleanProperty loading = new SimpleBooleanProperty(false);
@@ -59,6 +63,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     };
     private final ValidationFeedback feedback = new ValidationFeedback();
     private final BooleanProperty saving = new SimpleBooleanProperty(false);
+    private AddressesTab addressesTab;
 
     @FXML
     private Label customerNameLabel;
@@ -120,13 +125,17 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private TableColumn<LoanSummaryItem, String> loanStartDateColumn;
     @FXML
     private Label formErrorLabel;
+    @FXML
+    private EntityListController<Address> addressesListController;
 
     /**
      * Creates the controller with the services it needs. The worker is the shared
      * background executor from the application shell.
      */
-    public CustomerDetailsController(CustomerService customers, Navigator navigator, Executor worker) {
+    public CustomerDetailsController(CustomerService customers, CategoryService categories,
+            Navigator navigator, Executor worker) {
         this.customers = customers;
+        this.categories = categories;
         this.navigator = navigator;
         this.tasks = new TaskRunner(worker);
     }
@@ -181,6 +190,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
             });
             return row;
         });
+
+        addressesTab = new AddressesTab(addressesListController, customers, categories, tasks);
     }
 
     /**
@@ -286,6 +297,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
 
         loadLoans();
         updateLinkButton();
+        addressesTab.load(loaded.number());
     }
 
     private void startNewCustomer() {
