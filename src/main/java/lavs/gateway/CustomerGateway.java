@@ -4,6 +4,8 @@ import lavs.domain.Address;
 import lavs.domain.AddressSummary;
 import lavs.domain.Customer;
 import lavs.domain.CustomerSummary;
+import lavs.domain.Email;
+import lavs.domain.EmailSummary;
 import lavs.domain.NewCustomer;
 import lavs.domain.Page;
 import lavs.domain.Phone;
@@ -42,4 +44,15 @@ public interface CustomerGateway {
     OperationResult<Page<PhoneSummary>> listPhones(String customerNumber, long page, long size);
 
     OperationResult<Phone> retrievePhone(String customerNumber, long phoneId);
+
+    //Email related methods
+    OperationResult<Email> addEmail(Email email);
+
+    OperationResult<Boolean> deleteEmail(String customerNumber, long emailId);
+
+    OperationResult<Email> updateEmail(Email email);
+
+    OperationResult<Page<EmailSummary>> listEmails(String customerNumber, long page, long size);
+
+    OperationResult<Email> retrieveEmail(String customerNumber, long emailId);
 }                                                                                      
