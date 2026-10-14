@@ -118,6 +118,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private TableColumn<LoanSummaryItem, String> loanPrincipalColumn;
     @FXML
     private TableColumn<LoanSummaryItem, String> loanStartDateColumn;
+    @FXML
+    private Label formErrorLabel;
 
     /**
      * Creates the controller with the services it needs. The worker is the shared
@@ -139,9 +141,9 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         loadingSpinner.visibleProperty().bind(loading);
         saveErrorBanner.managedProperty().bind(saveErrorBanner.visibleProperty());
         for (TextField field : List.of(titleField, firstNameField, familyNameField, nationalityField)) {
-            field.editableProperty().bind(editing);
+            field.editableProperty().bind(editing.and(saving.not()));
         }
-        dobPicker.disableProperty().bind(editing.not());
+        dobPicker.disableProperty().bind(editing.not().or(saving));
         editButton.visibleProperty().bind(editing.not());
         editButton.managedProperty().bind(editButton.visibleProperty());
         saveButton.visibleProperty().bind(editing);
@@ -155,10 +157,13 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         feedback.register(CustomerField.DATE_OF_BIRTH.key(), dobPicker, dobError);
         feedback.register(CustomerField.NATIONALITY.key(), nationalityField, nationalityError);
 
+        feedback.setFormErrorLabel(formErrorLabel);
+
         feedback.setOnFieldLeft(() -> feedback.showErrors(
                 customers.validateCustomer(readForm(), customer == null)));
         saveSpinner.visibleProperty().bind(saving);
         saveButton.disableProperty().bind(saving);
+        cancelButton.disableProperty().bind(saving);
 
         loanPrincipalColumn.setCellValueFactory(cell -> text(MONEY_FORMAT.format(cell.getValue().principal())));
         loanStartDateColumn.setCellValueFactory(cell -> text(cell.getValue().startDate() == null
@@ -204,6 +209,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     }
 
     private void loadLoans() {
+        addLoanButton.setDisable(true);
+        loanReadinessLabel.setText("Checking whether a loan can be added...");
         String number = customer.number();
         tasks.run(() -> customers.listLoans(number, 1, LOAN_PAGE_SIZE), loading,
                 this::showLoans, error -> showLoansError());

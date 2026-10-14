@@ -91,6 +91,7 @@
                               </VBox>
                            </children>
                         </HBox>
+                        <Label fx:id="formErrorLabel" styleClass="field-error" visible="false" wrapText="true" />
                         <HBox alignment="CENTER_LEFT" spacing="8.0">
                            <children>
                               <Button fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" styleClass="secondary-button" text="Edit" />
@@ -135,7 +136,7 @@
             <Label styleClass="section-title" text="Loans" />
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="loanReadinessLabel" styleClass="hint-text" text="Add a mailing address and a phone or email before starting a loan." />
-            <Button fx:id="addLoanButton" mnemonicParsing="false" onAction="#handleAddLoan" styleClass="primary-button" text="+ Add Loan" />
+            <Button fx:id="addLoanButton" mnemonicParsing="false" disable="true" onAction="#handleAddLoan" styleClass="primary-button" text="+ Add Loan" />
          </children>
       </HBox>
       <TableView fx:id="loanTable" prefHeight="160.0" prefWidth="200.0">
