@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.stage.Window;
 
 // AI-assisted: class design and code structure suggested by Claude, typed and checked by me
 /**
@@ -70,6 +71,13 @@ public final class EntityListController<T> {
      */
     public BooleanProperty busyProperty() {
         return busy;
+    }
+
+    /**
+     * The window this list is shown in, so popups can open over it.
+     */
+    public Window window() {
+        return table.getScene().getWindow();
     }
 
     /**

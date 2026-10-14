@@ -21,6 +21,7 @@
     <RowConstraints vgrow="SOMETIMES" />
     <RowConstraints vgrow="SOMETIMES" />
     <RowConstraints vgrow="SOMETIMES" />
+    <RowConstraints vgrow="SOMETIMES" />
   </rowConstraints>
    <padding>
       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -94,5 +95,6 @@
             <Label fx:id="mailingError" styleClass="field-error" text="Error" visible="false" />
          </children>
       </VBox>
+      <Label fx:id="formErrorLabel" styleClass="field-error" visible="false" wrapText="true" GridPane.columnSpan="2" GridPane.rowIndex="5" />
    </children>
 </GridPane>
