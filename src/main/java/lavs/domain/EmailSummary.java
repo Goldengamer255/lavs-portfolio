@@ -1,8 +1,8 @@
 package lavs.domain;
 
 public record EmailSummary(
-    Long _id,
-    String _address,
-    String isPrimary,
-    String _type
+    Long id,
+    String address,
+    boolean isPrimary,
+    String type
 ) {}

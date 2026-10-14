@@ -5,7 +5,6 @@ public record Employer(
     String customerName,
     String customerNumber,
     String name,
-    String number,
     String position,
     double salary,
     String type

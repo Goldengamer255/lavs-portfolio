@@ -6,7 +6,6 @@ public record Email(
     String customerNumber,
     String address,
     boolean isPrimary,
-    String number,
     String otherType,
     String type
 ) {}
