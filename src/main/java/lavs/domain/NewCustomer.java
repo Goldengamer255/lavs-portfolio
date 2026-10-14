@@ -1,4 +1,3 @@
-// src/main/java/lavs/domain/NewCustomer.java
 package lavs.domain;
 
 import java.time.LocalDate;
