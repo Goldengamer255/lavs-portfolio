@@ -202,6 +202,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     }
 
     private void loadCustomer() {
+        addLoanButton.setDisable(true);
         retryAction = this::loadCustomer;
         String number = context.customerNumber();
         tasks.run(() -> customers.get(number), loading,
