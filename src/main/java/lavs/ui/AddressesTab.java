@@ -28,11 +28,13 @@ public final class AddressesTab {
     private static final String SAVE_FAILED = "Not saved yet. The mainframe couldn't be reached. Try Save again.";
     private static final String SAVE_REJECTED = "Not saved. The mainframe said: ";
     private static final String DELETE_FAILED = "Couldn't delete the address. Check your connection and try again.";
+    private static final String TYPES_FAILED = "Couldn't load the address types. Press Add or Edit to try again.";
 
     private final EntityListController<Address> list;
     private final CustomerService customers;
     private final CategoryService categories;
     private final TaskRunner tasks;
+    private final Runnable onChanged;
     private final BooleanProperty saving = new SimpleBooleanProperty(false);
 
     private String customerNumber;
@@ -42,11 +44,12 @@ public final class AddressesTab {
      * Sets up the address list's columns and buttons.
      */
     public AddressesTab(EntityListController<Address> list, CustomerService customers,
-            CategoryService categories, TaskRunner tasks) {
+            CategoryService categories, TaskRunner tasks, Runnable onChanged) {
         this.list = list;
         this.customers = customers;
         this.categories = categories;
         this.tasks = tasks;
+        this.onChanged = onChanged;
 
         list.addColumn("Type", a -> "Other".equals(a.type()) ? a.otherType() : a.type());
         list.addColumn("Line 1", Address::line1);
@@ -70,16 +73,34 @@ public final class AddressesTab {
         tasks.run(() -> customers.listAddresses(customerNumber, 1, PAGE_SIZE), list.busyProperty(),
                 this::showAddresses, error -> list.showError(LOAD_FAILED));
         if (types.isEmpty()) {
-            tasks.run(() -> categories.getCategoryValues(ADDRESS_TYPES), list.busyProperty(),
-                    result -> types = result.isSuccess() ? result.value() : List.of(), error -> {
-                    });
+            loadTypes(() -> {
+            });
         }
     }
 
     private void openDialog(Address existing) {
+        if (types.isEmpty()) {
+            list.clearError();
+            loadTypes(() -> openDialog(existing));
+            return;
+        }
         AddressDialogController form = new AddressDialogController(types, existing, customers::validateAddress);
         String title = existing == null ? "Add Address" : "Edit Address";
         FormDialog.show(list.window(), title, DIALOG, form, saving, close -> save(form, existing, close));
+    }
+
+    private void loadTypes(Runnable then) {
+        tasks.run(() -> categories.getCategoryValues(ADDRESS_TYPES), list.busyProperty(),
+                result -> showTypes(result, then), error -> list.showError(TYPES_FAILED));
+    }
+
+    private void showTypes(OperationResult<List<String>> result, Runnable then) {
+        if (!result.isSuccess() || result.value().isEmpty()) {
+            list.showError(TYPES_FAILED);
+            return;
+        }
+        types = result.value();
+        then.run();
     }
 
     private void save(AddressDialogController form, Address existing, Runnable close) {
@@ -119,6 +140,7 @@ public final class AddressesTab {
 
         close.run();
         load(customerNumber);
+        onChanged.run();
     }
 
     private void delete(Address address) {
@@ -131,6 +153,7 @@ public final class AddressesTab {
     private void showDeleteResult(OperationResult<Boolean> result) {
         if (result.isSuccess()) {
             load(customerNumber);
+            onChanged.run();
         } else if (result.isRejected()) {
             list.showError(result.errorMessage());
         } else {

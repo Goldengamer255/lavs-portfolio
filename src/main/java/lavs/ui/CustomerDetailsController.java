@@ -191,7 +191,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
             return row;
         });
 
-        addressesTab = new AddressesTab(addressesListController, customers, categories, tasks);
+        addressesTab = new AddressesTab(addressesListController, customers, categories, tasks, this::checkReadiness);
     }
 
     /**
@@ -221,11 +221,16 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     }
 
     private void loadLoans() {
-        addLoanButton.setDisable(true);
-        loanReadinessLabel.setText("Checking whether a loan can be added...");
         String number = customer.number();
         tasks.run(() -> customers.listLoans(number, 1, LOAN_PAGE_SIZE), loading,
                 this::showLoans, error -> showLoansError());
+        checkReadiness();
+    }
+
+    private void checkReadiness() {
+        addLoanButton.setDisable(true);
+        loanReadinessLabel.setText("Checking whether a loan can be added...");
+        String number = customer.number();
         tasks.run(() -> customers.checkLoanReadiness(number), loading,
                 this::showReadiness, error -> showLoansError());
     }

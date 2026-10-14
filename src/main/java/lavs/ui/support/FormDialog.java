@@ -50,6 +50,13 @@ public final class FormDialog {
 
         Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveBtnType);
         saveButton.disableProperty().bind(busy);
+        content.disableProperty().bind(busy);
+        dialog.getDialogPane().lookupButton(ButtonType.CANCEL).disableProperty().bind(busy);
+        dialog.setOnCloseRequest(event -> {
+            if (busy.get()) {
+                event.consume();
+            }
+        });
 
         // Intercept action to handle validation/save without auto-closing the popup
         saveButton.addEventFilter(ActionEvent.ACTION, event -> {
