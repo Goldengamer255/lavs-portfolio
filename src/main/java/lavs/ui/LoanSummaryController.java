@@ -135,8 +135,8 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
         String number = loanNumber;
         tasks.run(() -> repayments.getSummary(number), busy, this::showSummary,
                 error -> showError(SUMMARY_FAILED));
-        tasks.run(() -> loans.get(number), busy, this::showStatus, error -> {
-        });
+        tasks.run(() -> loans.get(number), busy, this::showStatus,
+                error -> showError(SUMMARY_FAILED));
     }
 
     private void showStatus(OperationResult<Loan> result) {
