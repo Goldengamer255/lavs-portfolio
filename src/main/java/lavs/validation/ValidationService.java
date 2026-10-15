@@ -9,7 +9,7 @@ import java.util.List;
 
 
 
-// AI-assisted: class and method signatures influenced by AI; bodies and TODO notes written by me.
+// AI-assisted: class and method signatures influenced by AI; All bodies and TODO notes written by me.
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {
