@@ -44,6 +44,10 @@ public final class CustomerSearchController implements ScreenLifecycle {
     @FXML
     private Button searchButton;
     @FXML
+    private TextField loanNumberField;
+    @FXML
+    private Button openLoanButton;
+    @FXML
     private ProgressIndicator searchSpinner;
     @FXML
     private TableView<CustomerSummary> customerTable;
@@ -92,6 +96,7 @@ public final class CustomerSearchController implements ScreenLifecycle {
             });
             return row;
         });
+        openLoanButton.disableProperty().bind(loanNumberField.textProperty().isEmpty());
     }
 
     /**
@@ -120,6 +125,11 @@ public final class CustomerSearchController implements ScreenLifecycle {
     @FXML
     private void handleAddCustomer() {
         navigator.showNewCustomer();
+    }
+
+    @FXML
+    private void handleOpenLoan() {
+        navigator.showLoanDetails(loanNumberField.getText().trim());
     }
 
     private void runSearch() {
