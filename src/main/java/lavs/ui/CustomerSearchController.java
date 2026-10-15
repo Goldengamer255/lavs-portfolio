@@ -2,6 +2,7 @@ package lavs.ui;
 
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executor;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -96,7 +97,8 @@ public final class CustomerSearchController implements ScreenLifecycle {
             });
             return row;
         });
-        openLoanButton.disableProperty().bind(loanNumberField.textProperty().isEmpty());
+        openLoanButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> loanNumberField.getText().trim().isEmpty(), loanNumberField.textProperty()));
     }
 
     /**
@@ -107,9 +109,11 @@ public final class CustomerSearchController implements ScreenLifecycle {
     public void onShow() {
         if (navigator.isPickingCoBorrower()) {
             titleLabel.setText("Choose a co-borrower");
+            loanNumberField.clear();
         } else {
             titleLabel.setText("Customers");
         }
+        loanNumberField.setDisable(navigator.isPickingCoBorrower());
 
         if (lastSearch != null) {
             runSearch();

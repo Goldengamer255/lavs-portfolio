@@ -10,14 +10,12 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane hgap="16.0" prefWidth="520.0" vgap="6.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane hgap="16.0" prefWidth="520.0" vgap="6.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <columnConstraints>
     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0" prefWidth="100.0" />
     <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0" prefWidth="100.0" />
   </columnConstraints>
   <rowConstraints>
-    <RowConstraints vgrow="SOMETIMES" />
-    <RowConstraints vgrow="SOMETIMES" />
     <RowConstraints vgrow="SOMETIMES" />
     <RowConstraints vgrow="SOMETIMES" />
     <RowConstraints vgrow="SOMETIMES" />
@@ -47,7 +45,7 @@
             <Label fx:id="primaryError" styleClass="field-error" text="Error" visible="false" />
          </children>
       </VBox>
-      <VBox fx:id="primaryError" spacing="4.0" GridPane.rowIndex="3">
+      <VBox spacing="4.0" GridPane.columnSpan="2" GridPane.rowIndex="3">
          <children>
             <Label fx:id="formErrorLabel" styleClass="field-error" text="Error" visible="false" wrapText="true" />
          </children>

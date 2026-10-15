@@ -85,7 +85,7 @@ public final class EmailDialogController {
     /**
      * Builds and returns an EmailInput record populated from the current form
      * values.
-     * 
+     *
      * @return the input data gathered from the form fields
      */
     public EmailInput read() {
@@ -99,7 +99,7 @@ public final class EmailDialogController {
     /**
      * Displays validation error messages on the form fields based on the given
      * report.
-     * 
+     *
      * @param report the validation report containing errors to display
      */
     public void showErrors(ValidationReport report) {

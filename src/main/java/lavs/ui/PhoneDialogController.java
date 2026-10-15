@@ -95,9 +95,9 @@ public final class PhoneDialogController {
     }
 
     /**
-     * Builds and returns an PhoneInput record populated from the current form
+     * Builds and returns a PhoneInput record populated from the current form
      * values.
-     * 
+     *
      * @return the input data gathered from the form fields
      */
     public PhoneInput read() {
@@ -113,7 +113,7 @@ public final class PhoneDialogController {
     /**
      * Displays validation error messages on the form fields based on the given
      * report.
-     * 
+     *
      * @param report the validation report containing errors to display
      */
     public void showErrors(ValidationReport report) {
