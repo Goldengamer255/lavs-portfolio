@@ -1,5 +1,6 @@
 package lavs.validation;
 
+import lavs.domain.Customer;
 import lavs.service.*;
 
 import java.time.LocalDate;
@@ -12,14 +13,27 @@ import java.util.List;
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {
-        // TODO: Checks that the required family name is present and the date of birth is not in the future
+        // All fields of customer are required checks that the required family name is present and the date of birth is not in the future and other fields are present
         List<ValidationIssue> issues = new ArrayList<>();
+
+        if (input.firstName() == null || input.firstName().isBlank()) {
+            issues.add(new ValidationIssue(CustomerField.FIRST_NAME.key(), "firstName is required"));
+        }
+
         if (input.familyName() == null || input.familyName().isBlank()) {
             issues.add(new ValidationIssue(CustomerField.FAMILY_NAME.key(), "familyName is required"));
         }
 
         if (input.dateOfBirth() != null && input.dateOfBirth().isAfter(LocalDate.now())) {
             issues.add(new ValidationIssue(CustomerField.DATE_OF_BIRTH.key(), "date of birth cannot be in the future"));
+        }
+
+        if (input.nationality() == null || input.nationality().isBlank()) {
+            issues.add(new ValidationIssue(CustomerField.NATIONALITY.key(), "nationality is required"));
+        }
+
+        if (input.title() == null || input.title().isBlank()) {
+            issues.add(new ValidationIssue(CustomerField.TITLE.key(), "title is required"));
         }
 
         return new ValidationReport(issues);
