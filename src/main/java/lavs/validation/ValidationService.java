@@ -12,7 +12,7 @@ import java.util.List;
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {
-        // TODO: Checks that the required family name is present and the date of birth is not in the future
+        // Checks that the required family name is present and the date of birth is not in the future
         List<ValidationIssue> issues = new ArrayList<>();
         if (input.familyName() == null || input.familyName().isBlank()) {
             issues.add(new ValidationIssue(CustomerField.FAMILY_NAME.key(), "familyName is required"));
@@ -26,8 +26,29 @@ public class ValidationService {
     }
 
     public ValidationReport validateAddress(AddressInput input) {
-        // TODO: Checks that the address is in the form line1, city, country, type, otherType if needed
-        return new ValidationReport(List.of());
+        // Checks that the address is in the form line1, city, country, type, otherType if needed
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (input.line1() == null || input.line1().isBlank()) {
+            issues.add(new ValidationIssue(AddressField.LINE1.key(), "line1 is required"));
+        }
+
+        if (input.city() == null || input.city().isBlank()) {
+            issues.add(new ValidationIssue(AddressField.CITY.key(), "city is required"));
+        }
+
+        if (input.country() == null || input.country().isBlank()) {
+            issues.add(new ValidationIssue(AddressField.COUNTRY.key(), "country is required"));
+        }
+
+        if (input.type() == null || input.type().isBlank()) {
+            issues.add(new ValidationIssue(AddressField.TYPE.key(), "type is required"));
+        }
+
+        if ("Other".equals(input.type()) && (input.otherType() == null || input.otherType().isBlank())) {
+            issues.add(new ValidationIssue(AddressField.OTHER_TYPE.key(), "otherType is required when type is Other"));
+        }
+
+        return new ValidationReport(issues);
     }
 
     public ValidationReport validateEmail(EmailInput input) {

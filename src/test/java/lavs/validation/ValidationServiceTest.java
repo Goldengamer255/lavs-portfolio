@@ -1,5 +1,6 @@
 package lavs.validation;
 
+import lavs.service.AddressInput;
 import lavs.service.CustomerInput;
 import lavs.service.ValidationReport;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ class ValidationServiceTest {
 
     private final ValidationService service = new ValidationService();
 
+    // VALIDATE CUSTOMER TESTS
     @Test
     void validCustomerHasNoIssues() {
         // 1. Arrange: build the input
@@ -75,5 +77,111 @@ class ValidationServiceTest {
         assertEquals(2, report.errors().size());
         assertEquals(CustomerField.FAMILY_NAME.key(), report.errors().get(0).fieldKey());
         assertEquals(CustomerField.DATE_OF_BIRTH.key(), report.errors().get(1).fieldKey());
+    }
+
+    // VALIDATE ADDRESS TESTS
+    @Test
+    void nullCityIsRejected() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", null, "NZ", "1010", "Home", null, true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.CITY.key(), report.errors().get(0).fieldKey());
+
+    }
+
+    @Test
+    void validAddressIsAccepted() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "NZ", "1010", "Home", null, true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void nullLine1IsRejected() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput(null, "ontario", "Central", "mexico", "NZ", "1010", "Home", null, true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.LINE1.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullCountryIsRejected() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", null , "1010", "Home", null, true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.COUNTRY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullTypeIsRejected() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "space" , "1010", null, null, true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void otherNoTypeRejected() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "space" , "1010", "Other", null, true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.OTHER_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void otherWithTypeAccepted() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "space" , "1010", "Other", "Indigenous", true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void multipleErrorsAreRejected() {
+        // 1. Arrange: build the input
+        AddressInput input = new AddressInput(null, "ontario", "Central", null, null , "1010", "Other", "Indigenous", true, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateAddress(input);
+
+        // 3. Assert: check the result
+        assertEquals(3, report.errors().size());
+        assertEquals(AddressField.LINE1.key(), report.errors().get(0).fieldKey());
+        assertEquals(AddressField.CITY.key(), report.errors().get(1).fieldKey());
+        assertEquals(AddressField.COUNTRY.key(), report.errors().get(2).fieldKey());
     }
 }
