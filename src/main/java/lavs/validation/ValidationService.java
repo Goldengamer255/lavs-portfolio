@@ -2,14 +2,27 @@ package lavs.validation;
 
 import lavs.service.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+
+
 
 // AI-assisted: class and method signatures influenced by AI; bodies and TODO notes written by me.
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {
         // TODO: Checks that the required family name is present and the date of birth is not in the future
-        return new ValidationReport(List.of());
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (input.familyName() == null || input.familyName().isBlank()) {
+            issues.add(new ValidationIssue(CustomerField.FAMILY_NAME.key(), "familyName is required"));
+        }
+
+        if (input.dateOfBirth() != null && input.dateOfBirth().isAfter(LocalDate.now())) {
+            issues.add(new ValidationIssue(CustomerField.DATE_OF_BIRTH.key(), "date of birth cannot be in the future"));
+        }
+
+        return new ValidationReport(issues);
     }
 
     public ValidationReport validateAddress(AddressInput input) {
