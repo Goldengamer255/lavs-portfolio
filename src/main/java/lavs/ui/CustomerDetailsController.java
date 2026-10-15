@@ -21,6 +21,9 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.HBox;
 import lavs.domain.Address;
+import lavs.domain.Phone;
+import lavs.domain.Email;
+import lavs.domain.Employer;
 import lavs.domain.Customer;
 import lavs.domain.LoanSummaryItem;
 import lavs.domain.Page;
@@ -64,6 +67,9 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private final ValidationFeedback feedback = new ValidationFeedback();
     private final BooleanProperty saving = new SimpleBooleanProperty(false);
     private AddressesTab addressesTab;
+    private PhonesTab phonesTab;
+    private EmailsTab emailsTab;
+    private EmployersTab employersTab;
 
     @FXML
     private Label customerNameLabel;
@@ -127,6 +133,12 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private Label formErrorLabel;
     @FXML
     private EntityListController<Address> addressesListController;
+    @FXML
+    private EntityListController<Phone> phonesListController;
+    @FXML
+    private EntityListController<Email> emailsListController;
+    @FXML
+    private EntityListController<Employer> employersListController;
 
     /**
      * Creates the controller with the services it needs. The worker is the shared
@@ -192,6 +204,9 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         });
 
         addressesTab = new AddressesTab(addressesListController, customers, categories, tasks, this::checkReadiness);
+        phonesTab = new PhonesTab(phonesListController, customers, categories, tasks, this::checkReadiness);
+        emailsTab = new EmailsTab(emailsListController, customers, categories, tasks, this::checkReadiness);
+        employersTab = new EmployersTab(employersListController, customers, categories, tasks, this::checkReadiness);
     }
 
     /**
@@ -303,6 +318,9 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         loadLoans();
         updateLinkButton();
         addressesTab.load(loaded.number());
+        phonesTab.load(loaded.number());
+        emailsTab.load(loaded.number());
+        employersTab.load(loaded.number());
     }
 
     private void startNewCustomer() {
