@@ -50,8 +50,6 @@ class ValidationServiceTest {
         assertEquals(CustomerField.FAMILY_NAME.key(), report.errors().get(0).fieldKey());
     }
 
-
-
     @Test
     void dateOfBirthIsFutureRejected() {
         // 1. Arrange: build the input
