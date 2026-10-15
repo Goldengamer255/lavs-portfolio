@@ -13,7 +13,7 @@ import java.util.List;
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {
-        // All fields of customer are required checks that the required family name is present and the date of birth is not in the future and other fields are present
+        // Required: first name, family name, nationality, title. Date of birth must not be in the future.
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.firstName() == null || input.firstName().isBlank()) {
