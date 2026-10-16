@@ -653,27 +653,131 @@ public class CustomerAdapter implements CustomerGateway {
 
   @Override
   public OperationResult<Employer> addEmployer(Employer employer) {
-    throw new UnsupportedOperationException("Employer creation is not implemented");
+    var message =
+        new mainframe.client.messages.customer.AddEmployer(
+            employer.customerNumber(),
+            employer.name(),
+            employer.position(),
+            employer.salary(),
+            employer.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Employer(
+              message.getId(),
+              null,
+              message.getCustomer(),
+              message.getName(),
+              message.getPosition(),
+              message.getSalary(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Boolean> deleteEmployer(String customerNumber, long employerId) {
-    throw new UnsupportedOperationException("Employer deletion is not implemented");
+    var message =
+        new mainframe.client.messages.customer.DeleteEmployer(customerNumber, employerId);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(true, status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Employer> updateEmployer(Employer employer) {
-    throw new UnsupportedOperationException("Employer update is not implemented");
+    var message =
+        new mainframe.client.messages.customer.UpdateEmployer(
+            employer.customerNumber(),
+            employer.id(),
+            employer.name(),
+            employer.position(),
+            employer.salary(),
+            employer.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Employer(
+              message.getId(),
+              null,
+              message.getCustomer(),
+              message.getName(),
+              message.getPosition(),
+              message.getSalary(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Page<EmployerSummary>> listEmployers(
       String customerNumber, long page, long size) {
-    throw new UnsupportedOperationException("Employer listing is not implemented");
+    var message =
+        new mainframe.client.messages.customerEmployer.List(customerNumber, page, size);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      var employers = new ArrayList<EmployerSummary>();
+      for (var item : message.getItems()) {
+        employers.add(new EmployerSummary(item.getId(), item.getName(), item.getType()));
+      }
+      return OperationResult.success(
+          new Page<>(employers, message.getPage(), size, message.getTotal()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Employer> retrieveEmployer(String customerNumber, long employerId) {
-    throw new UnsupportedOperationException("Employer retrieval is not implemented");
+    var message =
+        new mainframe.client.messages.customerEmployer.Retrieve(employerId, customerNumber);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Employer(
+              message.getId(),
+              message.getCustomerName(),
+              message.getCustomerNumber(),
+              message.getName(),
+              message.getPosition(),
+              message.getSalary(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 }
