@@ -194,27 +194,177 @@ public class CustomerAdapter implements CustomerGateway {
 
   // Address related methods
   @Override
-  public OperationResult<Address> addAddress(Address address) {}
+  public OperationResult<Address> addAddress(Address address) {
+    var message =
+        new mainframe.client.messages.customer.AddAddress(
+            address.city(),
+            address.country(),
+            address.customerNumber(),
+            address.isMailing(),
+            address.isPrimary(),
+            address.line1(),
+            address.line2(),
+            address.otherType(),
+            address.postCode(),
+            address.suburb(),
+            address.type());
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Address(
+              message.getId(),
+              message.getCustomer(),
+              message.getLine1(),
+              message.getLine2(),
+              message.getSuburb(),
+              message.getCity(),
+              message.getCountry(),
+              message.getPostCode(),
+              message.getType(),
+              message.getOtherType(),
+              message.getIsMailing(),
+              message.getIsPrimary()),
+          status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
+  }
 
   @Override
   public OperationResult<Boolean> deleteAddress(String customerNumber, long addressId) {
-    throw new UnsupportedOperationException("Address deletion is not implemented");
+    var message = new mainframe.client.messages.customer.DeleteAddress(customerNumber, addressId);
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(true, status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Address> updateAddress(Address address) {
-    throw new UnsupportedOperationException("Address update is not implemented");
+    var message =
+        new mainframe.client.messages.customer.UpdateAddress(
+            address.city(),
+            address.country(),
+            address.customerNumber(),
+            address.id(),
+            address.isMailing(),
+            address.isPrimary(),
+            address.line1(),
+            address.line2(),
+            address.otherType(),
+            address.postCode(),
+            address.suburb(),
+            address.type());
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Address(
+              message.getId(),
+              message.getCustomer(),
+              message.getLine1(),
+              message.getLine2(),
+              message.getSuburb(),
+              message.getCity(),
+              message.getCountry(),
+              message.getPostCode(),
+              message.getType(),
+              message.getOtherType(),
+              message.getIsMailing(),
+              message.getIsPrimary()),
+          status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Page<AddressSummary>> listAddresses(
       String customerNumber, long page, long size) {
-    throw new UnsupportedOperationException("Address listing is not implemented");
+    var message = new mainframe.client.messages.customerAddress.List(customerNumber, page, size);
+
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+
+      var addresses = new ArrayList<AddressSummary>();
+      for (var item : message.getItems()) {
+        addresses.add(
+            new AddressSummary(
+                item.getId(),
+                item.getCity(),
+                item.getCountry(),
+                item.getType(),
+                "y".equals(item.getIsMailing()),
+                "y".equals(item.getIsPrimary())));
+      }
+      var result = new Page<AddressSummary>(addresses, message.getPage(), size, message.getTotal());
+
+      return OperationResult.success(result, status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Address> retrieveAddress(String customerNumber, long addressId) {
-    throw new UnsupportedOperationException("Address retrieval is not implemented");
+    var message = new mainframe.client.messages.customerAddress.Retrieve(addressId, customerNumber);
+
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Address(
+              message.getId(),
+              message.getCustomerNumber(),
+              message.getLine1(),
+              message.getLine2(),
+              message.getSuburb(),
+              message.getCity(),
+              message.getCountry(),
+              message.getPostCode(),
+              message.getType(),
+              message.getOtherType(),
+              message.getIsMailing(),
+              message.getIsPrimary()),
+          status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   // Phone related methods
