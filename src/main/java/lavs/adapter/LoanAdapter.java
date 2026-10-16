@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.function.Supplier;
+
 import lavs.domain.CoBorrower;
 import lavs.domain.Loan;
 import lavs.domain.LoanSummary;
@@ -33,6 +34,7 @@ public class LoanAdapter implements LoanGateway {
     return value == null ? null : value.toString();
   }
 
+  //Ai assisted helper function to send a message and map the response to an OperationResult
   private <T> OperationResult<T> send(Message message, Supplier<T> mapResponse) {
     try {
       Status status = message.send(connection);
@@ -192,26 +194,52 @@ public class LoanAdapter implements LoanGateway {
         });
   }
 
-  // Co-borrower operations will be implemented separately.
   @Override
   public OperationResult<Long> addCoborrower(
       String loanNumber, String coborrowerNumber, String type) {
-    throw new UnsupportedOperationException("Adding co-borrowers is not implemented");
+    var message =
+        new mainframe.client.messages.loan.AddCoborrower(coborrowerNumber, loanNumber, type);
+    return send(message, message::getId);
   }
 
   @Override
   public OperationResult<Boolean> deleteCoborrower(String loanNumber, long id) {
-    throw new UnsupportedOperationException("Deleting co-borrowers is not implemented");
+    var message = new mainframe.client.messages.loan.DeleteCoborrower(id, loanNumber);
+    return send(message, () -> true);
   }
 
   @Override
   public OperationResult<Page<CoBorrower>> listCoborrowers(
       String loanNumber, long page, long size) {
-    throw new UnsupportedOperationException("Listing co-borrowers is not implemented");
+    var message = new mainframe.client.messages.loanCoborrower.List(loanNumber, page, size);
+    return send(
+        message,
+        () -> {
+          var items = new ArrayList<CoBorrower>();
+          for (var item : message.getItems()) {
+            items.add(
+                new CoBorrower(
+                    item.getId(),
+                    message.getLoanNumber(),
+                    item.getCoborrowerNumber(),
+                    item.getCoborrowerName(),
+                    item.getType()));
+          }
+          return new Page<>(items, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
   public OperationResult<CoBorrower> retrieveCoborrower(String loanNumber, long id) {
-    throw new UnsupportedOperationException("Retrieving co-borrowers is not implemented");
+    var message = new mainframe.client.messages.loanCoborrower.Retrieve(id, loanNumber);
+    return send(
+        message,
+        () ->
+            new CoBorrower(
+                message.getId(),
+                message.getLoanNumber(),
+                message.getCoborrowerNumber(),
+                message.getCoborrowerName(),
+                message.getType()));
   }
 }
