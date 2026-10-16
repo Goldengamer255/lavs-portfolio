@@ -13,25 +13,26 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox prefHeight="700.0" prefWidth="1000.0" spacing="16.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="700.0" prefWidth="1000.0" spacing="16.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.LoanDetailsController">
    <padding>
       <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
    </padding>
    <children>
       <HBox alignment="CENTER_LEFT" spacing="12.0">
          <children>
+            <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
             <Label fx:id="loanTitleLabel" styleClass="screen-title" text="New Loan" />
             <Label fx:id="applicantLabel" styleClass="hint-text" text="Applicant: -" />
             <ProgressIndicator fx:id="loadingSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="statusLabel" styleClass="field-label" text="Status: New" />
-            <Button fx:id="changeStatusButton" mnemonicParsing="false" styleClass="secondary-button" text="Change Status ›" />
+            <Button fx:id="changeStatusButton" mnemonicParsing="false" onAction="#handleChangeStatus" styleClass="secondary-button" text="Change Status ›" />
          </children>
       </HBox>
       <HBox fx:id="saveErrorBanner" alignment="CENTER_LEFT" spacing="12.0" styleClass="error-banner" visible="false">
          <children>
             <Label fx:id="saveErrorLabel" maxWidth="1.7976931348623157E308" text="Not saved yet. The mainframe couldn't be reached." wrapText="true" HBox.hgrow="ALWAYS" />
-            <Button fx:id="retryButton" mnemonicParsing="false" styleClass="secondary-button" text="Retry" />
+            <Button fx:id="retryButton" mnemonicParsing="false" onAction="#handleRetry" styleClass="secondary-button" text="Retry" />
          </children>
       </HBox>
       <VBox spacing="16.0" styleClass="card">
@@ -108,12 +109,13 @@
                   </VBox>
                </children>
             </HBox>
+         <Label fx:id="formErrorLabel" styleClass="field-error" visible="false" wrapText="true" />
          </children>
       </VBox>
          <HBox alignment="CENTER_LEFT" spacing="8.0">
          <children>
-            <Button fx:id="saveButton" mnemonicParsing="false" styleClass="primary-button" text="Save Loan" />
-            <Button fx:id="viewSummaryButton" mnemonicParsing="false" styleClass="secondary-button" text="View Summary ›" />
+            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Save Loan" />
+            <Button fx:id="viewSummaryButton" mnemonicParsing="false" onAction="#handleViewSummary" styleClass="secondary-button" text="View Summary ›" />
             <ProgressIndicator fx:id="saveSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
          </children>
       </HBox>
