@@ -2,6 +2,7 @@ package lavs.validation;
 
 import lavs.service.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -128,9 +129,74 @@ public class ValidationService {
         return new ValidationReport(issues);
     }
 
+    private static BigDecimal parseNumber(String s) {
+        try {
+            return new BigDecimal(s.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    // AI-assisted: parseNumber helper and BigDecimal approach for rate and payment fields influenced by AI; rest of method written by me.
     public ValidationReport validateLoan(LoanInput input) {
-        //TODO: The principal and payment must be greater than 0, frequencies required, and renewal date after start date
-        return new ValidationReport(List.of());
+        //The principal and payment must be greater than 0, frequencies required, and renewal date after start date
+        List<ValidationIssue> issues = new ArrayList<>();
+
+        if (input.principal() == null || input.principal().isBlank()) {
+            issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "principal is required"));
+        } else {
+            BigDecimal value = parseNumber(input.principal());
+            if (value == null) {
+                issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "principal must be a number"));
+            } else if (value.signum() <= 0) {
+                issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "principal must be greater than 0"));
+            }
+        }
+
+        if (input.paymentAmount() == null || input.paymentAmount().isBlank()) {
+            issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "paymentAmount is required"));
+        } else {
+            BigDecimal value = parseNumber(input.paymentAmount());
+            if (value == null) {
+                issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "paymentAmount must be a number"));
+            } else if (value.signum() <= 0) {
+                issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "paymentAmount must be greater than 0"));
+            }
+        }
+
+        if (input.rateType() == null || input.rateType().isBlank()) {
+            issues.add(new ValidationIssue(LoanField.RATE_TYPE.key(), "rateType is required"));
+        }
+
+        if (input.rateAmount() == null || input.rateAmount().isBlank()) {
+            issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "rateAmount is required"));
+        } else {
+            BigDecimal value = parseNumber(input.rateAmount());
+            if (value == null) {
+                issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "rateAmount must be a number"));
+            } else if (value.signum() < 0) {
+                issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "rateAmount must not be negative"));
+            }
+        }
+
+        if (input.rateFrequency() == null || input.rateFrequency().isBlank()) {
+            issues.add(new ValidationIssue(LoanField.RATE_FREQUENCY.key(), "rateFrequency is required"));
+        }
+
+        if (input.paymentFrequency() == null || input.paymentFrequency().isBlank()) {
+            issues.add(new ValidationIssue(LoanField.PAYMENT_FREQUENCY.key(), "paymentFrequency is required"));
+        }
+
+        if (input.startDate() == null) {
+            issues.add(new ValidationIssue(LoanField.START_DATE.key(), "start date is required"));
+        }
+        if (input.renewalDate() == null) {
+            issues.add(new ValidationIssue(LoanField.RENEWAL_DATE.key(), "renewal date is required"));
+        } else if (input.startDate() != null && !input.renewalDate().isAfter(input.startDate())) {
+            issues.add(new ValidationIssue(LoanField.RENEWAL_DATE.key(), "renewal date must be after the start date"));
+        }
+
+        return new ValidationReport(issues);
     }
 
 }

@@ -654,4 +654,320 @@ class ValidationServiceTest {
         assertEquals(EmployerField.SALARY.key(), report.errors().get(2).fieldKey());
         assertEquals(EmployerField.TYPE.key(), report.errors().get(3).fieldKey());
     }
+
+    //VALIDATE LOAN TESTS
+    @Test
+    void validLoanIsAccepted() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "3000", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void nullPrincipalIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput(null, "3000", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PRINCIPAL.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankPrincipalIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput(" ", "3000", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PRINCIPAL.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void letterPrincipalIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("abc", "3000", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PRINCIPAL.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void negativePrincipalIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("-100000", "3000", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PRINCIPAL.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void zeroPrincipalIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("0", "3000", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PRINCIPAL.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullPaymentIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", null, "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankPaymentIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", " ", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void letterPaymentIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "abc", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void negativePaymentIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "-100", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void zeroPaymentIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "0", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void negativeRateIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "-6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void letterRateIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "abc", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void zeroRateIsAccepted() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "0", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void nullRateTypeIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", null, "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullRateFrequencyIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", null, "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_FREQUENCY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullPaymentFrequencyIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", null, LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_FREQUENCY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullRateAmountIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", null, "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+
+
+    @Test
+    void nullStartDateIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", "Monthly", null, LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.START_DATE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullRenewDateIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), null);
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RENEWAL_DATE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void bothNullDateIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", "Monthly", null, null);
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(2, report.errors().size());
+        assertEquals(LoanField.START_DATE.key(), report.errors().get(0).fieldKey());
+        assertEquals(LoanField.RENEWAL_DATE.key(), report.errors().get(1).fieldKey());
+    }
+
+    @Test
+    void SameDatesIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2026, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RENEWAL_DATE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void renewBeforeStartDateIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 5, 2), LocalDate.of(2026, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RENEWAL_DATE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void multipleLoanErrorsIsRejected() {
+        // Arrange: build the input
+        LoanInput input = new LoanInput(null, null, "6.4", "Fixed", "Yearly", "Monthly", null, LocalDate.of(2027, 2, 2));
+
+        // Act: call the method
+        ValidationReport report = service.validateLoan(input);
+
+        // Assert: check the result
+        assertEquals(3, report.errors().size());
+        assertEquals(LoanField.PRINCIPAL.key(), report.errors().get(0).fieldKey());
+        assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(1).fieldKey());
+        assertEquals(LoanField.START_DATE.key(), report.errors().get(2).fieldKey());
+    }
 }
