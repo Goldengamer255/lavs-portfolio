@@ -471,4 +471,187 @@ class ValidationServiceTest {
         assertEquals(PhoneField.NUMBER.key(), report.errors().get(0).fieldKey());
     }
 
+    //Validation EmployerInput
+    @Test
+    void validEmployerIsAccepted() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", "500000", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void validEmployerWithDecimalSalaryIsAccepted() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", "500000.10", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void negativeSalaryIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", "-500000.10", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.SALARY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankSalaryIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", " ", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.SALARY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nonNumberSalaryIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", "abc", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.SALARY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void decimalNumberSalaryIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", "11.0231", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.SALARY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullNameIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput(null, "Bathroom", "500000", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.NAME.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullPositionIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", null, "500000", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.POSITION.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankNameIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput(" ", "Bathroom", "500000", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.NAME.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankPositionIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", " ", "500000", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.POSITION.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullSalaryIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Waiter", null, "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.SALARY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullEmployerTypeIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Artist", "500000", null);
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankEmployerTypeIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Artist", "500000", " ");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmployerField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void multipleEmployerErrorsIsRejected() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput(null, null, "-500000", null);
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(4, report.errors().size());
+        assertEquals(EmployerField.NAME.key(), report.errors().get(0).fieldKey());
+        assertEquals(EmployerField.POSITION.key(), report.errors().get(1).fieldKey());
+        assertEquals(EmployerField.SALARY.key(), report.errors().get(2).fieldKey());
+        assertEquals(EmployerField.TYPE.key(), report.errors().get(3).fieldKey());
+    }
 }

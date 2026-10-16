@@ -105,9 +105,27 @@ public class ValidationService {
         return new ValidationReport(issues);
     }
 
+    // AI-assisted: salary regex from AI; rest of method written by me.
     public ValidationReport validateEmployer(EmployerInput input) {
-        //TODO: name required unless the customer has no job, and salary must be a number
-        return new ValidationReport(List.of());
+        // All fields required
+        List<ValidationIssue> issues = new ArrayList<>();
+
+        if (input.name() == null || input.name().isBlank()) {
+            issues.add(new ValidationIssue(EmployerField.NAME.key(), "name is required"));
+        }
+        if (input.position() == null || input.position().isBlank()) {
+            issues.add(new ValidationIssue(EmployerField.POSITION.key(), "position is required"));
+        }
+        if (input.salary() == null || input.salary().isBlank()) {
+            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "salary is required"));
+        } else if (!input.salary().matches("\\d+(\\.\\d{1,2})?")) {
+            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "salary must be a positive number"));
+        }
+        if (input.type() == null || input.type().isBlank()) {
+            issues.add(new ValidationIssue(EmployerField.TYPE.key(), "type is required"));
+        }
+
+        return new ValidationReport(issues);
     }
 
     public ValidationReport validateLoan(LoanInput input) {
