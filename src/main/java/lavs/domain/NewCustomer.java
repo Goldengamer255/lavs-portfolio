@@ -8,5 +8,4 @@ public record NewCustomer(
     LocalDate dateOfBirth,
     String nationality,
     long organisation,
-    String title
-) {}
+    String title) {}
