@@ -119,8 +119,11 @@ public class ValidationService {
         }
         if (input.salary() == null || input.salary().isBlank()) {
             issues.add(new ValidationIssue(EmployerField.SALARY.key(), "Salary is required"));
-        } else if (!input.salary().matches("\\d+(\\.\\d{1,2})?")) {
-            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "Salary must be a positive number"));
+        } else {
+            BigDecimal salary = parseNumber(input.salary());
+            if (salary == null || salary.signum() < 0 || salary.scale() > 2) {
+                issues.add(new ValidationIssue(EmployerField.SALARY.key(), "Salary must be a positive number"));
+            }
         }
         if (input.type() == null || input.type().isBlank()) {
             issues.add(new ValidationIssue(EmployerField.TYPE.key(), "Type is required"));

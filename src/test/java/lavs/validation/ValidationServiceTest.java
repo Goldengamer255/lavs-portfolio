@@ -549,6 +549,18 @@ class ValidationServiceTest {
     }
 
     @Test
+    void regressionEmployerIsAccepted() {
+        // Arrange: build the input
+        EmployerInput input = new EmployerInput("McDonalds", "Bathroom", "1.0E7", "Primary");
+
+        // Act: call the method
+        ValidationReport report = service.validateEmployer(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
     void nullNameIsRejected() {
         // Arrange: build the input
         EmployerInput input = new EmployerInput(null, "Bathroom", "500000", "Primary");
