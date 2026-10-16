@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 
 
-<VBox spacing="8.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.support.EntityListController">
+<VBox spacing="8.0" xmlns="http://javafx.com/javafx/17.0.18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.support.EntityListController">
    <padding>
       <Insets bottom="12.0" left="12.0" right="12.0" top="12.0" />
    </padding>
