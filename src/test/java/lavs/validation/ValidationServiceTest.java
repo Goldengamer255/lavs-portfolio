@@ -1,9 +1,6 @@
 package lavs.validation;
 
-import lavs.service.AddressInput;
-import lavs.service.CustomerInput;
-import lavs.service.EmailInput;
-import lavs.service.ValidationReport;
+import lavs.service.*;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -301,6 +298,177 @@ class ValidationServiceTest {
 
         // 3. Assert: check the result
         assertEquals(0, report.errors().size());
+    }
+
+    //VALIDATE PHONE
+    @Test
+    void validPhoneIsAccepted() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+63", "1-223-4567", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void validPhoneWithSpacesIsAccepted() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+63", "1 223 4567", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+
+    @Test
+    void blankNumberIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+63", " ", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.NUMBER.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void invalidNumberIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+63", "abc", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.NUMBER.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullNumberIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+63", null, "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.NUMBER.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullCountryCodeIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput(null, "1-223-4567", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.COUNTRY_CODE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankCountryCodeIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput(" ", "1-223-4567", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.COUNTRY_CODE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void noPlusCountryCodeIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("64", "1-223-4567", "Home", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.COUNTRY_CODE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void missingTypeIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+64", "1-223-4567", null, null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void otherWithNoOtherTypeIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+64", "1-223-4567", "Other", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.OTHER_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void otherWithOtherTypeIsAccepted() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+64", "1-223-4567", "Other", "Personal", true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void multipleErrorsIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput(null, "abc", "Other", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(3, report.errors().size());
+        assertEquals(PhoneField.COUNTRY_CODE.key(), report.errors().get(0).fieldKey());
+        assertEquals(PhoneField.NUMBER.key(), report.errors().get(1).fieldKey());
+        assertEquals(PhoneField.OTHER_TYPE.key(), report.errors().get(2).fieldKey());
+    }
+
+    // Dashes with no numbers is rejected
+    @Test
+    void multipleDashNumberIsRejected() {
+        // Arrange: build the input
+        PhoneInput input = new PhoneInput("+64", "---", "Work", null, true, true);
+
+        // Act: call the method
+        ValidationReport report = service.validatePhone(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.NUMBER.key(), report.errors().get(0).fieldKey());
     }
 
 }

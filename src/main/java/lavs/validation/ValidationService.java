@@ -75,9 +75,34 @@ public class ValidationService {
         return new ValidationReport(issues);
     }
 
+    // AI-assisted: phone regexes and digit-check regexes from AI; rest of method written by me.
     public ValidationReport validatePhone(PhoneInput input) {
-        //TODO: Checks if the phone number is in numbers only and digits only, and other type is used when needed
-        return new ValidationReport(List.of());
+        // Checks if the phone number is in numbers only and digits only, and other type is used when needed
+        List<ValidationIssue> issues = new ArrayList<>();
+
+        if (input.countryCode() == null || input.countryCode().isBlank()) {
+            issues.add(new ValidationIssue(PhoneField.COUNTRY_CODE.key(), "countryCode is required"));
+        } else if (!input.countryCode().matches("\\+\\d{1,3}")) {
+            issues.add(new ValidationIssue(PhoneField.COUNTRY_CODE.key(), "countryCode is not valid"));
+        }
+
+        if (input.number() == null || input.number().isBlank()) {
+            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "number is required"));
+        } else if (!input.number().matches("[0-9\\s-]+")) {
+            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "number is not a valid number"));
+        } else if (!input.number().matches(".*\\d.*")) {
+            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "number must contain at least one digit"));
+        }
+
+        if (input.type() == null || input.type().isBlank()) {
+            issues.add(new ValidationIssue(PhoneField.TYPE.key(), "type is required"));
+        }
+
+        if ("Other".equals(input.type())  && (input.otherType() == null || input.otherType().isBlank())) {
+            issues.add(new ValidationIssue(PhoneField.OTHER_TYPE.key(), "otherType is required"));
+        }
+
+        return new ValidationReport(issues);
     }
 
     public ValidationReport validateEmployer(EmployerInput input) {
