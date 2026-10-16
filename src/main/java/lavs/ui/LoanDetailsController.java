@@ -63,6 +63,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
     private final BooleanProperty loading = new SimpleBooleanProperty(false);
     private final BooleanProperty saving = new SimpleBooleanProperty(false);
     private final BooleanProperty hasLoan = new SimpleBooleanProperty(false);
+    private final BooleanProperty creatingNew = new SimpleBooleanProperty(false);
     private final Map<String, Runnable> failures = new LinkedHashMap<>();
 
     private LoanScreenContext context;
@@ -156,22 +157,23 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
     @FXML
     private void initialize() {
         BooleanBinding locked = loading.or(saving);
+        BooleanBinding formLocked = locked.or(hasLoan.not().and(creatingNew.not()));
         loadingSpinner.visibleProperty().bind(loading);
         saveSpinner.visibleProperty().bind(saving);
         saveErrorBanner.managedProperty().bind(saveErrorBanner.visibleProperty());
 
         for (TextField field : List.of(principalField, paymentAmountField, rateField)) {
-            field.editableProperty().bind(locked.not());
+            field.editableProperty().bind(formLocked.not());
         }
         for (Control control : List.of(rateTypeCombo, rateFrequencyCombo, paymentFrequencyCombo,
                 startDatePicker, renewalDatePicker)) {
-            control.disableProperty().bind(locked);
+            control.disableProperty().bind(formLocked);
         }
-        saveButton.disableProperty().bind(locked);
+        saveButton.disableProperty().bind(formLocked);
         retryButton.disableProperty().bind(locked);
         backButton.disableProperty().bind(saving);
         viewSummaryButton.disableProperty().bind(hasLoan.not().or(saving));
-        changeStatusButton.disableProperty().bind(hasLoan.not().or(locked));
+        changeStatusButton.disableProperty().bind(hasLoan.not().or(formLocked));
         coborrowersList.disableProperty().bind(hasLoan.not());
 
         feedback.register(LoanField.PRINCIPAL.key(), principalField, principalError);
@@ -242,6 +244,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
         filling = false;
         dirty = false;
         hasLoan.set(false);
+        creatingNew.set(true);
         feedback.clear();
     }
 
@@ -279,6 +282,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
         filling = false;
         dirty = false;
         hasLoan.set(true);
+        creatingNew.set(false);
         feedback.clear();
     }
 
@@ -322,7 +326,10 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
     private void handleSave() {
         clearFailure(SAVE_FAILED);
         LoanInput input = readForm();
-        boolean creating = loan == null;
+        boolean creating = context.mode() == ScreenMode.NEW && loan == null;
+        if (!creating && loan == null) {
+            return;
+        }
         String customerNumber = context.customerNumber();
         String loanNumber = creating ? null : loan.loanNumber();
         tasks.run(() -> creating ? loans.create(customerNumber, input) : loans.update(loanNumber, input),
