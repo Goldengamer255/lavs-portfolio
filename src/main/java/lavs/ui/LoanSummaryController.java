@@ -24,7 +24,8 @@ import lavs.ui.support.TaskRunner;
 
 // AI-assisted: paging, loading and retry logic from Claude; the rest written by me
 /**
- * Loan summary screen controller: shows loan totals + paged repayment schedule.
+ * - Loan summary screen controller: shows loan totals + paged repayment
+ * schedule.
  */
 public final class LoanSummaryController implements LoanContextAware, ScreenLifecycle {
 
@@ -43,6 +44,8 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
     private String loanNumber;
     private long page = 1;
     private long totalPages = 1;
+    private boolean summaryFailed = false;
+    private boolean scheduleFailed = false;
 
     @FXML
     private Label titleLabel;
@@ -90,8 +93,8 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
     private Button nextPageButton;
 
     /**
-     * Creates the controller with the services it needs. The worker is the shared
-     * background executor from the application shell.
+     * - Creates the controller with the services it needs. The worker is the shared
+     * - background executor from the application shell.
      */
     public LoanSummaryController(RepaymentService repayments, LoanService loans, Navigator navigator, Executor worker) {
         this.repayments = repayments;
@@ -126,7 +129,9 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
     public void onShow() {
         titleLabel.setText("Loan " + loanNumber + " Summary");
         statusLabel.setText("Status: -");
-        errorLabel.setVisible(false);
+        summaryFailed = false;
+        scheduleFailed = false;
+        updateErrorDisplay();
         loadSummary();
         loadPage(page);
     }
@@ -134,20 +139,30 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
     private void loadSummary() {
         String number = loanNumber;
         tasks.run(() -> repayments.getSummary(number), busy, this::showSummary,
-                error -> showError(SUMMARY_FAILED));
+                error -> {
+                    summaryFailed = true;
+                    updateErrorDisplay();
+                });
         tasks.run(() -> loans.get(number), busy, this::showStatus,
-                error -> showError(SUMMARY_FAILED));
+                error -> {
+                    summaryFailed = true;
+                    updateErrorDisplay();
+                });
     }
 
     private void showStatus(OperationResult<Loan> result) {
         if (result.isSuccess()) {
             statusLabel.setText("Status: " + result.value().status());
+        } else {
+            summaryFailed = true;
+            updateErrorDisplay();
         }
     }
 
     private void showSummary(OperationResult<LoanSummary> result) {
         if (!result.isSuccess()) {
-            showError(SUMMARY_FAILED);
+            summaryFailed = true;
+            updateErrorDisplay();
             return;
         }
         LoanSummary summary = result.value();
@@ -167,22 +182,26 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
         tasks.run(() -> repayments.getSchedule(number, requested, PAGE_SIZE), busy,
                 result -> showPage(result, requested),
                 error -> {
-                    showError(SCHEDULE_FAILED);
+                    scheduleFailed = true;
+                    updateErrorDisplay();
                     updatePager();
                 });
     }
 
     private void showPage(OperationResult<Page<RepaymentScheduleItem>> result, long requested) {
         if (!result.isSuccess()) {
-            showError(SCHEDULE_FAILED);
+            scheduleFailed = true;
+            updateErrorDisplay();
             updatePager();
             return;
         }
+
+        scheduleFailed = false;
+        updateErrorDisplay();
+
         Page<RepaymentScheduleItem> schedule = result.value();
         page = requested;
-        if (SCHEDULE_FAILED.equals(errorLabel.getText())) {
-            errorLabel.setVisible(false);
-        }
+
         scheduleTable.getItems().setAll(schedule.items());
         totalPages = Math.max(1, (schedule.total() + PAGE_SIZE - 1) / PAGE_SIZE);
         updatePager();
@@ -214,9 +233,16 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
         loadPage(page + 1);
     }
 
-    private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
+    private void updateErrorDisplay() {
+        if (summaryFailed) {
+            errorLabel.setText(SUMMARY_FAILED);
+            errorLabel.setVisible(true);
+        } else if (scheduleFailed) {
+            errorLabel.setText(SCHEDULE_FAILED);
+            errorLabel.setVisible(true);
+        } else {
+            errorLabel.setVisible(false);
+        }
     }
 
     private static ReadOnlyStringWrapper text(String value) {
