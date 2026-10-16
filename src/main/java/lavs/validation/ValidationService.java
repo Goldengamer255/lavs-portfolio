@@ -30,23 +30,23 @@ public class ValidationService {
         // Checks that the address is in the form line1, city, country, type, otherType if needed
         List<ValidationIssue> issues = new ArrayList<>();
         if (input.line1() == null || input.line1().isBlank()) {
-            issues.add(new ValidationIssue(AddressField.LINE1.key(), "line1 is required"));
+            issues.add(new ValidationIssue(AddressField.LINE1.key(), "Line1 is required"));
         }
 
         if (input.city() == null || input.city().isBlank()) {
-            issues.add(new ValidationIssue(AddressField.CITY.key(), "city is required"));
+            issues.add(new ValidationIssue(AddressField.CITY.key(), "City is required"));
         }
 
         if (input.country() == null || input.country().isBlank()) {
-            issues.add(new ValidationIssue(AddressField.COUNTRY.key(), "country is required"));
+            issues.add(new ValidationIssue(AddressField.COUNTRY.key(), "Country is required"));
         }
 
         if (input.type() == null || input.type().isBlank()) {
-            issues.add(new ValidationIssue(AddressField.TYPE.key(), "type is required"));
+            issues.add(new ValidationIssue(AddressField.TYPE.key(), "Type of Address is required"));
         }
 
         if ("Other".equals(input.type()) && (input.otherType() == null || input.otherType().isBlank())) {
-            issues.add(new ValidationIssue(AddressField.OTHER_TYPE.key(), "otherType is required when type is Other"));
+            issues.add(new ValidationIssue(AddressField.OTHER_TYPE.key(), "Other type is required when type of Address is other"));
         }
 
         return new ValidationReport(issues);
@@ -58,15 +58,15 @@ public class ValidationService {
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.address() == null || input.address().isBlank()) {
-            issues.add(new ValidationIssue(EmailField.ADDRESS.key(), "address is required"));
+            issues.add(new ValidationIssue(EmailField.ADDRESS.key(), "Address is required"));
         }
 
         else if (!input.address().matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
-            issues.add(new ValidationIssue(EmailField.ADDRESS.key(), "address is not a valid email"));
+            issues.add(new ValidationIssue(EmailField.ADDRESS.key(), "Email address is not a valid email"));
         }
 
         if ( "Other".equals(input.type()) && (input.otherType() == null || input.otherType().isBlank())) {
-            issues.add(new ValidationIssue(EmailField.OTHER_TYPE.key(), "otherType is required field when the type is Other"));
+            issues.add(new ValidationIssue(EmailField.OTHER_TYPE.key(), "Other type is required field when the email type is other"));
         }
 
         if (input.type() == null || input.type().isBlank()) {
@@ -82,25 +82,25 @@ public class ValidationService {
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.countryCode() == null || input.countryCode().isBlank()) {
-            issues.add(new ValidationIssue(PhoneField.COUNTRY_CODE.key(), "countryCode is required"));
+            issues.add(new ValidationIssue(PhoneField.COUNTRY_CODE.key(), "Country code is required"));
         } else if (!input.countryCode().matches("\\+\\d{1,3}")) {
-            issues.add(new ValidationIssue(PhoneField.COUNTRY_CODE.key(), "countryCode is not valid"));
+            issues.add(new ValidationIssue(PhoneField.COUNTRY_CODE.key(), "Country code is not valid"));
         }
 
         if (input.number() == null || input.number().isBlank()) {
-            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "number is required"));
+            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "Number is required"));
         } else if (!input.number().matches("[0-9\\s-]+")) {
-            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "number is not a valid number"));
+            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "Number is not a valid number"));
         } else if (!input.number().matches(".*\\d.*")) {
-            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "number must contain at least one digit"));
+            issues.add(new ValidationIssue(PhoneField.NUMBER.key(), "Number must contain at least one digit"));
         }
 
         if (input.type() == null || input.type().isBlank()) {
-            issues.add(new ValidationIssue(PhoneField.TYPE.key(), "type is required"));
+            issues.add(new ValidationIssue(PhoneField.TYPE.key(), "Type of number is required"));
         }
 
         if ("Other".equals(input.type())  && (input.otherType() == null || input.otherType().isBlank())) {
-            issues.add(new ValidationIssue(PhoneField.OTHER_TYPE.key(), "otherType is required"));
+            issues.add(new ValidationIssue(PhoneField.OTHER_TYPE.key(), "Other type is required if type of number is other"));
         }
 
         return new ValidationReport(issues);
@@ -112,18 +112,18 @@ public class ValidationService {
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.name() == null || input.name().isBlank()) {
-            issues.add(new ValidationIssue(EmployerField.NAME.key(), "name is required"));
+            issues.add(new ValidationIssue(EmployerField.NAME.key(), "Name is required"));
         }
         if (input.position() == null || input.position().isBlank()) {
-            issues.add(new ValidationIssue(EmployerField.POSITION.key(), "position is required"));
+            issues.add(new ValidationIssue(EmployerField.POSITION.key(), "Position is required"));
         }
         if (input.salary() == null || input.salary().isBlank()) {
-            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "salary is required"));
+            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "Salary is required"));
         } else if (!input.salary().matches("\\d+(\\.\\d{1,2})?")) {
-            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "salary must be a positive number"));
+            issues.add(new ValidationIssue(EmployerField.SALARY.key(), "Salary must be a positive number"));
         }
         if (input.type() == null || input.type().isBlank()) {
-            issues.add(new ValidationIssue(EmployerField.TYPE.key(), "type is required"));
+            issues.add(new ValidationIssue(EmployerField.TYPE.key(), "Type is required"));
         }
 
         return new ValidationReport(issues);
@@ -143,57 +143,57 @@ public class ValidationService {
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.principal() == null || input.principal().isBlank()) {
-            issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "principal is required"));
+            issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "Principal is required"));
         } else {
             BigDecimal value = parseNumber(input.principal());
             if (value == null) {
-                issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "principal must be a number"));
+                issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "Principal must be a number"));
             } else if (value.signum() <= 0) {
-                issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "principal must be greater than 0"));
+                issues.add(new ValidationIssue(LoanField.PRINCIPAL.key(), "Principal must be greater than 0"));
             }
         }
 
         if (input.paymentAmount() == null || input.paymentAmount().isBlank()) {
-            issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "paymentAmount is required"));
+            issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "Payment amount is required"));
         } else {
             BigDecimal value = parseNumber(input.paymentAmount());
             if (value == null) {
-                issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "paymentAmount must be a number"));
+                issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "Payment amount must be a number"));
             } else if (value.signum() <= 0) {
-                issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "paymentAmount must be greater than 0"));
+                issues.add(new ValidationIssue(LoanField.PAYMENT_AMOUNT.key(), "Payment amount must be greater than 0"));
             }
         }
 
         if (input.rateType() == null || input.rateType().isBlank()) {
-            issues.add(new ValidationIssue(LoanField.RATE_TYPE.key(), "rateType is required"));
+            issues.add(new ValidationIssue(LoanField.RATE_TYPE.key(), "Rate type is required"));
         }
 
         if (input.rateAmount() == null || input.rateAmount().isBlank()) {
-            issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "rateAmount is required"));
+            issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "Rate amount is required"));
         } else {
             BigDecimal value = parseNumber(input.rateAmount());
             if (value == null) {
-                issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "rateAmount must be a number"));
+                issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "Rate amount must be a number"));
             } else if (value.signum() < 0) {
-                issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "rateAmount must not be negative"));
+                issues.add(new ValidationIssue(LoanField.RATE_AMOUNT.key(), "Rate amount must not be negative"));
             }
         }
 
         if (input.rateFrequency() == null || input.rateFrequency().isBlank()) {
-            issues.add(new ValidationIssue(LoanField.RATE_FREQUENCY.key(), "rateFrequency is required"));
+            issues.add(new ValidationIssue(LoanField.RATE_FREQUENCY.key(), "Rate frequency is required"));
         }
 
         if (input.paymentFrequency() == null || input.paymentFrequency().isBlank()) {
-            issues.add(new ValidationIssue(LoanField.PAYMENT_FREQUENCY.key(), "paymentFrequency is required"));
+            issues.add(new ValidationIssue(LoanField.PAYMENT_FREQUENCY.key(), "Payment frequency is required"));
         }
 
         if (input.startDate() == null) {
-            issues.add(new ValidationIssue(LoanField.START_DATE.key(), "start date is required"));
+            issues.add(new ValidationIssue(LoanField.START_DATE.key(), "Start date is required"));
         }
         if (input.renewalDate() == null) {
-            issues.add(new ValidationIssue(LoanField.RENEWAL_DATE.key(), "renewal date is required"));
+            issues.add(new ValidationIssue(LoanField.RENEWAL_DATE.key(), "Renewal date is required"));
         } else if (input.startDate() != null && !input.renewalDate().isAfter(input.startDate())) {
-            issues.add(new ValidationIssue(LoanField.RENEWAL_DATE.key(), "renewal date must be after the start date"));
+            issues.add(new ValidationIssue(LoanField.RENEWAL_DATE.key(), "Renewal date must be after the start date"));
         }
 
         return new ValidationReport(issues);
