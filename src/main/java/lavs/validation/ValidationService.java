@@ -1,6 +1,5 @@
 package lavs.validation;
 
-import lavs.domain.Customer;
 import lavs.service.*;
 
 import java.time.LocalDate;
@@ -17,23 +16,23 @@ public class ValidationService {
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.firstName() == null || input.firstName().isBlank()) {
-            issues.add(new ValidationIssue(CustomerField.FIRST_NAME.key(), "firstName is required"));
+            issues.add(new ValidationIssue(CustomerField.FIRST_NAME.key(), "First Name is required"));
         }
 
         if (input.familyName() == null || input.familyName().isBlank()) {
-            issues.add(new ValidationIssue(CustomerField.FAMILY_NAME.key(), "familyName is required"));
+            issues.add(new ValidationIssue(CustomerField.FAMILY_NAME.key(), "Family Name is required"));
         }
 
         if (input.dateOfBirth() != null && input.dateOfBirth().isAfter(LocalDate.now())) {
-            issues.add(new ValidationIssue(CustomerField.DATE_OF_BIRTH.key(), "date of birth cannot be in the future"));
+            issues.add(new ValidationIssue(CustomerField.DATE_OF_BIRTH.key(), "Date of birth cannot be in the future"));
         }
 
         if (input.nationality() == null || input.nationality().isBlank()) {
-            issues.add(new ValidationIssue(CustomerField.NATIONALITY.key(), "nationality is required"));
+            issues.add(new ValidationIssue(CustomerField.NATIONALITY.key(), "Nationality is required"));
         }
 
         if (input.title() == null || input.title().isBlank()) {
-            issues.add(new ValidationIssue(CustomerField.TITLE.key(), "title is required"));
+            issues.add(new ValidationIssue(CustomerField.TITLE.key(), "Title is required"));
         }
 
         return new ValidationReport(issues);
