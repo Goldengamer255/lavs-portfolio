@@ -2,6 +2,7 @@ package lavs.adapter;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import lavs.domain.Address;
 import lavs.domain.AddressSummary;
 import lavs.domain.Customer;
@@ -41,9 +42,9 @@ public class CustomerAdapter implements CustomerGateway {
   public OperationResult<Customer> create(NewCustomer input) {
     final var message =
         new mainframe.client.messages.customer.Create(
-            input.firstName(),
-            input.familyName(),
             formatDate(input.dateOfBirth()),
+            input.familyName(),
+            input.firstName(),
             input.nationality(),
             input.organisation(),
             input.title());
@@ -107,12 +108,70 @@ public class CustomerAdapter implements CustomerGateway {
 
   @Override
   public OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size) {
-    throw new UnsupportedOperationException("Customer search is not implemented");
+    var message = new mainframe.client.messages.customer.Search(page, nameQuery, size);
+
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+
+      var customers = new ArrayList<CustomerSummary>();
+      for (var item : message.getItems()) {
+        customers.add(
+            new CustomerSummary(
+                item.getNumber(),
+                item.getFirstName(),
+                item.getFamilyName(),
+                parseDate(item.getDateOfBirth()),
+                item.getTitle(),
+                item.getStatus()));
+      }
+      var result =
+          new Page<CustomerSummary>(customers, message.getPage(), size, message.getTotal());
+
+      return OperationResult.success(result, status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Customer> update(Customer customer) {
-    throw new UnsupportedOperationException("Customer update is not implemented");
+    var message =
+        new mainframe.client.messages.customer.Update(
+            formatDate(customer.dateOfBirth()),
+            customer.familyName(),
+            customer.firstName(),
+            customer.nationality(),
+            customer.number(),
+            customer.title());
+    try {
+      Status status = message.send(connection);
+
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Customer(
+              message.getNumber(),
+              message.getFirstName(),
+              message.getFamilyName(),
+              parseDate(message.getDateOfBirth()),
+              message.getNationality(),
+              message.getTitle(),
+              message.getStatus()),
+          status.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
