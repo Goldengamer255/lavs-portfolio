@@ -14,59 +14,59 @@ import lavs.domain.Phone;
 import lavs.domain.PhoneSummary;
 
 public interface CustomerGateway {
-    //Customer related methods
-    OperationResult<Customer> create(NewCustomer input);
+  // Customer related methods
+  OperationResult<Customer> create(NewCustomer input);
 
-    OperationResult<Customer> retrieve(String customerNumber);
+  OperationResult<Customer> retrieve(String customerNumber);
 
-    OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size);
+  OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size);
 
-    OperationResult<Customer> update(Customer customer);
+  OperationResult<Customer> update(Customer customer);
 
-    OperationResult<String> changeStatus(String customerNumber, String status);
+  OperationResult<String> changeStatus(String customerNumber, String status);
 
-    //Address related methods
-    OperationResult<Address> addAddress(Address address);
-    
-    OperationResult<Boolean> deleteAddress(String customerNumber, long addressId);
+  // Address related methods
+  OperationResult<Address> addAddress(Address address);
 
-    OperationResult<Address> updateAddress(Address address);
+  OperationResult<Boolean> deleteAddress(String customerNumber, long addressId);
 
-    OperationResult<Page<AddressSummary>> listAddresses(String customerNumber, long page, long size);
+  OperationResult<Address> updateAddress(Address address);
 
-    OperationResult<Address> retrieveAddress(String customerNumber, long addressId);
+  OperationResult<Page<AddressSummary>> listAddresses(String customerNumber, long page, long size);
 
-    //Phone related methods
-    OperationResult<Phone> addPhone(Phone phone);
-    
-    OperationResult<Boolean> deletePhone(String customerNumber, long phoneId);
+  OperationResult<Address> retrieveAddress(String customerNumber, long addressId);
 
-    OperationResult<Phone> updatePhone(Phone phone);
+  // Phone related methods
+  OperationResult<Phone> addPhone(Phone phone);
 
-    OperationResult<Page<PhoneSummary>> listPhones(String customerNumber, long page, long size);
+  OperationResult<Boolean> deletePhone(String customerNumber, long phoneId);
 
-    OperationResult<Phone> retrievePhone(String customerNumber, long phoneId);
+  OperationResult<Phone> updatePhone(Phone phone);
 
-    //Email related methods
-    OperationResult<Email> addEmail(Email email);
+  OperationResult<Page<PhoneSummary>> listPhones(String customerNumber, long page, long size);
 
-    OperationResult<Boolean> deleteEmail(String customerNumber, long emailId);
+  OperationResult<Phone> retrievePhone(String customerNumber, long phoneId);
 
-    OperationResult<Email> updateEmail(Email email);
+  // Email related methods
+  OperationResult<Email> addEmail(Email email);
 
-    OperationResult<Page<EmailSummary>> listEmails(String customerNumber, long page, long size);
+  OperationResult<Boolean> deleteEmail(String customerNumber, long emailId);
 
-    OperationResult<Email> retrieveEmail(String customerNumber, long emailId);
+  OperationResult<Email> updateEmail(Email email);
 
-    //Employer related methods
+  OperationResult<Page<EmailSummary>> listEmails(String customerNumber, long page, long size);
 
-    OperationResult<Employer> addEmployer(Employer employer);
+  OperationResult<Email> retrieveEmail(String customerNumber, long emailId);
 
-    OperationResult<Boolean> deleteEmployer(String customerNumber, long employerId);
+  // Employer related methods
 
-    OperationResult<Employer> updateEmployer(Employer employer);
+  OperationResult<Employer> addEmployer(Employer employer);
 
-    OperationResult<Page<EmployerSummary>> listEmployers(String customerNumber, long page, long size);
+  OperationResult<Boolean> deleteEmployer(String customerNumber, long employerId);
 
-    OperationResult<Employer> retrieveEmployer(String customerNumber, long employerId);
-}                                                                                      
+  OperationResult<Employer> updateEmployer(Employer employer);
+
+  OperationResult<Page<EmployerSummary>> listEmployers(String customerNumber, long page, long size);
+
+  OperationResult<Employer> retrieveEmployer(String customerNumber, long employerId);
+}
