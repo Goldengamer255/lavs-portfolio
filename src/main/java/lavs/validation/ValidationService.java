@@ -51,9 +51,28 @@ public class ValidationService {
         return new ValidationReport(issues);
     }
 
+    // AI-assisted: email format regex given by AI; rest of method written by me.
     public ValidationReport validateEmail(EmailInput input) {
-        // TODO: Checks if email is in valid format and has a valid email address
-        return new ValidationReport(List.of());
+        // Checks if email is in valid format and has a valid email address
+        List<ValidationIssue> issues = new ArrayList<>();
+
+        if (input.address() == null || input.address().isBlank()) {
+            issues.add(new ValidationIssue(EmailField.ADDRESS.key(), "address is required"));
+        }
+
+        else if (!input.address().matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
+            issues.add(new ValidationIssue(EmailField.ADDRESS.key(), "address is not a valid email"));
+        }
+
+        if ( "Other".equals(input.type()) && (input.otherType() == null || input.otherType().isBlank())) {
+            issues.add(new ValidationIssue(EmailField.OTHER_TYPE.key(), "otherType is required field when the type is Other"));
+        }
+
+        if (input.type() == null || input.type().isBlank()) {
+            issues.add(new ValidationIssue(EmailField.TYPE.key(), "type is required"));
+        }
+
+        return new ValidationReport(issues);
     }
 
     public ValidationReport validatePhone(PhoneInput input) {

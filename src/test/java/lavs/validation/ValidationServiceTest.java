@@ -2,6 +2,7 @@ package lavs.validation;
 
 import lavs.service.AddressInput;
 import lavs.service.CustomerInput;
+import lavs.service.EmailInput;
 import lavs.service.ValidationReport;
 import org.junit.jupiter.api.Test;
 
@@ -184,4 +185,122 @@ class ValidationServiceTest {
         assertEquals(AddressField.CITY.key(), report.errors().get(1).fieldKey());
         assertEquals(AddressField.COUNTRY.key(), report.errors().get(2).fieldKey());
     }
+
+    //EMAIL VALIDATION
+    @Test
+    void validEmailIsAccepted() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput("tanush@example.com", "Work", null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void nullEmailIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput(null, "Work", null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.ADDRESS.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void missingTypeEmailIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput("tp@gmail.com", null, null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void otherWithNoOtherTypeEmailIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput("tp@gmail.com", "Other", null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.OTHER_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void multipleErrorsEmailIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput(null, null, null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(2, report.errors().size());
+        assertEquals(EmailField.ADDRESS.key(), report.errors().get(0).fieldKey());
+        assertEquals(EmailField.TYPE.key(), report.errors().get(1).fieldKey());
+    }
+
+    @Test
+    void blankEmailIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput(" ", "Work", null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.ADDRESS.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankTypeIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput("fda@gmail.com", " ", null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void badFormatEmailIsRejected() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput("ash", "Work", null, true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.ADDRESS.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void typeOtherWithOtherIsAccepted() {
+        // 1. Arrange: build the input
+        EmailInput input = new EmailInput("ash@gmail.com", "Other", "Personal", true);
+
+        // 2. Act: call the method
+        ValidationReport report = service.validateEmail(input);
+
+        // 3. Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
 }
