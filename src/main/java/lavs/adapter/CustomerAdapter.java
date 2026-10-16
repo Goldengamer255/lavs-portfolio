@@ -184,7 +184,7 @@ public class CustomerAdapter implements CustomerGateway {
         return OperationResult.failure(
             result.getErrorCode(), result.getErrorMessage(), result.getTransactionId());
       }
-      return OperationResult.success(message.getCustomer(), result.getTransactionId());
+      return OperationResult.success(message.getStatus(), result.getTransactionId());
 
     } catch (IOException e) {
       return OperationResult.failure(
@@ -610,10 +610,7 @@ public class CustomerAdapter implements CustomerGateway {
       for (var item : message.getItems()) {
         emails.add(
             new EmailSummary(
-                item.getId(),
-                item.getAddress(),
-                "y".equals(item.getIsPrimary()),
-                item.getType()));
+                item.getId(), item.getAddress(), "y".equals(item.getIsPrimary()), item.getType()));
       }
       return OperationResult.success(
           new Page<>(emails, message.getPage(), size, message.getTotal()),
@@ -684,8 +681,7 @@ public class CustomerAdapter implements CustomerGateway {
 
   @Override
   public OperationResult<Boolean> deleteEmployer(String customerNumber, long employerId) {
-    var message =
-        new mainframe.client.messages.customer.DeleteEmployer(customerNumber, employerId);
+    var message = new mainframe.client.messages.customer.DeleteEmployer(customerNumber, employerId);
     try {
       Status status = message.send(connection);
       if (!status.getWasSuccessful()) {
@@ -734,8 +730,7 @@ public class CustomerAdapter implements CustomerGateway {
   @Override
   public OperationResult<Page<EmployerSummary>> listEmployers(
       String customerNumber, long page, long size) {
-    var message =
-        new mainframe.client.messages.customerEmployer.List(customerNumber, page, size);
+    var message = new mainframe.client.messages.customerEmployer.List(customerNumber, page, size);
     try {
       Status status = message.send(connection);
       if (!status.getWasSuccessful()) {
