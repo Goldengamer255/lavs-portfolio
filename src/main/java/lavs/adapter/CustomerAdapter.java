@@ -176,14 +176,25 @@ public class CustomerAdapter implements CustomerGateway {
 
   @Override
   public OperationResult<String> changeStatus(String customerNumber, String status) {
-    throw new UnsupportedOperationException("Customer status change is not implemented");
+    var message = new mainframe.client.messages.customer.UpdateStatus(customerNumber, status);
+    try {
+      Status result = message.send(connection);
+
+      if (!result.getWasSuccessful()) {
+        return OperationResult.failure(
+            result.getErrorCode(), result.getErrorMessage(), result.getTransactionId());
+      }
+      return OperationResult.success(message.getCustomer(), result.getTransactionId());
+
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   // Address related methods
   @Override
-  public OperationResult<Address> addAddress(Address address) {
-    throw new UnsupportedOperationException("Address creation is not implemented");
-  }
+  public OperationResult<Address> addAddress(Address address) {}
 
   @Override
   public OperationResult<Boolean> deleteAddress(String customerNumber, long addressId) {
