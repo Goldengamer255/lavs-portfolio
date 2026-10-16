@@ -519,28 +519,134 @@ public class CustomerAdapter implements CustomerGateway {
   // Email related methods
   @Override
   public OperationResult<Email> addEmail(Email email) {
-    throw new UnsupportedOperationException("Email creation is not implemented");
+    var message =
+        new mainframe.client.messages.customer.AddEmail(
+            email.address(),
+            email.customerNumber(),
+            email.isPrimary(),
+            email.otherType(),
+            email.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Email(
+              message.getId(),
+              null,
+              message.getCustomer(),
+              message.getAddress(),
+              message.getIsPrimary(),
+              message.getOtherType(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Boolean> deleteEmail(String customerNumber, long emailId) {
-    throw new UnsupportedOperationException("Email deletion is not implemented");
+    var message = new mainframe.client.messages.customer.DeleteEmail(customerNumber, emailId);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(true, status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Email> updateEmail(Email email) {
-    throw new UnsupportedOperationException("Email update is not implemented");
+    var message =
+        new mainframe.client.messages.customer.UpdateEmail(
+            email.address(),
+            email.customerNumber(),
+            email.id(),
+            email.isPrimary(),
+            email.otherType(),
+            email.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Email(
+              message.getId(),
+              null,
+              message.getCustomer(),
+              message.getAddress(),
+              message.getIsPrimary(),
+              message.getOtherType(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Page<EmailSummary>> listEmails(
       String customerNumber, long page, long size) {
-    throw new UnsupportedOperationException("Email listing is not implemented");
+    var message = new mainframe.client.messages.customerEmail.List(customerNumber, page, size);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      var emails = new ArrayList<EmailSummary>();
+      for (var item : message.getItems()) {
+        emails.add(
+            new EmailSummary(
+                item.getId(),
+                item.getAddress(),
+                "y".equals(item.getIsPrimary()),
+                item.getType()));
+      }
+      return OperationResult.success(
+          new Page<>(emails, message.getPage(), size, message.getTotal()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Email> retrieveEmail(String customerNumber, long emailId) {
-    throw new UnsupportedOperationException("Email retrieval is not implemented");
+    var message = new mainframe.client.messages.customerEmail.Retrieve(emailId, customerNumber);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Email(
+              message.getId(),
+              message.getCustomerName(),
+              message.getCustomerNumber(),
+              message.getAddress(),
+              message.getIsPrimary(),
+              message.getOtherType(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   // Employer related methods
