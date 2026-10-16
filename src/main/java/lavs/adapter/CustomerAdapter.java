@@ -257,6 +257,8 @@ public class CustomerAdapter implements CustomerGateway {
 
   @Override
   public OperationResult<Address> updateAddress(Address address) {
+    // id must not be null for an update, so make sure there is logic in the service to prevent this
+    // from reaching here
     var message =
         new mainframe.client.messages.customer.UpdateAddress(
             address.city(),
@@ -370,28 +372,148 @@ public class CustomerAdapter implements CustomerGateway {
   // Phone related methods
   @Override
   public OperationResult<Phone> addPhone(Phone phone) {
-    throw new UnsupportedOperationException("Phone creation is not implemented");
+    var message =
+        new mainframe.client.messages.customer.AddPhoneNumber(
+            phone.canTxt(),
+            phone.countryCode(),
+            phone.customerNumber(),
+            phone.isPrimary(),
+            phone.number(),
+            phone.otherType(),
+            phone.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Phone(
+              message.getId(),
+              message.getCanTxt(),
+              message.getCountryCode(),
+              null,
+              message.getCustomer(),
+              message.getIsPrimary(),
+              message.getNumber(),
+              message.getOtherType(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Boolean> deletePhone(String customerNumber, long phoneId) {
-    throw new UnsupportedOperationException("Phone deletion is not implemented");
+    var message = new mainframe.client.messages.customer.DeletePhoneNumber(customerNumber, phoneId);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(true, status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Phone> updatePhone(Phone phone) {
-    throw new UnsupportedOperationException("Phone update is not implemented");
+    var message =
+        new mainframe.client.messages.customer.UpdatePhoneNumber(
+            phone.canTxt(),
+            phone.countryCode(),
+            phone.customerNumber(),
+            phone.id(),
+            phone.isPrimary(),
+            phone.number(),
+            phone.otherType(),
+            phone.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Phone(
+              message.getId(),
+              message.getCanTxt(),
+              message.getCountryCode(),
+              null,
+              message.getCustomer(),
+              message.getIsPrimary(),
+              message.getNumber(),
+              message.getOtherType(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Page<PhoneSummary>> listPhones(
       String customerNumber, long page, long size) {
-    throw new UnsupportedOperationException("Phone listing is not implemented");
+    var message =
+        new mainframe.client.messages.customerPhoneNumber.List(customerNumber, page, size);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      var phones = new ArrayList<PhoneSummary>();
+      for (var item : message.getItems()) {
+        phones.add(
+            new PhoneSummary(
+                item.getId(),
+                item.getCountryCode(),
+                item.getNumber(),
+                item.getType(),
+                "y".equals(item.getCanTxt()),
+                "y".equals(item.getIsPrimary())));
+      }
+      return OperationResult.success(
+          new Page<>(phones, message.getPage(), size, message.getTotal()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   @Override
   public OperationResult<Phone> retrievePhone(String customerNumber, long phoneId) {
-    throw new UnsupportedOperationException("Phone retrieval is not implemented");
+    var message =
+        new mainframe.client.messages.customerPhoneNumber.Retrieve(phoneId, customerNumber);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Phone(
+              message.getId(),
+              message.getCanTxt(),
+              message.getCountryCode(),
+              message.getCustomerName(),
+              message.getCustomerNumber(),
+              message.getIsPrimary(),
+              message.getNumber(),
+              message.getOtherType(),
+              message.getType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   // Email related methods
