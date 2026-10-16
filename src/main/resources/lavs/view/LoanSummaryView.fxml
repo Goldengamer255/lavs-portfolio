@@ -10,8 +10,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-
-<VBox prefHeight="600.0" prefWidth="900.0" spacing="16.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="16.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.LoanSummaryController">
    <padding>
       <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
    </padding>
@@ -23,6 +22,12 @@
          </children>
       </HBox>
       <Label fx:id="statusLabel" styleClass="field-label" text="Status: New" />
+      <HBox alignment="CENTER_LEFT" spacing="8.0">
+         <children>
+            <Label fx:id="errorLabel" styleClass="field-error" visible="false" wrapText="true" />
+            <Button fx:id="retryButton" mnemonicParsing="false" onAction="#handleRetry" styleClass="secondary-button" text="Retry" visible="false" />
+         </children>
+      </HBox>
       <VBox spacing="12.0" styleClass="card">
          <children>
             <Label styleClass="section-title" text="Loan Summary" />
@@ -96,11 +101,11 @@
       </TableView>
       <HBox alignment="CENTER_LEFT" spacing="8.0">
          <children>
-            <Button fx:id="backButton" mnemonicParsing="false" styleClass="secondary-button" text="‹ Back to Loan" />
+            <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back to Loan" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="prevPageButton" mnemonicParsing="false" styleClass="secondary-button" text="‹ Previous" />
+            <Button fx:id="prevPageButton" mnemonicParsing="false" onAction="#handlePreviousPage" styleClass="secondary-button" text="‹ Previous" />
             <Label fx:id="pageLabel" styleClass="hint-text" text="Page 1 of 1" />
-            <Button fx:id="nextPageButton" mnemonicParsing="false" styleClass="secondary-button" text="Next ›" />
+            <Button fx:id="nextPageButton" mnemonicParsing="false" onAction="#handleNextPage" styleClass="secondary-button" text="Next ›" />
          </children>
       </HBox>
    </children>

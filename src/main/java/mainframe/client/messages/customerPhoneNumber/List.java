@@ -76,6 +76,8 @@ public class List implements Message {
         private String _countryCode;
         private long _id;
         private String _isPrimary;
+        // AI-assisted: keep each row's phone number on its Item, not the outer customer number.
+        private String _number;
         private String _type;
         public Item(String canTxt, String countryCode, long id, String isPrimary, String number, String type) {
             _canTxt = canTxt;

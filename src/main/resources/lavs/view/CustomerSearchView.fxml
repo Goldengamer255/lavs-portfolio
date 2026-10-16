@@ -28,6 +28,13 @@
             </VBox>
             <Button fx:id="searchButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSearch" styleClass="secondary-button" text="Search" />
             <ProgressIndicator fx:id="searchSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
+               <VBox prefWidth="160.0" spacing="4.0">
+               <children>
+                  <Label styleClass="field-label" text="Open loan by number" />
+                  <TextField fx:id="loanNumberField" promptText="Loan number" />
+               </children>
+            </VBox>
+            <Button fx:id="openLoanButton" mnemonicParsing="false" onAction="#handleOpenLoan" styleClass="secondary-button" text="Open Loan" />
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#handleAddCustomer" styleClass="primary-button" text="+ Add New Customer" />
          </children>

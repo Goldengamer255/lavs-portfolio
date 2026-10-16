@@ -2,6 +2,7 @@ package lavs.ui;
 
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executor;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -43,6 +44,10 @@ public final class CustomerSearchController implements ScreenLifecycle {
     private TextField searchField;
     @FXML
     private Button searchButton;
+    @FXML
+    private TextField loanNumberField;
+    @FXML
+    private Button openLoanButton;
     @FXML
     private ProgressIndicator searchSpinner;
     @FXML
@@ -92,6 +97,8 @@ public final class CustomerSearchController implements ScreenLifecycle {
             });
             return row;
         });
+        openLoanButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> loanNumberField.getText().trim().isEmpty(), loanNumberField.textProperty()));
     }
 
     /**
@@ -102,9 +109,11 @@ public final class CustomerSearchController implements ScreenLifecycle {
     public void onShow() {
         if (navigator.isPickingCoBorrower()) {
             titleLabel.setText("Choose a co-borrower");
+            loanNumberField.clear();
         } else {
             titleLabel.setText("Customers");
         }
+        loanNumberField.setDisable(navigator.isPickingCoBorrower());
 
         if (lastSearch != null) {
             runSearch();
@@ -120,6 +129,11 @@ public final class CustomerSearchController implements ScreenLifecycle {
     @FXML
     private void handleAddCustomer() {
         navigator.showNewCustomer();
+    }
+
+    @FXML
+    private void handleOpenLoan() {
+        navigator.showLoanDetails(loanNumberField.getText().trim());
     }
 
     private void runSearch() {
