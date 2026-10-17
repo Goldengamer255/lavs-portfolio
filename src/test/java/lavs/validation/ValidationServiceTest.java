@@ -37,6 +37,7 @@ class ValidationServiceTest {
         assertEquals(CustomerField.FIRST_NAME.key(), report.errors().get(0).fieldKey());
     }
 
+    @Test
     void blankFirstName() {
         // Arrange: build the input
         CustomerInput input = new CustomerInput(" ", "Smith", LocalDate.of(1990, 1, 1), "NZ", "Ms");
@@ -101,6 +102,7 @@ class ValidationServiceTest {
         assertEquals(CustomerField.TITLE.key(), report.errors().get(0).fieldKey());
     }
 
+    @Test
     void blankTitleIsRejected() {
         // Arrange: build the input
         CustomerInput input = new CustomerInput("Ada", "davis", LocalDate.of(1990, 1, 1), "NZ", " ");

@@ -12,6 +12,7 @@ import lavs.service.ConnectionMonitor;
 import lavs.service.CustomerService;
 import lavs.service.LoanService;
 import lavs.service.NoteService;
+import lavs.service.RepaymentService;
 import lavs.ui.ControllerFactory;
 import lavs.ui.FxmlNavigator;
 import lavs.ui.ShellDependencies;
@@ -29,19 +30,20 @@ public final class ApplicationShell implements AutoCloseable {
 
     public ApplicationShell(Stage stage, AuthenticationService authentication,
             CustomerService customers, LoanService loans, CategoryService categories,
-            NoteService notes, ConnectionMonitor connectionMonitor,
-            ScheduledExecutorService worker) {
+            NoteService notes, RepaymentService repayments,
+            ConnectionMonitor connectionMonitor, ScheduledExecutorService worker) {
         Objects.requireNonNull(stage, "stage");
         this.connectionMonitor = Objects.requireNonNull(connectionMonitor, "connectionMonitor");
         this.worker = Objects.requireNonNull(worker, "worker");
 
         navigator = new FxmlNavigator(stage);
         ControllerFactory controllers = new ControllerFactory(
-                authentication, customers, loans, categories, notes, navigator, worker);
+                authentication, customers, loans, categories, notes, repayments,
+                navigator, worker);
         navigator.setControllerFactory(controllers);
 
         dependencies = new ShellDependencies(navigator, authentication, customers, loans,
-                categories, notes, connectionMonitor, worker, online);
+                categories, notes, repayments, connectionMonitor, worker, online);
         connectionSubscription = connectionMonitor.subscribe(this::updateOnline);
     }
 

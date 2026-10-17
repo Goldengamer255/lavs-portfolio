@@ -42,7 +42,7 @@ public class LoanStatusTests {
                 "retrieve");
 
         String newStatus = UpdateStatus.STATUS_NEW;
-        if (retrieveMessage.getStatus() == UpdateStatus.STATUS_NEW) newStatus = UpdateStatus.STATUS_PENDING;
+        if (retrieveMessage.getStatus().equals(UpdateStatus.STATUS_NEW)) newStatus = UpdateStatus.STATUS_PENDING;
 
         // update the status
         UpdateStatus updateMessage = sendMessage(

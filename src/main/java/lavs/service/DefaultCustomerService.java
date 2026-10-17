@@ -50,7 +50,8 @@ public final class DefaultCustomerService implements CustomerService {
      * @param loans loan persistence boundary used to list a customer's loans
      * @param validation form validation supplied by the validation layer
      * @param rules cross-record customer business rules
-     * @param organisationId configured organisation assigned to new customers
+     * @param organisationId organisation assigned to new customers; zero asks the
+     *        server to use the logged-in user's organisation
      */
     public DefaultCustomerService(CustomerGateway customers, LoanGateway loans,
             ValidationService validation, CustomerRules rules, long organisationId) {
@@ -58,8 +59,8 @@ public final class DefaultCustomerService implements CustomerService {
         this.loans = Objects.requireNonNull(loans, "loans");
         this.validation = Objects.requireNonNull(validation, "validation");
         this.rules = Objects.requireNonNull(rules, "rules");
-        if (organisationId <= 0) {
-            throw new IllegalArgumentException("organisationId must be positive");
+        if (organisationId < 0) {
+            throw new IllegalArgumentException("organisationId must be non-negative");
         }
         this.organisationId = organisationId;
     }

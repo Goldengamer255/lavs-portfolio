@@ -59,6 +59,20 @@ class DefaultCustomerServiceTest {
     }
 
     @Test
+    void createUsesZeroToRequestTheLoggedInUsersOrganisation() {
+        FakeCustomerGateway gateway = new FakeCustomerGateway();
+        gateway.createResult = OperationResult.success(customer("C1", "Active"), 12);
+        DefaultCustomerService service = new DefaultCustomerService(
+                gateway, new FakeLoanGateway(), new TestValidation(),
+                new TestCustomerRules(), 0);
+
+        OperationResult<SaveResult<Customer>> result = service.create(customerInput());
+
+        assertTrue(result.isSuccess());
+        assertEquals(0, gateway.createdCustomer.organisation());
+    }
+
+    @Test
     void invalidCustomerDoesNotCallGateway() {
         FakeCustomerGateway gateway = new FakeCustomerGateway();
         TestValidation validation = new TestValidation();
