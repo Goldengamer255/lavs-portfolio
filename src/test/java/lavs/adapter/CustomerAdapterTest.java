@@ -59,4 +59,55 @@ class CustomerAdapterTest {
     assertFalse(address.isMailing());
     assertTrue(address.isPrimary());
   }
+
+  @Test
+  void listRelationshipsMapsMainframeSummaries() {
+    var connection = new StubConnection();
+    connection.setResponse(
+        new MessageResponse(
+            new Status(43),
+            new HashMap<>(
+                java.util.Map.of(
+                    "customerNumber", "C1",
+                    "customerName", "Ana Singh",
+                    "page", "1",
+                    "total", "1",
+                    "items", "1",
+                    "1:id", "8",
+                    "1:secondaryCustomerNumber", "C2",
+                    "1:type", "Spouse"))));
+
+    var result = new CustomerAdapter(connection).listRelationships("C1", 1, 50);
+
+    assertTrue(result.isSuccess());
+    assertEquals(1, result.value().total());
+    assertEquals(8L, result.value().items().get(0).id());
+    assertEquals("C2", result.value().items().get(0).secondaryCustomerNumber());
+    assertEquals("Spouse", result.value().items().get(0).type());
+  }
+
+  @Test
+  void retrieveRelationshipMapsCustomerNamesAndOtherType() {
+    var connection = new StubConnection();
+    connection.setResponse(
+        new MessageResponse(
+            new Status(44),
+            new HashMap<>(
+                java.util.Map.of(
+                    "customerNumber", "C1",
+                    "customerName", "Ana Singh",
+                    "id", "9",
+                    "secondaryCustomerNumber", "C3",
+                    "secondaryCustomerName", "Lee Wong",
+                    "type", "Other",
+                    "otherType", "Sibling"))));
+
+    var result = new CustomerAdapter(connection).retrieveRelationship("C1", 9);
+
+    assertTrue(result.isSuccess());
+    assertEquals("Ana Singh", result.value().customerName());
+    assertEquals("Lee Wong", result.value().secondaryCustomerName());
+    assertEquals("Sibling", result.value().otherType());
+    assertEquals(44, result.transactionId());
+  }
 }

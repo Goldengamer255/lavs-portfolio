@@ -47,4 +47,14 @@ public interface CustomerService {
     OperationResult<SaveResult<Employer>> updateEmployer(String customerNumber, long id, EmployerInput input);
     OperationResult<Boolean> deleteEmployer(String customerNumber, long id);
     ValidationReport validateEmployer(EmployerInput input);
+
+    OperationResult<Page<Relationship>> listRelationships(
+            String customerNumber, long page, long size);
+    OperationResult<SaveResult<Relationship>> addRelationship(
+            String customerNumber, RelationshipInput input);
+    OperationResult<SaveResult<Relationship>> updateRelationship(
+            String customerNumber, long id, RelationshipInput input);
+    OperationResult<Boolean> deleteRelationship(String customerNumber, long id);
+    ValidationReport validateRelationship(
+            String customerNumber, RelationshipInput input);
 }

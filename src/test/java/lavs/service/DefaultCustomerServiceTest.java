@@ -25,6 +25,8 @@ import lavs.domain.Page;
 import lavs.domain.Phone;
 import lavs.domain.PhoneSummary;
 import lavs.domain.RepaymentScheduleItem;
+import lavs.domain.Relationship;
+import lavs.domain.RelationshipSummary;
 import lavs.gateway.CustomerGateway;
 import lavs.gateway.LoanGateway;
 import lavs.gateway.OperationResult;
@@ -210,6 +212,45 @@ class DefaultCustomerServiceTest {
         assertEquals(0, service.listLoans("C1", 1, 50).value().total());
     }
 
+    @Test
+    void relationshipValidationReturnsAllFormErrors() {
+        DefaultCustomerService service = service(new FakeCustomerGateway(),
+                new FakeLoanGateway(), new TestValidation(), new TestCustomerRules());
+
+        ValidationReport report = service.validateRelationship(
+                "C1", new RelationshipInput("C1", "Other", ""));
+
+        assertEquals(List.of("secondaryCustomerNumber", "otherType"),
+                report.errors().stream().map(ValidationIssue::fieldKey).toList());
+    }
+
+    @Test
+    void relationshipCrudMapsInputsAndExpandsListResults() {
+        FakeCustomerGateway gateway = new FakeCustomerGateway();
+        Relationship relationship = relationship(8L);
+        gateway.addRelationshipResult = OperationResult.success(relationship, 20);
+        gateway.relationshipSummaries = OperationResult.success(
+                new Page<>(List.of(new RelationshipSummary(8L, "C2", "Spouse")),
+                        1, 50, 1), 21);
+        gateway.relationshipResult = OperationResult.success(relationship, 22);
+        DefaultCustomerService service = service(gateway, new FakeLoanGateway(),
+                new TestValidation(), new TestCustomerRules());
+
+        OperationResult<SaveResult<Relationship>> added = service.addRelationship(
+                "C1", new RelationshipInput(" C2 ", " Spouse ", ""));
+        OperationResult<Page<Relationship>> listed =
+                service.listRelationships("C1", 1, 50);
+        OperationResult<Boolean> deleted = service.deleteRelationship("C1", 8L);
+
+        assertEquals(relationship, added.value().value());
+        assertEquals("C2", gateway.addedRelationship.secondaryCustomerNumber());
+        assertEquals("Spouse", gateway.addedRelationship.type());
+        assertEquals(List.of(relationship), listed.value().items());
+        assertEquals(22, listed.transactionId());
+        assertTrue(deleted.isSuccess());
+        assertEquals(8L, gateway.deletedRelationshipId);
+    }
+
     private DefaultCustomerService service(FakeCustomerGateway customers,
             FakeLoanGateway loans, TestValidation validation, TestCustomerRules rules) {
         return new DefaultCustomerService(customers, loans, validation, rules, 44);
@@ -256,6 +297,11 @@ class DefaultCustomerServiceTest {
 
     private static Employer employer(Long id) {
         return new Employer(id, "Ana Singh", "C1", "Example Ltd", "Engineer", 85000, "Current");
+    }
+
+    private static Relationship relationship(Long id) {
+        return new Relationship(id, "C1", "Ana Singh", "C2", "Sam Singh",
+                "Spouse", "");
     }
 
     private static final class TestValidation extends ValidationService {
@@ -312,12 +358,17 @@ class DefaultCustomerServiceTest {
         private OperationResult<Page<EmployerSummary>> employerSummaries;
         private OperationResult<Employer> employerResult;
         private OperationResult<Employer> addEmployerResult;
+        private OperationResult<Page<RelationshipSummary>> relationshipSummaries;
+        private OperationResult<Relationship> relationshipResult;
+        private OperationResult<Relationship> addRelationshipResult;
         private NewCustomer createdCustomer;
         private Customer updatedCustomer;
         private Address addedAddress;
         private Phone addedPhone;
         private Email addedEmail;
         private Employer addedEmployer;
+        private Relationship addedRelationship;
+        private long deletedRelationshipId;
         private long retrievedAddressId;
         private int deleteAddressCalls;
 
@@ -383,6 +434,23 @@ class DefaultCustomerServiceTest {
         }
         @Override public OperationResult<Employer> retrieveEmployer(String number, long id) {
             return employerResult;
+        }
+        @Override public OperationResult<Relationship> addRelationship(Relationship input) {
+            addedRelationship = input; return addRelationshipResult;
+        }
+        @Override public OperationResult<Boolean> deleteRelationship(String number, long id) {
+            deletedRelationshipId = id; return OperationResult.success(true, 23);
+        }
+        @Override public OperationResult<Relationship> updateRelationship(Relationship input) {
+            return relationshipResult;
+        }
+        @Override public OperationResult<Page<RelationshipSummary>> listRelationships(
+                String number, long page, long size) {
+            return relationshipSummaries;
+        }
+        @Override public OperationResult<Relationship> retrieveRelationship(
+                String number, long id) {
+            return relationshipResult;
         }
     }
 
