@@ -75,7 +75,61 @@
                     <mainClass>lavs.LavsApplication</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>lavs/ui/**</exclude>
+                                <exclude>mainframe/**</exclude>
+                                <exclude>lavs/LavsApplication*</exclude>
+                                <exclude>lavs/ApplicationShell*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>skip-live-mainframe-tests</id>
+            <!-- Active by default; run "mvn test -Dlive" with .env credentials to include the live mainframe tests -->
+            <activation>
+                <property>
+                    <name>!live</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.5.4</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/mainframe/client/messages/**</exclude>
+                                <exclude>**/mainframe/client/HttpConnectionTests.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
