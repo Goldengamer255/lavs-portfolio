@@ -37,7 +37,7 @@ import lavs.ui.support.ValidationFeedback;
 import lavs.validation.FieldKey;
 import lavs.validation.LoanField;
 
-// AI-assisted: Built by adapting my CustomerDetailsController pattern, and having claude tell me which parts had to change. 
+// AI-assisted: Built by adapting my CustomerDetailsController pattern, and having Claude tell me which parts had to change.
 // Claude provided the dirty state tracking, dropdown loading, and multi-error failures map.
 /**
  * Controller for the loan screen: creating a loan, editing it, changing its
