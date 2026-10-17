@@ -122,7 +122,7 @@ public final class AddressDialogController {
     /**
      * Builds and returns an AddressInput record populated from the current form
      * values.
-     * 
+     *
      * @return the input data gathered from the form fields
      */
     public AddressInput read() {
@@ -142,7 +142,7 @@ public final class AddressDialogController {
     /**
      * Displays validation error messages on the form fields based on the given
      * report.
-     * 
+     *
      * @param report the validation report containing errors to display
      */
     public void showErrors(ValidationReport report) {

@@ -7,6 +7,7 @@ import lavs.service.CategoryService;
 import lavs.service.ConnectionMonitor;
 import lavs.service.CustomerService;
 import lavs.service.LoanService;
+import lavs.service.NoteService;
 
 /**
  * Dependencies owned by the application shell. The controller factory passes
@@ -22,6 +23,7 @@ public record ShellDependencies(
         CustomerService customers,
         LoanService loans,
         CategoryService categories,
+        NoteService notes,
         ConnectionMonitor connectionMonitor,
         ExecutorService worker,
         ReadOnlyBooleanProperty online) {}
