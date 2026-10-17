@@ -113,6 +113,53 @@ class DefaultConnectionMonitorTest {
         assertFalse(monitor.isOnline());
     }
 
+    @Test
+    void validatesConstructorArgumentsAndIntervals() {
+        RecordingScheduler worker = new RecordingScheduler();
+        TestConnection connection = new TestConnection();
+        assertThrows(NullPointerException.class,
+                () -> new DefaultConnectionMonitor(null, worker, Duration.ofSeconds(1)));
+        assertThrows(NullPointerException.class,
+                () -> new DefaultConnectionMonitor(connection, null, Duration.ofSeconds(1)));
+        assertThrows(NullPointerException.class,
+                () -> new DefaultConnectionMonitor(connection, worker, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new DefaultConnectionMonitor(connection, worker, Duration.ZERO));
+        assertThrows(IllegalArgumentException.class,
+                () -> new DefaultConnectionMonitor(connection, worker, Duration.ofSeconds(-1)));
+        assertThrows(IllegalArgumentException.class,
+                () -> new DefaultConnectionMonitor(connection, worker, Duration.ofNanos(1)));
+        assertThrows(NullPointerException.class,
+                () -> new DefaultConnectionMonitor(connection, worker).subscribe(null));
+    }
+
+    @Test
+    void closeBeforeStartAndFailingListenersAreSafe() {
+        DefaultConnectionMonitor closed = new DefaultConnectionMonitor(
+                new TestConnection(), new RecordingScheduler(), Duration.ofSeconds(1));
+        closed.close();
+        closed.close();
+
+        TestConnection connection = new TestConnection();
+        DefaultConnectionMonitor monitor = new DefaultConnectionMonitor(
+                connection, new RecordingScheduler(), Duration.ofSeconds(1));
+        List<Boolean> observed = new ArrayList<>();
+        monitor.subscribe(ignored -> { throw new IllegalStateException("UI closed"); });
+        monitor.subscribe(observed::add);
+        connection.connected = true;
+        monitor.checkNow();
+        assertEquals(List.of(false, true), observed);
+    }
+
+    @Test
+    void failureWithoutMessageUsesDefaultText() {
+        TestConnection connection = new TestConnection();
+        connection.failure = new IllegalStateException(" ");
+        DefaultConnectionMonitor monitor = new DefaultConnectionMonitor(
+                connection, new RecordingScheduler(), Duration.ofSeconds(1));
+        assertEquals("Mainframe connection check failed.", monitor.checkNow().errorMessage());
+    }
+
     private static final class TestConnection implements Connection {
         private final AtomicInteger checkCount = new AtomicInteger();
         private boolean connected;
