@@ -16,14 +16,14 @@ Update this readme file to contain the names of each team member and your GitHub
 - Jim Zhou - FridgeProtector1
 - Hargun Singh - Hargun2005
 - Rohit Balaji - RohitB2005
-- _Replace this text: Team Member Name 4 - GitHub Login_
+- Tanush Panuganti - Goldengamer255
 
 ## Building, Testing, and Running LAVS on Windows
 
 Requirements: JDK 17 or newer and Maven.
 
-Create a local configuration file before running live-mainframe tests. Enter the
-team-issued username and password in `.env`; this file is ignored by Git.
+Create a local configuration file only if you want to run the live-mainframe tests.
+Enter the team-issued username and password in `.env`; this file is ignored by Git.
 
 ### Windows PowerShell
 
@@ -36,11 +36,11 @@ Copy-Item .env.example .env
 notepad .env
 ```
 
-After entering the team-issued credentials, build, test, and run the application:
+Optionally enter the team-issued credentials, then build, test, and run the application:
 
 ```powershell
 mvn clean compile
-mvn "-Dtest=lavs.*Test,lavs.**.*Test" test
+mvn test
 mvn javafx:run
 ```
 
@@ -52,13 +52,13 @@ mvn -version
 copy .env.example .env
 notepad .env
 mvn compile
-mvn "-Dtest=lavs.*Test,lavs.**.*Test" test
+mvn test
 mvn javafx:run
 ```
 
-The isolated `lavs` test command excludes the supplied live-server integration
-tests, whose result depends on shared server data, permissions, and availability.
-Run `mvn test` only when intentionally exercising those live tests.
+Plain `mvn test` runs the LAVS tests and writes the coverage report to `target/site/jacoco/index.html`.
+The supplied live-server tests are skipped by default, because their result depends on shared server data, permissions and availability.
+To run them as well, set up `.env` and use `mvn test -Dlive`.
 
 The mainframe URL defaults to the course server. It can be overridden with the
 `LAVS_BASE_URL` environment variable. New customers use the logged-in user's
