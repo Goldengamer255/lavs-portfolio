@@ -65,7 +65,7 @@ public class CustomerTests {
                 "update");
         Assertions.assertAll(
                 () -> Assertions.assertEquals("Smith", updateMessage.getFamilyName(), "familyName does not match"),
-                () -> Assertions.assertEquals("Dr", createMessage.getTitle(), "title does not match"),
+                () -> Assertions.assertEquals("Dr", updateMessage.getTitle(), "title does not match"),
                 () -> Assertions.assertEquals(newName, updateMessage.getFirstName(), "firstName does not match"),
                 () -> Assertions.assertEquals("Active", updateMessage.getStatus(), "status does not match"),
                 () -> Assertions.assertEquals("Australia", updateMessage.getNationality(), "nationality does not match"),

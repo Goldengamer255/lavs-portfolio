@@ -36,7 +36,7 @@ public class CustomerNoteTests {
         long id = addMessage.getId();
         Assertions.assertAll(
                 () -> Assertions.assertNotEquals(0, id, "id should not be zero"),
-                () -> Assertions.assertEquals("test", addMessage.getAuthor(), "author does not match"),
+                () -> Assertions.assertEquals(TestConstants.USERNAME, addMessage.getAuthor(), "author does not match"),
                 () -> Assertions.assertEquals("Line 1\nLine 2", addMessage.getLines(), "lines does not match"),
                 () -> Assertions.assertEquals("Test note", addMessage.getType(), "type does not match")
         );
@@ -55,7 +55,7 @@ public class CustomerNoteTests {
                 new Retrieve(id, customerNumber),
                 "retrieve");
         Assertions.assertAll(
-                () -> Assertions.assertEquals("test", retrieveMessage.getAuthor(), "author does not match"),
+                () -> Assertions.assertEquals(TestConstants.USERNAME, retrieveMessage.getAuthor(), "author does not match"),
                 () -> Assertions.assertEquals("Line 1\nLine 2", retrieveMessage.getLines(), "lines does not match"),
                 () -> Assertions.assertEquals("Test note", retrieveMessage.getType(), "type does not match")
         );
@@ -66,7 +66,7 @@ public class CustomerNoteTests {
                 new UpdateNote(customerNumber, id, "First Line\nSecond Line", "Yet Another Note"),
                 "update");
         Assertions.assertAll(
-                () -> Assertions.assertEquals("test", updateMessage.getAuthor(), "author does not match"),
+                () -> Assertions.assertEquals(TestConstants.USERNAME, updateMessage.getAuthor(), "author does not match"),
                 () -> Assertions.assertEquals("First Line\nSecond Line", updateMessage.getLines(), "lines does not match"),
                 () -> Assertions.assertEquals("Yet Another Note", updateMessage.getType(), "type does not match")
         );
