@@ -9,6 +9,7 @@ import lavs.adapter.LoanAdapter;
 import lavs.adapter.MainframeAuthenticationGateway;
 import lavs.adapter.MainframeCategoryGateway;
 import lavs.adapter.NoteAdapter;
+import lavs.adapter.RecoveringConnection;
 import lavs.gateway.CustomerGateway;
 import lavs.gateway.LoanGateway;
 import lavs.service.AuthenticationService;
@@ -38,7 +39,7 @@ public class LavsApplication extends Application {
     @Override
     public void start(Stage stage) {
         AppConfig config = AppConfig.load();
-        connection = new HttpConnection(config.baseUrl());
+        connection = new RecoveringConnection(new HttpConnection(config.baseUrl()));
         AuthenticationService authentication = new DefaultAuthenticationService(
                 new MainframeAuthenticationGateway(connection));
         CategoryService categories = new DefaultCategoryService(
