@@ -125,6 +125,11 @@
                 <fx:include fx:id="employersList" source="EntityListView.fxml" />
               </content>
             </Tab>
+            <Tab text="Documents">
+              <content>
+                <fx:include fx:id="documentsList" source="EntityListView.fxml" />
+              </content>
+            </Tab>
             <Tab text="Notes">
               <content>
                 <fx:include fx:id="notesList" source="EntityListView.fxml" />

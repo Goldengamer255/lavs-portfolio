@@ -25,11 +25,13 @@ import lavs.domain.Phone;
 import lavs.domain.Email;
 import lavs.domain.Employer;
 import lavs.domain.Customer;
+import lavs.domain.CustomerDocumentSummary;
 import lavs.domain.LoanSummaryItem;
 import lavs.domain.Page;
 import lavs.gateway.OperationResult;
 import lavs.service.CategoryService;
 import lavs.service.CustomerService;
+import lavs.service.DocumentService;
 import lavs.service.CustomerInput;
 import lavs.service.SaveResult;
 import lavs.service.ValidationIssue;
@@ -56,6 +58,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private static final NumberFormat MONEY_FORMAT = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-NZ"));
 
     private final CustomerService customers;
+    private final DocumentService documents;
     private final CategoryService categories;
     private final Navigator navigator;
     private final TaskRunner tasks;
@@ -71,6 +74,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private PhonesTab phonesTab;
     private EmailsTab emailsTab;
     private EmployersTab employersTab;
+    private DocumentsTab documentsTab;
 
     @FXML
     private Button backButton;
@@ -142,14 +146,17 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private EntityListController<Email> emailsListController;
     @FXML
     private EntityListController<Employer> employersListController;
+    @FXML
+    private EntityListController<CustomerDocumentSummary> documentsListController;
 
     /**
      * Creates the controller with the services it needs. The worker is the shared
      * background executor from the application shell.
      */
-    public CustomerDetailsController(CustomerService customers, CategoryService categories,
+    public CustomerDetailsController(CustomerService customers, DocumentService documents, CategoryService categories,
             Navigator navigator, Executor worker) {
         this.customers = customers;
+        this.documents = documents;
         this.categories = categories;
         this.navigator = navigator;
         this.tasks = new TaskRunner(worker);
@@ -211,6 +218,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         phonesTab = new PhonesTab(phonesListController, customers, categories, tasks, this::checkReadiness);
         emailsTab = new EmailsTab(emailsListController, customers, categories, tasks, this::checkReadiness);
         employersTab = new EmployersTab(employersListController, customers, categories, tasks, this::checkReadiness);
+        documentsTab = new DocumentsTab(documentsListController, documents, tasks);
     }
 
     /**
@@ -325,6 +333,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         phonesTab.load(loaded.number());
         emailsTab.load(loaded.number());
         employersTab.load(loaded.number());
+        documentsTab.load(loaded.number());
     }
 
     private void startNewCustomer() {

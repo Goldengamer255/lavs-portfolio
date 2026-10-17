@@ -6,6 +6,7 @@ import lavs.service.AuthenticationService;
 import lavs.service.CategoryService;
 import lavs.service.ConnectionMonitor;
 import lavs.service.CustomerService;
+import lavs.service.DocumentService;
 import lavs.service.LoanService;
 
 /**
@@ -20,6 +21,7 @@ public record ShellDependencies(
         Navigator navigator,
         AuthenticationService authentication,
         CustomerService customers,
+        DocumentService documents,
         LoanService loans,
         CategoryService categories,
         ConnectionMonitor connectionMonitor,
