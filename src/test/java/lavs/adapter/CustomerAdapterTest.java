@@ -3,11 +3,21 @@ package lavs.adapter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Map;
+import lavs.domain.Phone;
+import mainframe.client.Connection;
+import mainframe.client.MessageRequest;
 import mainframe.client.MessageResponse;
 import mainframe.client.Status;
 import mainframe.client.StubConnection;
+import org.mockito.ArgumentCaptor;
 import org.junit.jupiter.api.Test;
 
 class CustomerAdapterTest {
@@ -109,5 +119,56 @@ class CustomerAdapterTest {
     assertEquals("Lee Wong", result.value().secondaryCustomerName());
     assertEquals("Sibling", result.value().otherType());
     assertEquals(44, result.transactionId());
+  }
+
+  // AI-assisted: mock response fields and request assertions for search and phone mapping.
+  @Test
+  void searchSendsPageAndMapsCustomerDates() {
+    Connection connection = mock(Connection.class);
+    when(connection.send(any(MessageRequest.class)))
+        .thenReturn(new MessageResponse(new Status(45), new HashMap<>(Map.of(
+            "page", "3", "total", "12", "items", "1",
+            "1:number", "C17", "1:firstName", "Aroha", "1:familyName", "Smith",
+            "1:dateOfBirth", "1998-04-12", "1:title", "Ms", "1:status", "Active"))));
+
+    var result = new CustomerAdapter(connection).search("Smith", 3, 5);
+
+    assertTrue(result.isSuccess());
+    assertEquals(3, result.value().page());
+    assertEquals(5, result.value().size());
+    assertEquals(12, result.value().total());
+    assertEquals("C17", result.value().items().get(0).number());
+    assertEquals(LocalDate.of(1998, 4, 12), result.value().items().get(0).dateOfBirth());
+    var request = ArgumentCaptor.forClass(MessageRequest.class);
+    verify(connection).send(request.capture());
+    assertEquals("customer.search", request.getValue().getRequestType());
+    assertEquals("Smith", request.getValue().getValue("search"));
+    assertEquals("3", request.getValue().getValue("page"));
+    assertEquals("5", request.getValue().getValue("size"));
+  }
+
+  @Test
+  void addPhoneSerializesFlagsAndMapsReturnedNumber() {
+    Connection connection = mock(Connection.class);
+    when(connection.send(any(MessageRequest.class)))
+        .thenReturn(new MessageResponse(new Status(46), new HashMap<>(Map.of(
+            "customer", "C17", "id", "31", "countryCode", "+64",
+            "number", "211234567", "type", "Mobile", "otherType", "",
+            "canTxt", "y", "isPrimary", "n"))));
+    var phone = new Phone(null, true, "+64", null, "C17", false, "211234567", "", "Mobile");
+
+    var result = new CustomerAdapter(connection).addPhone(phone);
+
+    assertTrue(result.isSuccess());
+    assertEquals(31L, result.value().id());
+    assertTrue(result.value().canTxt());
+    assertFalse(result.value().isPrimary());
+    assertEquals("211234567", result.value().number());
+    var request = ArgumentCaptor.forClass(MessageRequest.class);
+    verify(connection).send(request.capture());
+    assertEquals("customer.addPhoneNumber", request.getValue().getRequestType());
+    assertEquals("C17", request.getValue().getValue("customer"));
+    assertEquals("y", request.getValue().getValue("canTxt"));
+    assertEquals("n", request.getValue().getValue("isPrimary"));
   }
 }
