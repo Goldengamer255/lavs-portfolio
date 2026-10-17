@@ -18,21 +18,47 @@ Update this readme file to contain the names of each team member and your GitHub
 - Rohit Balaji - RohitB2005
 - _Replace this text: Team Member Name 4 - GitHub Login_
 
-## Running LAVS
+## Building, Testing, and Running LAVS on Windows
 
 Requirements: JDK 17 or newer and Maven.
 
-From the project root, run:
+Create a local configuration file before running live-mainframe tests. Enter the
+team-issued username and password in `.env`; this file is ignored by Git.
 
-```bash
-mvn compile
+### Windows PowerShell
+
+Confirm that Java and Maven are available, then copy the configuration template:
+
+```powershell
+java -version
+mvn -version
+Copy-Item .env.example .env
+notepad .env
+```
+
+After entering the team-issued credentials, build, test, and run the application:
+
+```powershell
+mvn clean compile
+mvn "-Dtest=lavs.*Test,lavs.**.*Test" test
 mvn javafx:run
 ```
-Ai assisted: wrote env setup docs.
-Before running the starter tests that connect to the live mainframe, copy
-`.env.example` to `.env` in the project root and enter your team's supplied
-credentials. The `.env` file is ignored by Git. Environment variables with the
-same names can override its values.
+
+### Windows Command Prompt
+
+```bat
+java -version
+mvn -version
+copy .env.example .env
+notepad .env
+mvn compile
+mvn "-Dtest=lavs.*Test,lavs.**.*Test" test
+mvn javafx:run
+```
+
+The isolated `lavs` test command excludes the supplied live-server integration
+tests, whose result depends on shared server data, permissions, and availability.
+Run `mvn test` only when intentionally exercising those live tests.
 
 The mainframe URL defaults to the course server. It can be overridden with the
 `LAVS_BASE_URL` environment variable. New customers use the logged-in user's
