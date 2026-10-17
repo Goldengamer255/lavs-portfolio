@@ -1,11 +1,12 @@
 package lavs.ui;
 
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import lavs.domain.Note;
 import lavs.domain.NoteSummary;
-import lavs.domain.Page;
 import lavs.gateway.OperationResult;
 import lavs.service.NoteInput;
 import lavs.service.NoteService;
@@ -21,7 +22,6 @@ import lavs.ui.support.TaskRunner;
 public final class NotesTab {
 
     private static final String DIALOG = "/lavs/view/NoteDialog.fxml";
-    private static final int PAGE_SIZE = 50;
     private static final String LOAD_FAILED = "Couldn't load notes. Check your connection and try again.";
     private static final String SAVE_FAILED = "Not saved yet. The mainframe couldn't be reached. Try Save again.";
     private static final String SAVE_REJECTED = "Not saved. The mainframe said: ";
@@ -61,8 +61,8 @@ public final class NotesTab {
     public void load(String customerNumber) {
         this.customerNumber = customerNumber;
         list.clearError();
-        tasks.run(() -> notes.listNotes(customerNumber, 1, PAGE_SIZE), list.busyProperty(),
-                this::showNotes, error -> list.showError(LOAD_FAILED));
+        tasks.run(() -> notes.listAllNotes(customerNumber), list.busyProperty(), this::showNotes,
+                error -> list.showError(LOAD_FAILED));
     }
 
     // The list has no note text, so the full note is read before the popup opens.
@@ -96,11 +96,11 @@ public final class NotesTab {
                 error -> form.showFormError(SAVE_FAILED));
     }
 
-    private void showNotes(OperationResult<Page<NoteSummary>> result) {
+    private void showNotes(OperationResult<List<NoteSummary>> result) {
         if (!result.isSuccess()) {
             list.showError(LOAD_FAILED);
         } else {
-            list.setItems(result.value().items());
+            list.setItems(result.value());
         }
     }
 

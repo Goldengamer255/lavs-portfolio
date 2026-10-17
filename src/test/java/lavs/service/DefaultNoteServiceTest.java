@@ -134,6 +134,34 @@ class DefaultNoteServiceTest {
         assertEquals(List.of("list C1", "get C1 5", "delete C1 5"), gateway.calls);
     }
 
+    @Test
+    void listAllNotesFetchesEveryPage() {
+        List<NoteSummary> firstFifty = new ArrayList<>();
+        for (int i = 1; i <= 50; i++) {
+            firstFifty.add(new NoteSummary(i, "S", "A", null, 1));
+        }
+
+        List<NoteSummary> nextTen = new ArrayList<>();
+        for (int i = 51; i <= 60; i++) {
+            nextTen.add(new NoteSummary(i, "S", "A", null, 1));
+        }
+
+        gateway.pages.add(OperationResult.success(new Page<>(firstFifty, 1, 50, 60), 1));
+        gateway.pages.add(OperationResult.success(new Page<>(nextTen, 2, 50, 60), 2));
+
+        OperationResult<List<NoteSummary>> result = service.listAllNotes("C1");
+
+        assertEquals(60, result.value().size());
+        assertEquals(2, gateway.calls.size());
+    }
+
+    @Test
+    void listAllNotesPassesFailureBack() {
+        gateway.pageResult = OperationResult.failure(10, "offline", 0);
+
+        assertTrue(service.listAllNotes("C1").isUnavailable());
+    }
+
     private static Note note() {
         return new Note(5, "C1", "Subject", "text", "Group_4", null);
     }
@@ -144,6 +172,7 @@ class DefaultNoteServiceTest {
      */
     private static final class FakeNoteGateway implements NoteGateway {
         private final List<String> calls = new ArrayList<>();
+        final List<OperationResult<Page<NoteSummary>>> pages = new ArrayList<>();
         private OperationResult<Page<NoteSummary>> pageResult;
         private OperationResult<Note> noteResult;
         private OperationResult<Boolean> deleteResult;
@@ -151,7 +180,7 @@ class DefaultNoteServiceTest {
         @Override
         public OperationResult<Page<NoteSummary>> listNotes(String customerNumber, long page, long size) {
             calls.add("list " + customerNumber);
-            return pageResult;
+            return pages.isEmpty() ? pageResult : pages.get((int) page - 1);
         }
 
         @Override

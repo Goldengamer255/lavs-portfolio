@@ -16,6 +16,7 @@ import lavs.validation.NoteField;
  */
 public final class DefaultNoteService implements NoteService {
     static final int MAX_SUBJECT_LENGTH = 50;
+    static final int PAGE_SIZE = 50;
     private final NoteGateway gateway;
 
     public DefaultNoteService(NoteGateway gateway) {
@@ -25,6 +26,23 @@ public final class DefaultNoteService implements NoteService {
     @Override
     public OperationResult<Page<NoteSummary>> listNotes(String customerNumber, long page, long size) {
         return gateway.listNotes(customerNumber, page, size);
+    }
+
+    @Override
+    public OperationResult<List<NoteSummary>> listAllNotes(String customerNumber) {
+        List<NoteSummary> all = new ArrayList<>();
+        long page = 1;
+        while (true) {
+            OperationResult<Page<NoteSummary>> result = gateway.listNotes(customerNumber, page, PAGE_SIZE);
+            if (!result.isSuccess()) {
+                return OperationResult.failure(result.errorCode(), result.errorMessage(), result.transactionId());
+            }
+            all.addAll(result.value().items());
+            if (result.value().items().isEmpty() || all.size() >= result.value().total()) {
+                return OperationResult.success(all, result.transactionId());
+            }
+            page++;
+        }
     }
 
     @Override
