@@ -2,7 +2,11 @@ package lavs.adapter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -18,6 +22,13 @@ import org.junit.jupiter.api.Test;
 
 /** Verifies category and item message translation without contacting the mainframe. */
 class MainframeCategoryGatewayTest {
+
+    @Test
+    void rejectsNullDependenciesAndCategoryNames() {
+        assertThrows(NullPointerException.class, () -> new MainframeCategoryGateway(null));
+        MainframeCategoryGateway gateway = new MainframeCategoryGateway(new ScriptedConnection());
+        assertThrows(NullPointerException.class, () -> gateway.getCategoryValues(null));
+    }
 
     @Test
     void resolvesCategoryAndReturnsValuesInConfiguredOrder() {
@@ -72,6 +83,68 @@ class MainframeCategoryGatewayTest {
         assertTrue(result.isUnavailable());
         assertEquals("Server unavailable", result.errorMessage());
         assertEquals(31, result.transactionId());
+    }
+
+    @Test
+    void loadsMultipleCategoryAndValuePages() {
+        ScriptedConnection connection = new ScriptedConnection();
+        connection.enqueue("constantCategory.list", success(40, values(
+                "page", "1", "total", "101", "items", "1",
+                "1:id", "1", "1:name", "DifferentType")));
+        connection.enqueue("constantCategory.list", success(41, values(
+                "page", "2", "total", "101", "items", "1",
+                "1:id", "27", "1:name", "CustomerAddressType")));
+        connection.enqueue("constantItem.list", success(42, values(
+                "page", "1", "total", "101", "items", "1",
+                "1:name", "Other", "1:order", "2")));
+        connection.enqueue("constantItem.list", success(43, values(
+                "page", "2", "total", "101", "items", "1",
+                "1:name", "Home", "1:order", "1")));
+
+        OperationResult<List<String>> result = new MainframeCategoryGateway(connection)
+                .getCategoryValues("CustomerAddressType");
+
+        assertEquals(List.of("Home", "Other"), result.value());
+        assertEquals(43, result.transactionId());
+        assertEquals("2", connection.requests().get(1).getValue("page"));
+        assertEquals("2", connection.requests().get(3).getValue("page"));
+    }
+
+    @Test
+    void preservesMainframeFailureWhenItemLookupFails() {
+        ScriptedConnection connection = new ScriptedConnection();
+        connection.enqueue("constantCategory.list", success(50, values(
+                "page", "1", "total", "1", "items", "1",
+                "1:id", "27", "1:name", "CustomerAddressType")));
+        connection.enqueue("constantItem.list",
+                new MessageResponse(new Status(3, "Items rejected", 51), new HashMap<>()));
+
+        OperationResult<List<String>> result = new MainframeCategoryGateway(connection)
+                .getCategoryValues("CustomerAddressType");
+
+        assertTrue(result.isRejected());
+        assertEquals("Items rejected", result.errorMessage());
+        assertEquals(51, result.transactionId());
+    }
+
+    @Test
+    void mapsTransportFailuresWithSpecificAndDefaultMessages() {
+        Connection connection = mock(Connection.class);
+        when(connection.send(any())).thenAnswer(invocation -> {
+            throw new IOException("Network down");
+        });
+        OperationResult<List<String>> specific = new MainframeCategoryGateway(connection)
+                .getCategoryValues("CustomerAddressType");
+        assertTrue(specific.isUnavailable());
+        assertEquals("Network down", specific.errorMessage());
+
+        Connection blankFailure = mock(Connection.class);
+        when(blankFailure.send(any())).thenAnswer(invocation -> {
+            throw new IOException(" ");
+        });
+        OperationResult<List<String>> fallback = new MainframeCategoryGateway(blankFailure)
+                .getCategoryValues("CustomerAddressType");
+        assertEquals("Mainframe is unavailable.", fallback.errorMessage());
     }
 
     private static MessageResponse success(long transactionId, HashMap<String, String> values) {
