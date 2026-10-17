@@ -7,9 +7,9 @@ import java.util.function.Supplier;
 import lavs.domain.Address;
 import lavs.domain.AddressSummary;
 import lavs.domain.Customer;
-import lavs.domain.CustomerSummary;
 import lavs.domain.CustomerDocument;
 import lavs.domain.CustomerDocumentSummary;
+import lavs.domain.CustomerSummary;
 import lavs.domain.DocumentMetadata;
 import lavs.domain.Email;
 import lavs.domain.EmailSummary;
@@ -103,20 +103,22 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
   public OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size) {
     var message = new mainframe.client.messages.customer.Search(page, nameQuery, size);
 
-    return send(message, () -> {
-      var customers = new ArrayList<CustomerSummary>();
-      for (var item : message.getItems()) {
-        customers.add(
-            new CustomerSummary(
-                item.getNumber(),
-                item.getFirstName(),
-                item.getFamilyName(),
-                parseDate(item.getDateOfBirth()),
-                item.getTitle(),
-                item.getStatus()));
-      }
-      return new Page<>(customers, message.getPage(), size, message.getTotal());
-    });
+    return send(
+        message,
+        () -> {
+          var customers = new ArrayList<CustomerSummary>();
+          for (var item : message.getItems()) {
+            customers.add(
+                new CustomerSummary(
+                    item.getNumber(),
+                    item.getFirstName(),
+                    item.getFamilyName(),
+                    parseDate(item.getDateOfBirth()),
+                    item.getTitle(),
+                    item.getStatus()));
+          }
+          return new Page<>(customers, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
@@ -229,20 +231,22 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerAddress.List(customerNumber, page, size);
 
-    return send(message, () -> {
-      var addresses = new ArrayList<AddressSummary>();
-      for (var item : message.getItems()) {
-        addresses.add(
-            new AddressSummary(
-                item.getId(),
-                item.getCity(),
-                item.getCountry(),
-                item.getType(),
-                "y".equals(item.getIsMailing()),
-                "y".equals(item.getIsPrimary())));
-      }
-      return new Page<>(addresses, message.getPage(), size, message.getTotal());
-    });
+    return send(
+        message,
+        () -> {
+          var addresses = new ArrayList<AddressSummary>();
+          for (var item : message.getItems()) {
+            addresses.add(
+                new AddressSummary(
+                    item.getId(),
+                    item.getCity(),
+                    item.getCountry(),
+                    item.getType(),
+                    "y".equals(item.getIsMailing()),
+                    "y".equals(item.getIsPrimary())));
+          }
+          return new Page<>(addresses, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
@@ -332,20 +336,22 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
       String customerNumber, long page, long size) {
     var message =
         new mainframe.client.messages.customerPhoneNumber.List(customerNumber, page, size);
-    return send(message, () -> {
-      var phones = new ArrayList<PhoneSummary>();
-      for (var item : message.getItems()) {
-        phones.add(
-            new PhoneSummary(
-                item.getId(),
-                item.getCountryCode(),
-                item.getNumber(),
-                item.getType(),
-                "y".equals(item.getCanTxt()),
-                "y".equals(item.getIsPrimary())));
-      }
-      return new Page<>(phones, message.getPage(), size, message.getTotal());
-    });
+    return send(
+        message,
+        () -> {
+          var phones = new ArrayList<PhoneSummary>();
+          for (var item : message.getItems()) {
+            phones.add(
+                new PhoneSummary(
+                    item.getId(),
+                    item.getCountryCode(),
+                    item.getNumber(),
+                    item.getType(),
+                    "y".equals(item.getCanTxt()),
+                    "y".equals(item.getIsPrimary())));
+          }
+          return new Page<>(phones, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
@@ -423,15 +429,20 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
   public OperationResult<Page<EmailSummary>> listEmails(
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerEmail.List(customerNumber, page, size);
-    return send(message, () -> {
-      var emails = new ArrayList<EmailSummary>();
-      for (var item : message.getItems()) {
-        emails.add(
-            new EmailSummary(
-                item.getId(), item.getAddress(), "y".equals(item.getIsPrimary()), item.getType()));
-      }
-      return new Page<>(emails, message.getPage(), size, message.getTotal());
-    });
+    return send(
+        message,
+        () -> {
+          var emails = new ArrayList<EmailSummary>();
+          for (var item : message.getItems()) {
+            emails.add(
+                new EmailSummary(
+                    item.getId(),
+                    item.getAddress(),
+                    "y".equals(item.getIsPrimary()),
+                    item.getType()));
+          }
+          return new Page<>(emails, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
@@ -507,13 +518,15 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
   public OperationResult<Page<EmployerSummary>> listEmployers(
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerEmployer.List(customerNumber, page, size);
-    return send(message, () -> {
-      var employers = new ArrayList<EmployerSummary>();
-      for (var item : message.getItems()) {
-        employers.add(new EmployerSummary(item.getId(), item.getName(), item.getType()));
-      }
-      return new Page<>(employers, message.getPage(), size, message.getTotal());
-    });
+    return send(
+        message,
+        () -> {
+          var employers = new ArrayList<EmployerSummary>();
+          for (var item : message.getItems()) {
+            employers.add(new EmployerSummary(item.getId(), item.getName(), item.getType()));
+          }
+          return new Page<>(employers, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
@@ -537,11 +550,23 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
   @Override
   public OperationResult<CustomerDocument> addDocument(
       String customerNumber, DocumentMetadata metadata) {
-    var message = new mainframe.client.messages.customer.AddDocument(
-        customerNumber, metadata.fileName(), metadata.fileType(), metadata.size(), metadata.type());
-    return send(message, () -> new CustomerDocument(
-        message.getId(), message.getCustomer(), message.getFileName(),
-        message.getFileType(), message.getSize(), message.getType()));
+    var message =
+        new mainframe.client.messages.customer.AddDocument(
+            customerNumber,
+            metadata.fileName(),
+            metadata.fileType(),
+            metadata.size(),
+            metadata.type());
+    return send(
+        message,
+        () ->
+            new CustomerDocument(
+                message.getId(),
+                message.getCustomer(),
+                message.getFileName(),
+                message.getFileType(),
+                message.getSize(),
+                message.getType()));
   }
 
   @Override
@@ -554,20 +579,32 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
   public OperationResult<Page<CustomerDocumentSummary>> listDocuments(
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerDocument.List(customerNumber, page, size);
-    return send(message, () -> {
-      var documents = new ArrayList<CustomerDocumentSummary>();
-      for (var item : message.getItems()) {
-        documents.add(new CustomerDocumentSummary(item.getId(), item.getFileName(), item.getType()));
-      }
-      return new Page<>(documents, message.getPage(), size, message.getTotal());
-    });
+    return send(
+        message,
+        () -> {
+          var documents = new ArrayList<CustomerDocumentSummary>();
+          for (var item : message.getItems()) {
+            documents.add(
+                new CustomerDocumentSummary(item.getId(), item.getFileName(), item.getType()));
+          }
+          return new Page<>(documents, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
-  public OperationResult<CustomerDocument> retrieveDocument(String customerNumber, long documentId) {
-    var message = new mainframe.client.messages.customerDocument.Retrieve(documentId, customerNumber);
-    return send(message, () -> new CustomerDocument(
-        message.getId(), message.getCustomerNumber(), message.getFileName(),
-        message.getFileType(), message.getSize(), message.getType()));
+  public OperationResult<CustomerDocument> retrieveDocument(
+      String customerNumber, long documentId) {
+    var message =
+        new mainframe.client.messages.customerDocument.Retrieve(documentId, customerNumber);
+    return send(
+        message,
+        () ->
+            new CustomerDocument(
+                message.getId(),
+                message.getCustomerNumber(),
+                message.getFileName(),
+                message.getFileType(),
+                message.getSize(),
+                message.getType()));
   }
 }
