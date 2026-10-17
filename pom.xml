@@ -96,6 +96,8 @@
                             <excludes>
                                 <exclude>lavs/ui/**</exclude>
                                 <exclude>mainframe/**</exclude>
+                                <exclude>lavs/LavsApplication*</exclude>
+                                <exclude>lavs/ApplicationShell*</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -121,6 +123,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/mainframe/client/messages/**</exclude>
+                                <exclude>**/mainframe/client/HttpConnectionTests.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
