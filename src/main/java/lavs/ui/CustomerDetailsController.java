@@ -26,12 +26,14 @@ import lavs.domain.Email;
 import lavs.domain.Employer;
 import lavs.domain.Relationship;
 import lavs.domain.Customer;
+import lavs.domain.CustomerDocumentSummary;
 import lavs.domain.LoanSummaryItem;
 import lavs.domain.NoteSummary;
 import lavs.domain.Page;
 import lavs.gateway.OperationResult;
 import lavs.service.CategoryService;
 import lavs.service.CustomerService;
+import lavs.service.DocumentService;
 import lavs.service.NoteService;
 import lavs.service.CustomerInput;
 import lavs.service.SaveResult;
@@ -59,6 +61,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private static final NumberFormat MONEY_FORMAT = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-NZ"));
 
     private final CustomerService customers;
+    private final DocumentService documents;
     private final CategoryService categories;
     private final NoteService notes;
     private final Navigator navigator;
@@ -75,6 +78,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private PhonesTab phonesTab;
     private EmailsTab emailsTab;
     private EmployersTab employersTab;
+    private DocumentsTab documentsTab;
     private RelationshipsTab relationshipsTab;
     private NotesTab notesTab;
 
@@ -149,6 +153,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     @FXML
     private EntityListController<Employer> employersListController;
     @FXML
+    private EntityListController<CustomerDocumentSummary> documentsListController;
+    @FXML
     private EntityListController<Relationship> relationshipsListController;
     @FXML
     private EntityListController<NoteSummary> notesListController;
@@ -157,9 +163,11 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
      * Creates the controller with the services it needs. The worker is the shared
      * background executor from the application shell.
      */
-    public CustomerDetailsController(CustomerService customers, CategoryService categories, NoteService notes,
+    public CustomerDetailsController(CustomerService customers, DocumentService documents,
+            CategoryService categories, NoteService notes,
             Navigator navigator, Executor worker) {
         this.customers = customers;
+        this.documents = documents;
         this.categories = categories;
         this.notes = notes;
         this.navigator = navigator;
@@ -222,6 +230,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         phonesTab = new PhonesTab(phonesListController, customers, categories, tasks, this::checkReadiness);
         emailsTab = new EmailsTab(emailsListController, customers, categories, tasks, this::checkReadiness);
         employersTab = new EmployersTab(employersListController, customers, categories, tasks, this::checkReadiness);
+        documentsTab = new DocumentsTab(documentsListController, documents, tasks);
         relationshipsTab = new RelationshipsTab(
                 relationshipsListController, customers, categories, tasks);
         notesTab = new NotesTab(notesListController, notes, tasks);
@@ -339,6 +348,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         phonesTab.load(loaded.number());
         emailsTab.load(loaded.number());
         employersTab.load(loaded.number());
+        documentsTab.load(loaded.number());
         relationshipsTab.load(loaded.number());
         notesTab.load(loaded.number());
     }

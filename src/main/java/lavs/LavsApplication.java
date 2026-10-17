@@ -10,7 +10,6 @@ import lavs.adapter.MainframeAuthenticationGateway;
 import lavs.adapter.MainframeCategoryGateway;
 import lavs.adapter.NoteAdapter;
 import lavs.adapter.RecoveringConnection;
-import lavs.gateway.CustomerGateway;
 import lavs.gateway.LoanGateway;
 import lavs.service.AuthenticationService;
 import lavs.service.CategoryService;
@@ -21,6 +20,7 @@ import lavs.service.DefaultConnectionMonitor;
 import lavs.service.DefaultCustomerService;
 import lavs.service.DefaultLoanService;
 import lavs.service.DefaultNoteService;
+import lavs.service.DocumentService;
 import lavs.service.LoanService;
 import lavs.service.NoteService;
 import lavs.service.RepaymentService;
@@ -45,7 +45,8 @@ public class LavsApplication extends Application {
         CategoryService categories = new DefaultCategoryService(
                 new MainframeCategoryGateway(connection));
         NoteService notes = new DefaultNoteService(new NoteAdapter(connection));
-        CustomerGateway customerGateway = new CustomerAdapter(connection);
+        CustomerAdapter customerGateway = new CustomerAdapter(connection);
+        DocumentService documents = new DocumentService(customerGateway);
         LoanGateway loanGateway = new LoanAdapter(connection);
         ValidationService validation = new ValidationService();
         CustomerService customers = new DefaultCustomerService(
@@ -72,6 +73,7 @@ public class LavsApplication extends Application {
                 stage,
                 authentication,
                 customers,
+                documents,
                 loans,
                 categories,
                 notes,
