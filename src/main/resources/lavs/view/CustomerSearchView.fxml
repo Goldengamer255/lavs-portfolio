@@ -26,7 +26,7 @@
                   <TextField fx:id="searchField" promptText="e.g. Smith" />
                </children>
             </VBox>
-            <Button fx:id="searchButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSearch" styleClass="secondary-button" text="Search" />
+            <Button minWidth="-Infinity" fx:id="searchButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSearch" styleClass="secondary-button" text="Search" />
             <ProgressIndicator fx:id="searchSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
                <VBox prefWidth="160.0" spacing="4.0">
                <children>
@@ -34,10 +34,10 @@
                   <TextField fx:id="loanNumberField" promptText="Loan number" />
                </children>
             </VBox>
-            <Button fx:id="openLoanButton" mnemonicParsing="false" onAction="#handleOpenLoan" styleClass="secondary-button" text="Open Loan" />
+            <Button minWidth="-Infinity" fx:id="openLoanButton" mnemonicParsing="false" onAction="#handleOpenLoan" styleClass="secondary-button" text="Open Loan" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#handleAddCustomer" styleClass="primary-button" text="+ Add New Customer" />
-            <Button fx:id="cancelPickButton" mnemonicParsing="false" onAction="#handleCancelPick" styleClass="secondary-button" text="Cancel" visible="false" />
+            <Button minWidth="-Infinity" fx:id="addCustomerButton" mnemonicParsing="false" onAction="#handleAddCustomer" styleClass="primary-button" text="+ Add New Customer" />
+            <Button minWidth="-Infinity" fx:id="cancelPickButton" mnemonicParsing="false" onAction="#handleCancelPick" styleClass="secondary-button" text="Cancel" visible="false" />
          </children>
       </HBox>
       <TableView fx:id="customerTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">

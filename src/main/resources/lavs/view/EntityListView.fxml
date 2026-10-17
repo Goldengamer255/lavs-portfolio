@@ -17,9 +17,9 @@
    <children>
       <HBox alignment="CENTER_LEFT" spacing="8.0">
          <children>
-            <Button fx:id="addButton" mnemonicParsing="false" onAction="#handleAdd" styleClass="primary-button" text="+ Add" />
-            <Button fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" styleClass="secondary-button" text="Edit" />
-            <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#handleDelete" styleClass="secondary-button" text="Delete" />
+            <Button minWidth="-Infinity" fx:id="addButton" mnemonicParsing="false" onAction="#handleAdd" styleClass="primary-button" text="+ Add" />
+            <Button minWidth="-Infinity" fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" styleClass="secondary-button" text="Edit" />
+            <Button minWidth="-Infinity" fx:id="deleteButton" mnemonicParsing="false" onAction="#handleDelete" styleClass="secondary-button" text="Delete" />
             <Region HBox.hgrow="ALWAYS" />
             <ProgressIndicator fx:id="listSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
          </children>

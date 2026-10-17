@@ -20,19 +20,19 @@
    <children>
       <HBox alignment="CENTER_LEFT" spacing="12.0">
          <children>
-            <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
+            <Button minWidth="-Infinity" fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
             <Label fx:id="loanTitleLabel" styleClass="screen-title" text="New Loan" />
             <Label fx:id="applicantLabel" styleClass="hint-text" text="Applicant: -" />
             <ProgressIndicator fx:id="loadingSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="statusLabel" styleClass="field-label" text="Status: New" />
-            <Button fx:id="changeStatusButton" mnemonicParsing="false" onAction="#handleChangeStatus" styleClass="secondary-button" text="Change Status ›" />
+            <Button minWidth="-Infinity" fx:id="changeStatusButton" mnemonicParsing="false" onAction="#handleChangeStatus" styleClass="secondary-button" text="Change Status ›" />
          </children>
       </HBox>
       <HBox fx:id="saveErrorBanner" alignment="CENTER_LEFT" spacing="12.0" styleClass="error-banner" visible="false">
          <children>
             <Label fx:id="saveErrorLabel" maxWidth="1.7976931348623157E308" text="Not saved yet. The mainframe couldn't be reached." wrapText="true" HBox.hgrow="ALWAYS" />
-            <Button fx:id="retryButton" mnemonicParsing="false" onAction="#handleRetry" styleClass="secondary-button" text="Retry" />
+            <Button minWidth="-Infinity" fx:id="retryButton" mnemonicParsing="false" onAction="#handleRetry" styleClass="secondary-button" text="Retry" />
          </children>
       </HBox>
       <VBox spacing="16.0" styleClass="card">
@@ -114,8 +114,8 @@
       </VBox>
          <HBox alignment="CENTER_LEFT" spacing="8.0">
          <children>
-            <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Save Loan" />
-            <Button fx:id="viewSummaryButton" mnemonicParsing="false" onAction="#handleViewSummary" styleClass="secondary-button" text="View Summary ›" />
+            <Button minWidth="-Infinity" fx:id="saveButton" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Save Loan" />
+            <Button minWidth="-Infinity" fx:id="viewSummaryButton" mnemonicParsing="false" onAction="#handleViewSummary" styleClass="secondary-button" text="View Summary ›" />
             <ProgressIndicator fx:id="saveSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
          </children>
       </HBox>

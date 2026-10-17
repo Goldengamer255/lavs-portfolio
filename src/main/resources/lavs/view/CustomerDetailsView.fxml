@@ -22,19 +22,19 @@
    <children>
       <HBox alignment="CENTER_LEFT" spacing="12.0">
          <children>
-            <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
+            <Button minWidth="-Infinity" fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
             <Label fx:id="customerNameLabel" styleClass="screen-title" text="New Customer" />
             <Label fx:id="customerNumberLabel" styleClass="hint-text" text="-" />
             <Label fx:id="customerStatusLabel" styleClass="field-label" text="-" />
             <ProgressIndicator fx:id="loadingSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="linkCoborrowerButton" mnemonicParsing="false" onAction="#handleLinkCoborrower" styleClass="primary-button" text="Link as Co-borrower" visible="false" />
+            <Button minWidth="-Infinity" fx:id="linkCoborrowerButton" mnemonicParsing="false" onAction="#handleLinkCoborrower" styleClass="primary-button" text="Link as Co-borrower" visible="false" />
          </children>
       </HBox>
       <HBox fx:id="saveErrorBanner" alignment="CENTER_LEFT" spacing="12.0" styleClass="error-banner" visible="false">
          <children>
             <Label fx:id="saveErrorLabel" maxWidth="1.7976931348623157E308" text="Not saved yet. The mainframe couldn't be reached." wrapText="true" HBox.hgrow="ALWAYS" />
-            <Button fx:id="retryButton" mnemonicParsing="false" onAction="#handleRetry" styleClass="secondary-button" text="Retry" />
+            <Button minWidth="-Infinity" fx:id="retryButton" mnemonicParsing="false" onAction="#handleRetry" styleClass="secondary-button" text="Retry" />
          </children>
       </HBox>
       <TabPane fx:id="detailsTabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
@@ -95,9 +95,9 @@
                         <Label fx:id="formErrorLabel" styleClass="field-error" visible="false" wrapText="true" />
                         <HBox alignment="CENTER_LEFT" spacing="8.0">
                            <children>
-                              <Button fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" styleClass="secondary-button" text="Edit" />
-                              <Button fx:id="saveButton" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Save" />
-                              <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
+                              <Button minWidth="-Infinity" fx:id="editButton" mnemonicParsing="false" onAction="#handleEdit" styleClass="secondary-button" text="Edit" />
+                              <Button minWidth="-Infinity" fx:id="saveButton" mnemonicParsing="false" onAction="#handleSave" styleClass="primary-button" text="Save" />
+                              <Button minWidth="-Infinity" fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancel" styleClass="secondary-button" text="Cancel" />
                               <ProgressIndicator fx:id="saveSpinner" prefHeight="20.0" prefWidth="20.0" visible="false" />
                            </children>
                         </HBox>
@@ -142,7 +142,7 @@
             <Label styleClass="section-title" text="Loans" />
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="loanReadinessLabel" styleClass="hint-text" text="Add a mailing address and a phone or email before starting a loan." />
-            <Button fx:id="addLoanButton" mnemonicParsing="false" disable="true" onAction="#handleAddLoan" styleClass="primary-button" text="+ Add Loan" />
+            <Button minWidth="-Infinity" fx:id="addLoanButton" mnemonicParsing="false" disable="true" onAction="#handleAddLoan" styleClass="primary-button" text="+ Add Loan" />
          </children>
       </HBox>
       <TableView fx:id="loanTable" prefHeight="160.0" prefWidth="200.0">

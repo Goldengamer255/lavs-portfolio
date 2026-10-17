@@ -293,7 +293,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         } else {
             addLoanButton.setDisable(true);
             loanReadinessLabel
-                    .setText(String.join(" ", report.errors().stream().map(ValidationIssue::message).toList()));
+                    .setText(String.join(". ", report.errors().stream().map(ValidationIssue::message).toList()) + ".");
         }
     }
 
