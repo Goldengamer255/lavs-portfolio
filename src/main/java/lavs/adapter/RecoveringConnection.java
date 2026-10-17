@@ -17,7 +17,7 @@ import mainframe.client.Status;
  * After a successful login, this wrapper retains the credentials in memory and
  * uses them to log in again and resend the failed request exactly once.</p>
  */
-/*AI ASSISTED */
+// AI-assisted: connection wrapper structure and one-retry recovery flow.
 public final class RecoveringConnection implements Connection {
 
     private static final String INVALID_TRANSACTION = "invalid transaction number";

@@ -18,10 +18,11 @@ import javafx.scene.layout.VBox;
 import lavs.gateway.OperationResult;
 import lavs.service.AuthenticationService;
 import lavs.service.SignedInUser;
+import lavs.ui.support.Dialogs;
 import lavs.ui.support.TaskRunner;
 
 /** Header shown above every authenticated screen. */
-/**AI ASSISTED */
+// AI-assisted: shared header layout, connection-state listener, and logout flow.
 final class SessionHeader extends VBox {
 
     private static final String LOGOUT_FAILED = "Couldn't log out. Please try again.";
@@ -76,6 +77,9 @@ final class SessionHeader extends VBox {
     }
 
     private void logout() {
+        if (!Dialogs.confirmLogout(getScene().getWindow())) {
+            return;
+        }
         errorLabel.setVisible(false);
         tasks.run(authentication::logout, busy, this::showLogoutResult,
                 error -> showError());

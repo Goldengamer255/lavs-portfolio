@@ -28,6 +28,20 @@ public final class Dialogs {
     }
 
     /**
+     * Confirms logout because leaving the authenticated session discards any
+     * unsaved changes on the current screen.
+     *
+     * @return true if the user chose Log Out
+     */
+    public static boolean confirmLogout(Window owner) {
+        ButtonType logout = new ButtonType("Log Out", ButtonBar.ButtonData.OK_DONE);
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                "Log out? Any unsaved changes will be lost.", logout, ButtonType.CANCEL);
+        prepare(alert, owner, "Log Out");
+        return alert.showAndWait().orElse(ButtonType.CANCEL) == logout;
+    }
+
+    /**
      * Shows a short message with an OK button.
      */
     public static void showInfo(Window owner, String title, String message) {
