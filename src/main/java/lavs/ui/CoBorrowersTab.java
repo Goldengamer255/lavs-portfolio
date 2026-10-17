@@ -11,7 +11,7 @@ import lavs.service.LoanService;
 import lavs.ui.support.EntityListController;
 import lavs.ui.support.TaskRunner;
 
-// Built by adapting my AddressesTab pattern, and having claude tell me which parts had to change. 
+// AI-assisted: adapted from my AddressesTab pattern; Claude told me the parts that had to change (co-borrower picker, type popup, failure reload)
 /**
  * Manages the co-borrowers list on the loan screen: loading, linking a customer
  * through the co-borrower picker, changing a link's type and removing a link.
