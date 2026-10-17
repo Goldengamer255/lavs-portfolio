@@ -102,6 +102,24 @@ class NoteAdapterTest {
     }
 
     @Test
+    void deleteRejectionIsPassedBack() {
+        connection.reply(rejected("Note not found"));
+        assertTrue(adapter.deleteNote("C1", 1).isRejected());
+    }
+
+    @Test
+    void addRejectionIsPassedBack() {
+        connection.reply(rejected("Customer not found"));
+        assertTrue(adapter.addNote("C1", "Call back", "Hi").isRejected());
+    }
+
+    @Test
+    void updateRejectionIsPassedBack() {
+        connection.reply(rejected("Note not found"));
+        assertTrue(adapter.updateNote("C1", 8, "New", "Hi").isRejected());
+    }
+
+    @Test
     void connectionFailureIsUnavailable() {
         connection.reply(StatusMessage.NETWORK_FAILURE_UNAVAILABLE.generateMessageResponse(0));
 
@@ -123,6 +141,10 @@ class NoteAdapterTest {
         assertEquals(0, NoteAdapter.parseCount(null));
         assertEquals(3, NoteAdapter.parseCount(" 3 "));
         assertEquals(0, NoteAdapter.parseCount("x"));
+    }
+
+    private static MessageResponse rejected(String message) {
+        return new MessageResponse(new Status(3, message, 20), new HashMap<>());
     }
 
     private static MessageResponse success(long transactionId, String... entries) {
