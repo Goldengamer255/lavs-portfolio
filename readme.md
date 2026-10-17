@@ -30,6 +30,11 @@ export LAVS_ORGANISATION_ID="<assigned numeric organisation ID>"
 mvn compile
 mvn javafx:run
 ```
+Ai assisted: wrote env setup docs.
+Before running the starter tests that connect to the live mainframe, copy
+`.env.example` to `.env` in the project root and enter your team's supplied
+credentials. The `.env` file is ignored by Git. Environment variables with the
+same names can override its values.
 
 The mainframe URL defaults to the course server. It can be overridden with the
 `LAVS_BASE_URL` environment variable. The organisation ID is assigned to newly

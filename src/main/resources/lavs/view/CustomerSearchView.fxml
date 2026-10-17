@@ -37,6 +37,7 @@
             <Button fx:id="openLoanButton" mnemonicParsing="false" onAction="#handleOpenLoan" styleClass="secondary-button" text="Open Loan" />
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="addCustomerButton" mnemonicParsing="false" onAction="#handleAddCustomer" styleClass="primary-button" text="+ Add New Customer" />
+            <Button fx:id="cancelPickButton" mnemonicParsing="false" onAction="#handleCancelPick" styleClass="secondary-button" text="Cancel" visible="false" />
          </children>
       </HBox>
       <TableView fx:id="customerTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">

@@ -17,7 +17,7 @@ public class CustomerNoteTests {
     void sendsToServer() throws IOException, InterruptedException {
         // login
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
-        connection.Login("test", "test");
+        connection.Login(TestConstants.USERNAME, TestConstants.PASSWORD);
 
         // search for a customer
         Search searchMessage = sendMessage(

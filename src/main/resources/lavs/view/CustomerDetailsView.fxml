@@ -22,6 +22,7 @@
    <children>
       <HBox alignment="CENTER_LEFT" spacing="12.0">
          <children>
+            <Button fx:id="backButton" mnemonicParsing="false" onAction="#handleBack" styleClass="secondary-button" text="‹ Back" />
             <Label fx:id="customerNameLabel" styleClass="screen-title" text="New Customer" />
             <Label fx:id="customerNumberLabel" styleClass="hint-text" text="-" />
             <Label fx:id="customerStatusLabel" styleClass="field-label" text="-" />

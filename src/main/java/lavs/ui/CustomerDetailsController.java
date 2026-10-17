@@ -34,6 +34,7 @@ import lavs.service.CustomerInput;
 import lavs.service.SaveResult;
 import lavs.service.ValidationIssue;
 import lavs.service.ValidationReport;
+import lavs.ui.support.Dialogs;
 import lavs.ui.support.EntityListController;
 import lavs.ui.support.TaskRunner;
 import lavs.ui.support.ValidationFeedback;
@@ -71,6 +72,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private EmailsTab emailsTab;
     private EmployersTab employersTab;
 
+    @FXML
+    private Button backButton;
     @FXML
     private Label customerNameLabel;
     @FXML
@@ -185,6 +188,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         saveSpinner.visibleProperty().bind(saving);
         saveButton.disableProperty().bind(saving);
         cancelButton.disableProperty().bind(saving);
+        backButton.disableProperty().bind(saving);
 
         loanPrincipalColumn.setCellValueFactory(cell -> text(MONEY_FORMAT.format(cell.getValue().principal())));
         loanStartDateColumn.setCellValueFactory(cell -> text(cell.getValue().startDate() == null
@@ -362,6 +366,14 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private void handleRetry() {
         hideBanner();
         retryAction.run();
+    }
+
+    @FXML
+    private void handleBack() {
+        if (editing.get() && !Dialogs.confirmDiscard(saveButton.getScene().getWindow())) {
+            return;
+        }
+        navigator.back();
     }
 
     @FXML

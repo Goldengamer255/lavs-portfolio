@@ -18,7 +18,7 @@ public class LoanTests {
     void sendsToServer() throws IOException, InterruptedException {
         // login
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
-        connection.Login("test", "test");
+        connection.Login(TestConstants.USERNAME, TestConstants.PASSWORD);
 
         // search for a customer
         Search searchMessage = sendMessage(
@@ -112,7 +112,7 @@ public class LoanTests {
     void listLoansForCustomerWithoutLoans() throws IOException, InterruptedException {
         // login
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
-        connection.Login("test", "test");
+        connection.Login(TestConstants.USERNAME, TestConstants.PASSWORD);
 
         // create a new customer
         String name = "test_" + Instant.now().toEpochMilli();
