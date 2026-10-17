@@ -28,6 +28,11 @@ From the project root, run:
 mvn compile
 mvn javafx:run
 ```
+Ai assisted: wrote env setup docs.
+Before running the starter tests that connect to the live mainframe, copy
+`.env.example` to `.env` in the project root and enter your team's supplied
+credentials. The `.env` file is ignored by Git. Environment variables with the
+same names can override its values.
 
 The current skeleton opens a window displaying “LAVS”.
 

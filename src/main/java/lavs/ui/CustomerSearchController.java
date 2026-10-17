@@ -49,6 +49,8 @@ public final class CustomerSearchController implements ScreenLifecycle {
     @FXML
     private Button openLoanButton;
     @FXML
+    private Button cancelPickButton;
+    @FXML
     private ProgressIndicator searchSpinner;
     @FXML
     private TableView<CustomerSummary> customerTable;
@@ -79,6 +81,7 @@ public final class CustomerSearchController implements ScreenLifecycle {
     private void initialize() {
         searchSpinner.visibleProperty().bind(busy);
         searchButton.disableProperty().bind(busy);
+        cancelPickButton.managedProperty().bind(cancelPickButton.visibleProperty());
 
         numberColumn.setCellValueFactory(cell -> text(cell.getValue().number()));
         nameColumn.setCellValueFactory(cell -> text(cell.getValue().firstName() + " " + cell.getValue().familyName()));
@@ -114,6 +117,7 @@ public final class CustomerSearchController implements ScreenLifecycle {
             titleLabel.setText("Customers");
         }
         loanNumberField.setDisable(navigator.isPickingCoBorrower());
+        cancelPickButton.setVisible(navigator.isPickingCoBorrower());
 
         if (lastSearch != null) {
             runSearch();
@@ -129,6 +133,11 @@ public final class CustomerSearchController implements ScreenLifecycle {
     @FXML
     private void handleAddCustomer() {
         navigator.showNewCustomer();
+    }
+
+    @FXML
+    private void handleCancelPick() {
+        navigator.back();
     }
 
     @FXML

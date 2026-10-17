@@ -79,7 +79,7 @@
     -fx-progress-color: white;
 }
 
-.text-field:error, .combo-box:error, .date-picker:error {
+.text-field:error, .text-area:error, .combo-box:error, .date-picker:error {
     -fx-border-color: -lavs-red;
     -fx-border-width: 1.5;
     -fx-border-radius: 3;
