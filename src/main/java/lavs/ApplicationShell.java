@@ -35,7 +35,7 @@ public final class ApplicationShell implements AutoCloseable {
 
         navigator = new FxmlNavigator(stage);
         ControllerFactory controllers = new ControllerFactory(
-                authentication, customers, categories, navigator, worker);
+                authentication, customers, loans, categories, navigator, worker);
         navigator.setControllerFactory(controllers);
 
         dependencies = new ShellDependencies(navigator, authentication, customers, loans,

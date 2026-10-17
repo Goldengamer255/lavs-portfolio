@@ -7,6 +7,7 @@ import javafx.util.Callback;
 import lavs.service.AuthenticationService;
 import lavs.service.CategoryService;
 import lavs.service.CustomerService;
+import lavs.service.LoanService;
 import lavs.ui.support.EntityListController;
 
 /**
@@ -21,6 +22,7 @@ public final class ControllerFactory implements Callback<Class<?>, Object> {
 
     private final AuthenticationService authentication;
     private final CustomerService customers;
+    private final LoanService loans;
     private final CategoryService categories;
     private final Navigator navigator;
     private final Executor worker;
@@ -30,14 +32,16 @@ public final class ControllerFactory implements Callback<Class<?>, Object> {
      *
      * @param authentication authentication and current-session operations
      * @param customers customer queries and commands
+     * @param loans loan queries, commands, status transitions, and co-borrower operations
      * @param categories category values used by form controls
      * @param navigator shared screen navigator
      * @param worker executor used for mainframe calls away from the JavaFX thread
      */
     public ControllerFactory(AuthenticationService authentication, CustomerService customers,
-            CategoryService categories, Navigator navigator, Executor worker) {
+            LoanService loans, CategoryService categories, Navigator navigator, Executor worker) {
         this.authentication = Objects.requireNonNull(authentication, "authentication");
         this.customers = Objects.requireNonNull(customers, "customers");
+        this.loans = Objects.requireNonNull(loans, "loans");
         this.categories = Objects.requireNonNull(categories, "categories");
         this.navigator = Objects.requireNonNull(navigator, "navigator");
         this.worker = Objects.requireNonNull(worker, "worker");
@@ -64,6 +68,9 @@ public final class ControllerFactory implements Callback<Class<?>, Object> {
         }
         if (controllerType == CustomerDetailsController.class) {
             return new CustomerDetailsController(customers, categories, navigator, worker);
+        }
+        if (controllerType == LoanDetailsController.class) {
+            return new LoanDetailsController(loans, categories, navigator, worker);
         }
         if (controllerType == EntityListController.class) {
             return new EntityListController<>();
