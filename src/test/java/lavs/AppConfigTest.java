@@ -29,8 +29,17 @@ class AppConfigTest {
     }
 
     @Test
-    void rejectsNonPositiveOrganisationId() {
+    void acceptsZeroForTheLoggedInUsersOrganisation() {
         System.setProperty(ORGANISATION_PROPERTY, "0");
+
+        AppConfig config = AppConfig.load();
+
+        assertEquals(0, config.organisationId());
+    }
+
+    @Test
+    void rejectsNegativeOrganisationId() {
+        System.setProperty(ORGANISATION_PROPERTY, "-1");
 
         assertThrows(IllegalStateException.class, AppConfig::load);
     }

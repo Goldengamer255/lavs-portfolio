@@ -20,13 +20,11 @@ Update this readme file to contain the names of each team member and your GitHub
 
 ## Running LAVS
 
-Requirements: JDK 17 or newer, Maven, and the numeric mainframe organisation ID
-assigned to the team.
+Requirements: JDK 17 or newer and Maven.
 
 From the project root, run:
 
 ```bash
-export LAVS_ORGANISATION_ID="<assigned numeric organisation ID>"
 mvn compile
 mvn javafx:run
 ```
@@ -37,8 +35,9 @@ credentials. The `.env` file is ignored by Git. Environment variables with the
 same names can override its values.
 
 The mainframe URL defaults to the course server. It can be overridden with the
-`LAVS_BASE_URL` environment variable. The organisation ID is assigned to newly
-created customers and is deliberately kept out of the form and source code.
+`LAVS_BASE_URL` environment variable. New customers use the logged-in user's
+organisation by default. A Root user can override this by setting
+`LAVS_ORGANISATION_ID` to another organisation's numeric ID.
 
 ## Initial Repository Code
 
