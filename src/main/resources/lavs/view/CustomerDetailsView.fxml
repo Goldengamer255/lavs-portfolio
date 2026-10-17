@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="700.0" prefWidth="1000.0" spacing="16.0" styleClass="screen" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.CustomerDetailsController">
+<VBox prefHeight="700.0" prefWidth="1000.0" spacing="16.0" styleClass="screen" xmlns="http://javafx.com/javafx/17.0.18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lavs.ui.CustomerDetailsController">
    <padding>
       <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
    </padding>
@@ -128,6 +128,11 @@
             <Tab text="Documents">
               <content>
                 <fx:include fx:id="documentsList" source="EntityListView.fxml" />
+              </content>
+            </Tab>
+            <Tab text="Relationships">
+              <content>
+                <fx:include fx:id="relationshipsList" source="EntityListView.fxml" />
               </content>
             </Tab>
             <Tab text="Notes">

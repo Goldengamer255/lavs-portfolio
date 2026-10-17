@@ -13,6 +13,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <javafx.version>17.0.18</javafx.version>
         <JUnit.version>5.10.1</JUnit.version>
+        <mockito.version>5.17.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -31,6 +32,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -69,7 +76,99 @@
                     <mainClass>lavs.LavsApplication</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.4</version>
+                <configuration>
+                    <!-- Keep JaCoCo's agent and load Mockito explicitly on JDKs that block self-attachment. -->
+                    <argLine>@{argLine} -javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>lavs/ui/**</exclude>
+                                <exclude>mainframe/**</exclude>
+                                <exclude>lavs/LavsApplication*</exclude>
+                                <exclude>lavs/ApplicationShell*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>check-hargun-coverage</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>CLASS</element>
+                                    <includes>
+                                        <include>lavs.AppConfig</include>
+                                        <include>lavs.adapter.MainframeAuthenticationGateway</include>
+                                        <include>lavs.adapter.MainframeCategoryGateway</include>
+                                        <include>lavs.adapter.RecoveringConnection</include>
+                                        <include>lavs.service.DefaultConnectionMonitor</include>
+                                        <include>lavs.service.DefaultCustomerService</include>
+                                        <include>lavs.service.DefaultLoanService</include>
+                                    </includes>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.95</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>skip-live-mainframe-tests</id>
+            <!-- Active by default; run "mvn test -Dlive" with .env credentials to include the live mainframe tests -->
+            <activation>
+                <property>
+                    <name>!live</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/mainframe/client/messages/**</exclude>
+                                <exclude>**/mainframe/client/HttpConnectionTests.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

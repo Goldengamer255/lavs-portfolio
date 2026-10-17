@@ -79,7 +79,7 @@
     -fx-progress-color: white;
 }
 
-.text-field:error, .combo-box:error, .date-picker:error {
+.text-field:error, .text-area:error, .combo-box:error, .date-picker:error {
     -fx-border-color: -lavs-red;
     -fx-border-width: 1.5;
     -fx-border-radius: 3;
@@ -106,4 +106,33 @@
 .field-error {
     -fx-text-fill: -lavs-red;
     -fx-font-size: 11px;
+}
+
+.session-header-container {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent -lavs-border transparent;
+}
+
+.session-header-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -lavs-blue;
+}
+
+.session-user {
+    -fx-font-weight: bold;
+    -fx-text-fill: #1F2033;
+}
+
+.connection-status {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.connection-online {
+    -fx-text-fill: #1B7F3A;
+}
+
+.connection-offline {
+    -fx-text-fill: -lavs-red;
 }

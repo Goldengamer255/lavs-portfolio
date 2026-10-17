@@ -19,6 +19,8 @@ import lavs.domain.NewCustomer;
 import lavs.domain.Page;
 import lavs.domain.Phone;
 import lavs.domain.PhoneSummary;
+import lavs.domain.Relationship;
+import lavs.domain.RelationshipSummary;
 import lavs.gateway.CustomerGateway;
 import lavs.gateway.DocumentGateway;
 import lavs.gateway.OperationResult;
@@ -606,5 +608,139 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getFileType(),
                 message.getSize(),
                 message.getType()));
+  }
+
+  @Override
+  public OperationResult<Relationship> addRelationship(Relationship relationship) {
+    var message =
+        new mainframe.client.messages.customer.AddRelationship(
+            relationship.customerNumber(),
+            relationship.otherType(),
+            relationship.secondaryCustomerNumber(),
+            relationship.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Relationship(
+              message.getId(),
+              message.getCustomer(),
+              null,
+              message.getSecondaryCustomerNumber(),
+              null,
+              message.getType(),
+              message.getOtherType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
+  }
+
+  @Override
+  public OperationResult<Boolean> deleteRelationship(
+      String customerNumber, long relationshipId) {
+    var message =
+        new mainframe.client.messages.customer.DeleteRelationship(
+            customerNumber, relationshipId);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(true, status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
+  }
+
+  @Override
+  public OperationResult<Relationship> updateRelationship(Relationship relationship) {
+    var message =
+        new mainframe.client.messages.customer.UpdateRelationship(
+            relationship.customerNumber(),
+            relationship.id(),
+            relationship.otherType(),
+            relationship.secondaryCustomerNumber(),
+            relationship.type());
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Relationship(
+              message.getId(),
+              message.getCustomer(),
+              null,
+              message.getSecondaryCustomerNumber(),
+              null,
+              message.getType(),
+              message.getOtherType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
+  }
+
+  @Override
+  public OperationResult<Page<RelationshipSummary>> listRelationships(
+      String customerNumber, long page, long size) {
+    var message =
+        new mainframe.client.messages.customerRelationship.List(
+            customerNumber, page, size);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      var relationships = new ArrayList<RelationshipSummary>();
+      for (var item : message.getItems()) {
+        relationships.add(new RelationshipSummary(
+            item.getId(), item.getSecondaryCustomerNumber(), item.getType()));
+      }
+      return OperationResult.success(
+          new Page<>(relationships, message.getPage(), size, message.getTotal()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
+  }
+
+  @Override
+  public OperationResult<Relationship> retrieveRelationship(
+      String customerNumber, long relationshipId) {
+    var message =
+        new mainframe.client.messages.customerRelationship.Retrieve(
+            relationshipId, customerNumber);
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(
+          new Relationship(
+              message.getId(),
+              message.getCustomerNumber(),
+              message.getCustomerName(),
+              message.getSecondaryCustomerNumber(),
+              message.getSecondaryCustomerName(),
+              message.getType(),
+              message.getOtherType()),
+          status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 }

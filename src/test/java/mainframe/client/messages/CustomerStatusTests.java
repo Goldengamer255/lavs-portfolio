@@ -30,7 +30,7 @@ public class CustomerStatusTests {
                 "retrieve");
 
         String newStatus = UpdateStatus.STATUS_ACTIVE;
-        if (retrieveMessage.getStatus() == UpdateStatus.STATUS_ACTIVE) newStatus = UpdateStatus.STATUS_INACTIVE;
+        if (retrieveMessage.getStatus().equals(UpdateStatus.STATUS_ACTIVE)) newStatus = UpdateStatus.STATUS_INACTIVE;
 
         // update the status
         UpdateStatus updateMessage = sendMessage(

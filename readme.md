@@ -16,25 +16,54 @@ Update this readme file to contain the names of each team member and your GitHub
 - Jim Zhou - FridgeProtector1
 - Hargun Singh - Hargun2005
 - Rohit Balaji - RohitB2005
-- _Replace this text: Team Member Name 4 - GitHub Login_
+- Tanush Panuganti - Goldengamer255
 
-## Running LAVS
+## Building, Testing, and Running LAVS on Windows
 
-Requirements: JDK 17 or newer and Maven installed.
+Requirements: JDK 17 or newer and Maven.
 
-From the project root, run:
+Create a local configuration file only if you want to run the live-mainframe tests.
+Enter the team-issued username and password in `.env`; this file is ignored by Git.
 
-```bash
-mvn compile
+### Windows PowerShell
+
+Confirm that Java and Maven are available, then copy the configuration template:
+
+```powershell
+java -version
+mvn -version
+Copy-Item .env.example .env
+notepad .env
+```
+
+Optionally enter the team-issued credentials, then build, test, and run the application:
+
+```powershell
+mvn clean compile
+mvn test
 mvn javafx:run
 ```
-Ai assisted: wrote env setup docs.
-Before running the starter tests that connect to the live mainframe, copy
-`.env.example` to `.env` in the project root and enter your team's supplied
-credentials. The `.env` file is ignored by Git. Environment variables with the
-same names can override its values.
 
-The current skeleton opens a window displaying “LAVS”.
+### Windows Command Prompt
+
+```bat
+java -version
+mvn -version
+copy .env.example .env
+notepad .env
+mvn compile
+mvn test
+mvn javafx:run
+```
+
+Plain `mvn test` runs the LAVS tests and writes the coverage report to `target/site/jacoco/index.html`.
+The supplied live-server tests are skipped by default, because their result depends on shared server data, permissions and availability.
+To run them as well, set up `.env` and use `mvn test -Dlive`.
+
+The mainframe URL defaults to the course server. It can be overridden with the
+`LAVS_BASE_URL` environment variable. New customers use the logged-in user's
+organisation by default. A Root user can override this by setting
+`LAVS_ORGANISATION_ID` to another organisation's numeric ID.
 
 ## Initial Repository Code
 
