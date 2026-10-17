@@ -36,7 +36,7 @@ public final class ApplicationShell implements AutoCloseable {
         this.connectionMonitor = Objects.requireNonNull(connectionMonitor, "connectionMonitor");
         this.worker = Objects.requireNonNull(worker, "worker");
 
-        navigator = new FxmlNavigator(stage);
+        navigator = new FxmlNavigator(stage, authentication, online, worker);
         ControllerFactory controllers = new ControllerFactory(
                 authentication, customers, loans, categories, notes, repayments,
                 navigator, worker);

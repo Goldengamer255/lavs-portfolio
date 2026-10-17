@@ -8,12 +8,16 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import lavs.service.AuthenticationService;
 
 /**
  * JavaFX implementation of the LAVS screen-navigation contract.
@@ -37,6 +41,9 @@ public final class FxmlNavigator implements Navigator {
     private static final String STYLESHEET = "/lavs/css/lavs.css";
 
     private final Stage stage;
+    private final AuthenticationService authentication;
+    private final ReadOnlyBooleanProperty online;
+    private final Executor worker;
     private final Deque<ViewEntry> history = new ArrayDeque<>();
     private Callback<Class<?>, Object> controllerFactory;
     private ViewEntry current;
@@ -44,9 +51,16 @@ public final class FxmlNavigator implements Navigator {
 
     /**
      * @param stage primary application stage whose scene is managed by this navigator
+     * @param authentication current-session service used by authenticated headers
+     * @param online application connection state displayed in authenticated headers
+     * @param worker shared worker used for logout requests
      */
-    public FxmlNavigator(Stage stage) {
+    public FxmlNavigator(Stage stage, AuthenticationService authentication,
+            ReadOnlyBooleanProperty online, Executor worker) {
         this.stage = Objects.requireNonNull(stage, "stage");
+        this.authentication = Objects.requireNonNull(authentication, "authentication");
+        this.online = Objects.requireNonNull(online, "online");
+        this.worker = Objects.requireNonNull(worker, "worker");
     }
 
     /**
@@ -185,13 +199,24 @@ public final class FxmlNavigator implements Navigator {
         FXMLLoader loader = new FXMLLoader(resource);
         loader.setControllerFactory(controllerFactory);
         try {
-            Parent root = loader.load();
+            Parent loadedRoot = loader.load();
+            Parent root = LOGIN.equals(resourcePath)
+                    ? loadedRoot
+                    : authenticatedRoot(loadedRoot);
             ViewEntry entry = new ViewEntry(root, loader.getController(), context);
             applyContext(entry.controller(), context);
             showExisting(entry);
         } catch (IOException exception) {
             throw new UncheckedIOException("Could not load " + resourcePath, exception);
         }
+    }
+
+    /** Adds the session controls consistently without duplicating them in each FXML file. */
+    private Parent authenticatedRoot(Parent content) {
+        BorderPane layout = new BorderPane();
+        layout.setTop(new SessionHeader(authentication, this, online, worker));
+        layout.setCenter(content);
+        return layout;
     }
 
     /** Displays an already loaded view and notifies its controller of activation. */
