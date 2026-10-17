@@ -8,6 +8,9 @@ import lavs.domain.Address;
 import lavs.domain.AddressSummary;
 import lavs.domain.Customer;
 import lavs.domain.CustomerSummary;
+import lavs.domain.CustomerDocument;
+import lavs.domain.CustomerDocumentSummary;
+import lavs.domain.DocumentMetadata;
 import lavs.domain.Email;
 import lavs.domain.EmailSummary;
 import lavs.domain.Employer;
@@ -17,13 +20,14 @@ import lavs.domain.Page;
 import lavs.domain.Phone;
 import lavs.domain.PhoneSummary;
 import lavs.gateway.CustomerGateway;
+import lavs.gateway.DocumentGateway;
 import lavs.gateway.OperationResult;
 import mainframe.client.Connection;
 import mainframe.client.Message;
 import mainframe.client.Status;
 import mainframe.client.StatusMessage;
 
-public class CustomerAdapter implements CustomerGateway {
+public class CustomerAdapter implements CustomerGateway, DocumentGateway {
 
   private final Connection connection;
 
@@ -527,5 +531,43 @@ public class CustomerAdapter implements CustomerGateway {
                 message.getPosition(),
                 message.getSalary(),
                 message.getType()));
+  }
+
+  // Customer document metadata. The mainframe does not provide an update message.
+  @Override
+  public OperationResult<CustomerDocument> addDocument(
+      String customerNumber, DocumentMetadata metadata) {
+    var message = new mainframe.client.messages.customer.AddDocument(
+        customerNumber, metadata.fileName(), metadata.fileType(), metadata.size(), metadata.type());
+    return send(message, () -> new CustomerDocument(
+        message.getId(), message.getCustomer(), message.getFileName(),
+        message.getFileType(), message.getSize(), message.getType()));
+  }
+
+  @Override
+  public OperationResult<Boolean> deleteDocument(String customerNumber, long documentId) {
+    var message = new mainframe.client.messages.customer.DeleteDocument(customerNumber, documentId);
+    return send(message, () -> true);
+  }
+
+  @Override
+  public OperationResult<Page<CustomerDocumentSummary>> listDocuments(
+      String customerNumber, long page, long size) {
+    var message = new mainframe.client.messages.customerDocument.List(customerNumber, page, size);
+    return send(message, () -> {
+      var documents = new ArrayList<CustomerDocumentSummary>();
+      for (var item : message.getItems()) {
+        documents.add(new CustomerDocumentSummary(item.getId(), item.getFileName(), item.getType()));
+      }
+      return new Page<>(documents, message.getPage(), size, message.getTotal());
+    });
+  }
+
+  @Override
+  public OperationResult<CustomerDocument> retrieveDocument(String customerNumber, long documentId) {
+    var message = new mainframe.client.messages.customerDocument.Retrieve(documentId, customerNumber);
+    return send(message, () -> new CustomerDocument(
+        message.getId(), message.getCustomerNumber(), message.getFileName(),
+        message.getFileType(), message.getSize(), message.getType()));
   }
 }
