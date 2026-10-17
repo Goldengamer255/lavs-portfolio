@@ -8,6 +8,7 @@ import lavs.adapter.CustomerAdapter;
 import lavs.adapter.LoanAdapter;
 import lavs.adapter.MainframeAuthenticationGateway;
 import lavs.adapter.MainframeCategoryGateway;
+import lavs.adapter.NoteAdapter;
 import lavs.gateway.CustomerGateway;
 import lavs.gateway.LoanGateway;
 import lavs.service.AuthenticationService;
@@ -18,7 +19,11 @@ import lavs.service.DefaultCategoryService;
 import lavs.service.DefaultConnectionMonitor;
 import lavs.service.DefaultCustomerService;
 import lavs.service.DefaultLoanService;
+import lavs.service.DefaultNoteService;
 import lavs.service.LoanService;
+import lavs.service.NoteService;
+import lavs.service.RepaymentService;
+import lavs.service.RepaymentServiceImpl;
 import lavs.validation.CustomerRules;
 import lavs.validation.LoanRules;
 import lavs.validation.ValidationService;
@@ -38,6 +43,7 @@ public class LavsApplication extends Application {
                 new MainframeAuthenticationGateway(connection));
         CategoryService categories = new DefaultCategoryService(
                 new MainframeCategoryGateway(connection));
+        NoteService notes = new DefaultNoteService(new NoteAdapter(connection));
         CustomerGateway customerGateway = new CustomerAdapter(connection);
         LoanGateway loanGateway = new LoanAdapter(connection);
         ValidationService validation = new ValidationService();
@@ -51,6 +57,7 @@ public class LavsApplication extends Application {
                 loanGateway,
                 validation,
                 new LoanRules());
+        RepaymentService repayments = new RepaymentServiceImpl(loanGateway);
         ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "lavs-mainframe-worker");
             thread.setDaemon(true);
@@ -66,6 +73,8 @@ public class LavsApplication extends Application {
                 customers,
                 loans,
                 categories,
+                notes,
+                repayments,
                 connectionMonitor,
                 worker);
         shell.start();
