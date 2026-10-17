@@ -215,4 +215,27 @@ public class ValidationService {
         return new ValidationReport(issues);
     }
 
+    // AI-assisted: rules and structure influenced by AI; adapted from validateLoan; body written by me.
+    public ValidationReport validatePayment(PaymentInput input) {
+        List<ValidationIssue> issues = new ArrayList<>();
+
+        if (input.amount() == null || input.amount().isBlank()) {
+            issues.add(new ValidationIssue(PaymentField.AMOUNT.key(), "Amount is required"));
+        } else {
+            BigDecimal value = parseNumber(input.amount());
+            if (value == null) {
+                issues.add(new ValidationIssue(PaymentField.AMOUNT.key(), "Amount must be a number"));
+            } else if (value.signum() <= 0) {
+                issues.add(new ValidationIssue(PaymentField.AMOUNT.key(), "Amount must be greater than 0"));
+            }
+        }
+
+        if (input.date() == null) {
+            issues.add(new ValidationIssue(PaymentField.DATE.key(), "Date is required"));
+        } else if (input.date().isAfter(LocalDate.now())) {
+            issues.add(new ValidationIssue(PaymentField.DATE.key(), "Payment date cannot be in the future"));
+        }
+
+        return new ValidationReport(issues);
+    }
 }
