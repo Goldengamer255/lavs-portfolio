@@ -24,6 +24,7 @@ import lavs.domain.Address;
 import lavs.domain.Phone;
 import lavs.domain.Email;
 import lavs.domain.Employer;
+import lavs.domain.Relationship;
 import lavs.domain.Customer;
 import lavs.domain.LoanSummaryItem;
 import lavs.domain.NoteSummary;
@@ -74,6 +75,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     private PhonesTab phonesTab;
     private EmailsTab emailsTab;
     private EmployersTab employersTab;
+    private RelationshipsTab relationshipsTab;
     private NotesTab notesTab;
 
     @FXML
@@ -147,6 +149,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
     @FXML
     private EntityListController<Employer> employersListController;
     @FXML
+    private EntityListController<Relationship> relationshipsListController;
+    @FXML
     private EntityListController<NoteSummary> notesListController;
 
     /**
@@ -218,6 +222,8 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         phonesTab = new PhonesTab(phonesListController, customers, categories, tasks, this::checkReadiness);
         emailsTab = new EmailsTab(emailsListController, customers, categories, tasks, this::checkReadiness);
         employersTab = new EmployersTab(employersListController, customers, categories, tasks, this::checkReadiness);
+        relationshipsTab = new RelationshipsTab(
+                relationshipsListController, customers, categories, tasks);
         notesTab = new NotesTab(notesListController, notes, tasks);
     }
 
@@ -333,6 +339,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
         phonesTab.load(loaded.number());
         emailsTab.load(loaded.number());
         employersTab.load(loaded.number());
+        relationshipsTab.load(loaded.number());
         notesTab.load(loaded.number());
     }
 

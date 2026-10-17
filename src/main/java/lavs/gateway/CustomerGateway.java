@@ -12,6 +12,8 @@ import lavs.domain.NewCustomer;
 import lavs.domain.Page;
 import lavs.domain.Phone;
 import lavs.domain.PhoneSummary;
+import lavs.domain.Relationship;
+import lavs.domain.RelationshipSummary;
 
 public interface CustomerGateway {
   // Customer related methods
@@ -69,4 +71,17 @@ public interface CustomerGateway {
   OperationResult<Page<EmployerSummary>> listEmployers(String customerNumber, long page, long size);
 
   OperationResult<Employer> retrieveEmployer(String customerNumber, long employerId);
+
+  // Relationship related methods
+  OperationResult<Relationship> addRelationship(Relationship relationship);
+
+  OperationResult<Boolean> deleteRelationship(String customerNumber, long relationshipId);
+
+  OperationResult<Relationship> updateRelationship(Relationship relationship);
+
+  OperationResult<Page<RelationshipSummary>> listRelationships(
+      String customerNumber, long page, long size);
+
+  OperationResult<Relationship> retrieveRelationship(
+      String customerNumber, long relationshipId);
 }

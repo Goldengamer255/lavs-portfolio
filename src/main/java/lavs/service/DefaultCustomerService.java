@@ -17,12 +17,16 @@ import lavs.domain.NewCustomer;
 import lavs.domain.Page;
 import lavs.domain.Phone;
 import lavs.domain.PhoneSummary;
+import lavs.domain.Relationship;
+import lavs.domain.RelationshipSummary;
 import lavs.gateway.CustomerGateway;
 import lavs.gateway.LoanGateway;
 import lavs.gateway.OperationResult;
 import lavs.validation.CustomerRules;
 import lavs.validation.DeleteCheck;
 import lavs.validation.EmployerField;
+import lavs.validation.FieldKey;
+import lavs.validation.RelationshipField;
 import lavs.validation.ValidationService;
 
 /**
@@ -335,6 +339,73 @@ public final class DefaultCustomerService implements CustomerService {
         return issues.equals(report.errors()) ? report : new ValidationReport(issues);
     }
 
+    @Override
+    public OperationResult<Page<Relationship>> listRelationships(
+            String customerNumber, long page, long size) {
+        OperationResult<Page<RelationshipSummary>> summaries =
+                customers.listRelationships(customerNumber, page, size);
+        return expandPage(summaries,
+                summary -> customers.retrieveRelationship(customerNumber, summary.id()));
+    }
+
+    @Override
+    public OperationResult<SaveResult<Relationship>> addRelationship(
+            String customerNumber, RelationshipInput input) {
+        ValidationReport report = validateRelationship(customerNumber, input);
+        if (hasErrors(report)) {
+            return invalid(report);
+        }
+        return saved(customers.addRelationship(toRelationship(customerNumber, null, input)));
+    }
+
+    @Override
+    public OperationResult<SaveResult<Relationship>> updateRelationship(
+            String customerNumber, long id, RelationshipInput input) {
+        ValidationReport report = validateRelationship(customerNumber, input);
+        if (hasErrors(report)) {
+            return invalid(report);
+        }
+        return saved(customers.updateRelationship(toRelationship(customerNumber, id, input)));
+    }
+
+    @Override
+    public OperationResult<Boolean> deleteRelationship(String customerNumber, long id) {
+        return customers.deleteRelationship(customerNumber, id);
+    }
+
+    @Override
+    public ValidationReport validateRelationship(
+            String customerNumber, RelationshipInput input) {
+        List<ValidationIssue> issues = new ArrayList<>();
+        if (input == null) {
+            return new ValidationReport(List.of(
+                    new ValidationIssue(FieldKey.GLOBAL, "Relationship details are required.")));
+        }
+
+        String secondaryNumber = trimmed(input.secondaryCustomerNumber());
+        String type = trimmed(input.type());
+        String otherType = trimmed(input.otherType());
+        if (secondaryNumber.isEmpty()) {
+            issues.add(new ValidationIssue(
+                    RelationshipField.SECONDARY_CUSTOMER_NUMBER.key(),
+                    "Related customer number is required."));
+        } else if (secondaryNumber.equalsIgnoreCase(trimmed(customerNumber))) {
+            issues.add(new ValidationIssue(
+                    RelationshipField.SECONDARY_CUSTOMER_NUMBER.key(),
+                    "A customer cannot be related to themselves."));
+        }
+        if (type.isEmpty()) {
+            issues.add(new ValidationIssue(
+                    RelationshipField.TYPE.key(), "Relationship type is required."));
+        }
+        if ("Other".equals(type) && otherType.isEmpty()) {
+            issues.add(new ValidationIssue(
+                    RelationshipField.OTHER_TYPE.key(),
+                    "Enter the relationship type when Other is selected."));
+        }
+        return new ValidationReport(issues);
+    }
+
     private Address toAddress(String customerNumber, Long id, AddressInput input) {
         return new Address(id, customerNumber, input.line1(), input.line2(), input.suburb(),
                 input.city(), input.country(), input.postCode(), input.type(), input.otherType(),
@@ -354,6 +425,17 @@ public final class DefaultCustomerService implements CustomerService {
     private Employer toEmployer(String customerNumber, Long id, EmployerInput input) {
         return new Employer(id, null, customerNumber, input.name(), input.position(),
                 Double.parseDouble(input.salary()), input.type());
+    }
+
+    private Relationship toRelationship(
+            String customerNumber, Long id, RelationshipInput input) {
+        return new Relationship(id, customerNumber, null,
+                trimmed(input.secondaryCustomerNumber()), null,
+                trimmed(input.type()), trimmed(input.otherType()));
+    }
+
+    private String trimmed(String value) {
+        return value == null ? "" : value.trim();
     }
 
     private boolean isDouble(String value) {
