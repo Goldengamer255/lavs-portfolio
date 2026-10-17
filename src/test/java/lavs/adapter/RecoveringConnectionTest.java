@@ -46,7 +46,7 @@ class RecoveringConnectionTest {
         assertEquals(2, delegate.loginCalls);
         assertEquals(2, delegate.sendCalls);
         assertEquals("Group_4", delegate.lastUsername);
-        assertEquals("build", delegate.lastPassword);
+        assertEquals("test-password", delegate.lastPassword);
     }
 
     @Test
@@ -97,7 +97,7 @@ class RecoveringConnectionTest {
 
     private RecoveringConnection loggedIn(FakeConnection delegate) throws IOException {
         RecoveringConnection connection = new RecoveringConnection(delegate);
-        connection.Login("Group_4", "build");
+        connection.Login("Group_4", "test-password");
         return connection;
     }
 
