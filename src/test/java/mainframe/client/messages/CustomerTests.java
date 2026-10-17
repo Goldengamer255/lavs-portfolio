@@ -15,7 +15,7 @@ public class CustomerTests {
     void sendsToServer() throws IOException, InterruptedException {
         // login
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
-        connection.Login("test", "test");
+        connection.Login(TestConstants.USERNAME, TestConstants.PASSWORD);
 
         // create a new customer
         String name = "test_" + Instant.now().toEpochMilli();
@@ -89,7 +89,7 @@ public class CustomerTests {
     void createHandlesMissingDateOfBirth() throws  IOException, InterruptedException {
         // Arrange
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
-        connection.Login("test", "test");
+        connection.Login(TestConstants.USERNAME, TestConstants.PASSWORD);
 
         // Act
         Create createMessage = sendMessage(
@@ -105,7 +105,7 @@ public class CustomerTests {
     void searchHandlesNoData() throws IOException, InterruptedException {
         // Arrange
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
-        connection.Login("test", "test");
+        connection.Login(TestConstants.USERNAME, TestConstants.PASSWORD);
 
         // Act
         Search searchMessage = sendMessage(

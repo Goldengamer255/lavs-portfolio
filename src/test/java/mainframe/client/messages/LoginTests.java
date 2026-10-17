@@ -12,8 +12,8 @@ class LoginTests {
         // arrange
         Connection connection = new HttpConnection(TestConstants.BASE_URL);
         Login message = new Login();
-        message.setUserName("test");
-        message.setpassword("test");
+        message.setUserName(TestConstants.USERNAME);
+        message.setpassword(TestConstants.PASSWORD);
 
         // act
         Status status = message.send(connection);
