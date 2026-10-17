@@ -103,5 +103,30 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>skip-live-mainframe-tests</id>
+            <!-- Active by default; run "mvn test -Dlive" with .env credentials to include the live mainframe tests -->
+            <activation>
+                <property>
+                    <name>!live</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.5.4</version>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/mainframe/client/messages/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
