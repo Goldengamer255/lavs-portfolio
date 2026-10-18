@@ -9,6 +9,7 @@ import lavs.service.CustomerService;
 import lavs.service.DocumentService;
 import lavs.service.LoanService;
 import lavs.service.NoteService;
+import lavs.service.PaymentService;
 import lavs.service.RepaymentService;
 
 /**
@@ -28,6 +29,7 @@ public record ShellDependencies(
         CategoryService categories,
         NoteService notes,
         RepaymentService repayments,
+        PaymentService payments,
         ConnectionMonitor connectionMonitor,
         ExecutorService worker,
         ReadOnlyBooleanProperty online) {}

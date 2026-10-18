@@ -1061,4 +1061,121 @@ class ValidationServiceTest {
         assertEquals(LoanField.PAYMENT_AMOUNT.key(), report.errors().get(1).fieldKey());
         assertEquals(LoanField.START_DATE.key(), report.errors().get(2).fieldKey());
     }
+
+    @Test
+    void validPaymentIsAccepted() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput("100", LocalDate.of(2026, 10, 17));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void nullAmountIsRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput(null, LocalDate.of(2026, 10, 17));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankAmountIsRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput("  ", LocalDate.of(2026, 10, 17));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nonNumericAmountIsRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput("abc", LocalDate.of(2026, 10, 17));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void zeroAmountIsRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput("0", LocalDate.of(2026, 10, 17));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void negativeAmountIsRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput("-5", LocalDate.of(2026, 10, 17));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void nullPaymentDateIsRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput("100", null);
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.DATE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void futurePaymentDateIsRejected() {
+        // Arrange: build the input (tomorrow, so the test never goes out of date)
+        PaymentInput input = new PaymentInput("100", LocalDate.now().plusDays(1));
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result
+        assertEquals(1, report.errors().size());
+        assertEquals(PaymentField.DATE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void multiplePaymentErrorsAreRejected() {
+        // Arrange: build the input
+        PaymentInput input = new PaymentInput(null, null);
+
+        // Act: call the method
+        ValidationReport report = service.validatePayment(input);
+
+        // Assert: check the result (amount is checked before date)
+        assertEquals(2, report.errors().size());
+        assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
+        assertEquals(PaymentField.DATE.key(), report.errors().get(1).fieldKey());
+    }
 }

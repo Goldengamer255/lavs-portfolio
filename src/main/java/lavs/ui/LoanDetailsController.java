@@ -23,13 +23,9 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 import lavs.domain.CoBorrower;
 import lavs.domain.Loan;
+import lavs.domain.PaymentSummary;
 import lavs.gateway.OperationResult;
-import lavs.service.CategoryService;
-import lavs.service.LoanInput;
-import lavs.service.LoanService;
-import lavs.service.SaveResult;
-import lavs.service.ValidationIssue;
-import lavs.service.ValidationReport;
+import lavs.service.*;
 import lavs.ui.support.Dialogs;
 import lavs.ui.support.EntityListController;
 import lavs.ui.support.TaskRunner;
@@ -65,6 +61,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
     private final BooleanProperty hasLoan = new SimpleBooleanProperty(false);
     private final BooleanProperty creatingNew = new SimpleBooleanProperty(false);
     private final Map<String, Runnable> failures = new LinkedHashMap<>();
+    private final PaymentService payments;
 
     private LoanScreenContext context;
     private Loan loan;
@@ -73,6 +70,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
     private boolean filling;
     private boolean dirty;
     private CoBorrowersTab coBorrowersTab;
+    private PaymentsTab paymentsTab;
 
     @FXML
     private Button backButton;
@@ -136,15 +134,20 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
     private Node coborrowersList;
     @FXML
     private EntityListController<CoBorrower> coborrowersListController;
+    @FXML
+    private Node paymentsList;
+    @FXML
+    private EntityListController<PaymentSummary> paymentsListController;
 
     /**
      * Creates the controller with the services it needs. The worker is the shared
      * background executor from the application shell.
      */
-    public LoanDetailsController(LoanService loans, CategoryService categories,
+    public LoanDetailsController(LoanService loans, CategoryService categories, PaymentService payments,
             Navigator navigator, Executor worker) {
         this.loans = loans;
         this.categories = categories;
+        this.payments = payments;
         this.navigator = navigator;
         this.tasks = new TaskRunner(worker);
     }
@@ -201,6 +204,8 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
                 }));
 
         coBorrowersTab = new CoBorrowersTab(coborrowersListController, loans, categories, navigator, tasks);
+        paymentsTab = new PaymentsTab(paymentsListController, payments, tasks);
+        paymentsList.disableProperty().bind(hasLoan.not());
     }
 
     /**
@@ -222,6 +227,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
         }
         if (dirty && loan != null) {
             coBorrowersTab.load(loan.loanNumber());
+            paymentsTab.load(loan.loanNumber());
             return;
         }
         loadLoan();
@@ -262,6 +268,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
         }
         fillForm(result.value());
         coBorrowersTab.load(loan.loanNumber());
+        paymentsTab.load(loan.loanNumber());
     }
 
     private void fillForm(Loan loaded) {
@@ -354,6 +361,7 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
         context = new LoanScreenContext(ScreenMode.EXISTING, savedLoan.customerNumber(), savedLoan.loanNumber());
         fillForm(savedLoan);
         coBorrowersTab.load(savedLoan.loanNumber());
+        paymentsTab.load(savedLoan.loanNumber());
     }
 
     @FXML
