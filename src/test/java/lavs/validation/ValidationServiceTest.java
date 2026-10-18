@@ -1178,4 +1178,109 @@ class ValidationServiceTest {
         assertEquals(PaymentField.AMOUNT.key(), report.errors().get(0).fieldKey());
         assertEquals(PaymentField.DATE.key(), report.errors().get(1).fieldKey());
     }
+
+    // BRANCH COVERAGE TESTS
+    // AI-assisted: blank-value and branch tests outlined with AI help
+    @Test
+    void nullDateOfBirthIsAccepted() {
+        CustomerInput input = new CustomerInput("Ada", "Lovelace", null, "NZ", "Ms");
+        ValidationReport report = service.validateCustomer(input, true);
+        assertEquals(0, report.errors().size());
+    }
+
+    @Test
+    void blankLine1IsRejected() {
+        AddressInput input = new AddressInput("  ", "ontario", "Central", "mexico", "NZ", "1010", "Home", null, true, true);
+        ValidationReport report = service.validateAddress(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.LINE1.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankCityIsRejected() {
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "  ", "NZ", "1010", "Home", null, true, true);
+        ValidationReport report = service.validateAddress(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.CITY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankCountryIsRejected() {
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "  ", "1010", "Home", null, true, true);
+        ValidationReport report = service.validateAddress(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.COUNTRY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankAddressTypeIsRejected() {
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "NZ", "1010", "  ", null, true, true);
+        ValidationReport report = service.validateAddress(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankOtherTypeAddressIsRejected() {
+        AddressInput input = new AddressInput("1 Queen St", "ontario", "Central", "mexico", "NZ", "1010", "Other", "  ", true, true);
+        ValidationReport report = service.validateAddress(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(AddressField.OTHER_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankOtherTypeEmailIsRejected() {
+        EmailInput input = new EmailInput("tp@gmail.com", "Other", "  ", true);
+        ValidationReport report = service.validateEmail(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(EmailField.OTHER_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankPhoneTypeIsRejected() {
+        PhoneInput input = new PhoneInput("+64", "1-223-4567", "  ", null, true, true);
+        ValidationReport report = service.validatePhone(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankOtherTypePhoneIsRejected() {
+        PhoneInput input = new PhoneInput("+64", "1-223-4567", "Other", "  ", true, true);
+        ValidationReport report = service.validatePhone(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(PhoneField.OTHER_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankRateTypeIsRejected() {
+        LoanInput input = new LoanInput("10000", "100", "6.4", "  ", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+        ValidationReport report = service.validateLoan(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_TYPE.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankRateAmountIsRejected() {
+        LoanInput input = new LoanInput("10000", "100", "  ", "Fixed", "Yearly", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+        ValidationReport report = service.validateLoan(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_AMOUNT.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankRateFrequencyIsRejected() {
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "  ", "Monthly", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+        ValidationReport report = service.validateLoan(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.RATE_FREQUENCY.key(), report.errors().get(0).fieldKey());
+    }
+
+    @Test
+    void blankPaymentFrequencyIsRejected() {
+        LoanInput input = new LoanInput("10000", "100", "6.4", "Fixed", "Yearly", "  ", LocalDate.of(2026, 2, 2), LocalDate.of(2027, 2, 2));
+        ValidationReport report = service.validateLoan(input);
+        assertEquals(1, report.errors().size());
+        assertEquals(LoanField.PAYMENT_FREQUENCY.key(), report.errors().get(0).fieldKey());
+    }
 }

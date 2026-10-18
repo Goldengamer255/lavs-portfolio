@@ -246,5 +246,16 @@ public class CustomerRulesTest {
         assertNull(check.reason());
     }
 
+    @Test
+    public void mailingAddressNextToNonMailingDeleteIsBlocked() {
+        // Arrange: the only mailing address sits beside a non-mailing one
+        List<Address> addresses = List.of(address(1, true), address(2, false));
 
+        // Act
+        DeleteCheck check = rules.canDeleteAddress(addresses, 1);
+
+        // Assert
+        assertFalse(check.allowed());
+        assertNotNull(check.reason());
+    }
 }
