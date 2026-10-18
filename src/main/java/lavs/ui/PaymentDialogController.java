@@ -47,6 +47,7 @@ public final class PaymentDialogController {
         feedback.setFormErrorLabel(formErrorLabel);
         feedback.setOnFieldLeft(() -> feedback.showErrors(validator.apply(read())));
         dateField.setValue(LocalDate.now());
+        dateField.setEditable(false);
     }
 
     /**

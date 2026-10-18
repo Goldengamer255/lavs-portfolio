@@ -172,6 +172,8 @@ public final class LoanDetailsController implements LoanContextAware, ScreenLife
                 startDatePicker, renewalDatePicker)) {
             control.disableProperty().bind(formLocked);
         }
+        startDatePicker.setEditable(false);
+        renewalDatePicker.setEditable(false);
         saveButton.disableProperty().bind(formLocked);
         retryButton.disableProperty().bind(locked);
         backButton.disableProperty().bind(saving);
