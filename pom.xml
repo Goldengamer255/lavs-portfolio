@@ -112,7 +112,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>check-hargun-coverage</id>
+                        <id>check-application-coverage</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>check</goal>
@@ -123,6 +123,8 @@
                                     <element>CLASS</element>
                                     <includes>
                                         <include>lavs.AppConfig</include>
+                                        <include>lavs.adapter.CustomerAdapter</include>
+                                        <include>lavs.adapter.LoanAdapter</include>
                                         <include>lavs.adapter.MainframeAuthenticationGateway</include>
                                         <include>lavs.adapter.MainframeCategoryGateway</include>
                                         <include>lavs.adapter.RecoveringConnection</include>
