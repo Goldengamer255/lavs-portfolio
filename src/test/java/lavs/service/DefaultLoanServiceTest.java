@@ -135,6 +135,83 @@ class DefaultLoanServiceTest {
     }
 
     @Test
+    void changeStatusRejectsStatusThatIsNotAllowed() {
+        FakeLoanGateway gateway = new FakeLoanGateway();
+        gateway.retrieveResult = OperationResult.success(loan("L1", "C1", "New"), 7);
+        TestLoanRules rules = new TestLoanRules();
+        rules.allowed = List.of("Pending", "Cancelled");
+        DefaultLoanService service = service(gateway, new TestValidation(), rules);
+
+        OperationResult<String> result = service.changeStatus("L1", "Active");
+
+        assertTrue(result.isRejected());
+        assertEquals("A loan cannot change from New to Active", result.errorMessage());
+        assertEquals(0, gateway.changeStatusCalls);
+    }
+
+    @Test
+    void changeStatusRejectsNullStatus() {
+        FakeLoanGateway gateway = new FakeLoanGateway();
+        gateway.retrieveResult = OperationResult.success(loan("L1", "C1", "New"), 7);
+        DefaultLoanService service = service(gateway, new TestValidation(), new TestLoanRules());
+
+        OperationResult<String> result = service.changeStatus("L1", null);
+
+        assertTrue(result.isRejected());
+        assertEquals(0, gateway.changeStatusCalls);
+    }
+
+    @Test
+    void changeStatusPassesLookupFailureThrough() {
+        FakeLoanGateway gateway = new FakeLoanGateway();
+        gateway.retrieveResult = OperationResult.failure(10, "down", 5);
+        DefaultLoanService service = service(gateway, new TestValidation(), new TestLoanRules());
+
+        OperationResult<String> result = service.changeStatus("L1", "Pending");
+
+        assertTrue(result.isUnavailable());
+        assertEquals(5, result.transactionId());
+        assertEquals(0, gateway.changeStatusCalls);
+    }
+
+    @Test
+    void changeToPendingIsRejectedWhenLoanDetailsAreIncomplete() {
+        FakeLoanGateway gateway = new FakeLoanGateway();
+        gateway.retrieveResult = OperationResult.success(loan("L1", "C1", "New"), 7);
+        TestValidation validation = new TestValidation();
+        validation.loanReport = new ValidationReport(List.of(
+                new ValidationIssue("principal", "Principal must be greater than 0")));
+        TestLoanRules rules = new TestLoanRules();
+        rules.allowed = List.of("Pending", "Cancelled");
+        DefaultLoanService service = service(gateway, validation, rules);
+
+        OperationResult<String> result = service.changeStatus("L1", "Pending");
+
+        assertTrue(result.isRejected());
+        assertEquals("Loan details are incomplete: Principal must be greater than 0",
+                result.errorMessage());
+        assertEquals(0, gateway.changeStatusCalls);
+    }
+
+    @Test
+    void changeToOtherStatusSkipsCompletenessCheck() {
+        FakeLoanGateway gateway = new FakeLoanGateway();
+        gateway.retrieveResult = OperationResult.success(loan("L1", "C1", "New"), 7);
+        gateway.changeStatusResult = OperationResult.success("Cancelled", 8);
+        TestValidation validation = new TestValidation();
+        validation.loanReport = new ValidationReport(List.of(
+                new ValidationIssue("principal", "Principal must be greater than 0")));
+        TestLoanRules rules = new TestLoanRules();
+        rules.allowed = List.of("Pending", "Cancelled");
+        DefaultLoanService service = service(gateway, validation, rules);
+
+        OperationResult<String> result = service.changeStatus("L1", "Cancelled");
+
+        assertEquals("Cancelled", result.value());
+        assertEquals(1, gateway.changeStatusCalls);
+    }
+
+    @Test
     void addCoBorrowerLoadsAndReturnsCreatedLink() {
         FakeLoanGateway gateway = new FakeLoanGateway();
         CoBorrower link = new CoBorrower(9, "L1", "C2", "Alex", "Guarantor");
@@ -237,7 +314,9 @@ class DefaultLoanServiceTest {
         gateway.listResult = OperationResult.success(
                 new Page<>(List.of(), 1, 50, 0), 3);
         gateway.deleteResult = OperationResult.success(true, 4);
-        DefaultLoanService service = service(gateway, new TestValidation(), new TestLoanRules());
+        TestLoanRules rules = new TestLoanRules();
+        rules.allowed = List.of("Pending");
+        DefaultLoanService service = service(gateway, new TestValidation(), rules);
 
         assertEquals(expected, service.get("L1").value());
         assertEquals("Pending", service.changeStatus("L1", "Pending").value());
@@ -296,6 +375,7 @@ class DefaultLoanServiceTest {
         private long retrievedCoBorrowerId;
         private String addedCustomerNumber;
         private String addedType;
+        private int changeStatusCalls;
 
         @Override
         public OperationResult<Loan> create(NewLoan input) {
@@ -311,6 +391,7 @@ class DefaultLoanServiceTest {
 
         @Override
         public OperationResult<String> changeStatus(String loanNumber, String newStatus) {
+            changeStatusCalls++;
             return changeStatusResult;
         }
 

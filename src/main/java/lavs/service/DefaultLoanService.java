@@ -1,5 +1,6 @@
 package lavs.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +21,8 @@ import lavs.validation.ValidationService;
 public final class DefaultLoanService implements LoanService {
 
     private static final ValidationReport VALID = new ValidationReport(List.of());
+    private static final int REJECTED = 3;
+    private static final String PENDING = "Pending";
 
     private final LoanGateway gateway;
     private final ValidationService validation;
@@ -103,9 +106,40 @@ public final class DefaultLoanService implements LoanService {
                 loan.transactionId());
     }
 
+    // AI-assisted: transition check and complete-loan check outlined by AI; adapted and wired into the service by me.
     @Override
     public OperationResult<String> changeStatus(String loanNumber, String status) {
+        OperationResult<Loan> existing = gateway.retrieve(loanNumber);
+        if (!existing.isSuccess()) {
+            return copyFailure(existing);
+        }
+
+        Loan loan = existing.value();
+        if (status == null || !rules.allowedNextStatuses(loan.status()).contains(status)) {
+            return OperationResult.failure(REJECTED,
+                    "A loan cannot change from " + loan.status() + " to " + status,
+                    existing.transactionId());
+        }
+
+        if (PENDING.equals(status)) {
+            ValidationReport report = validateLoan(toInput(loan));
+            if (hasErrors(report)) {
+                return OperationResult.failure(REJECTED,
+                        "Loan details are incomplete: " + report.errors().get(0).message(),
+                        existing.transactionId());
+            }
+        }
+
         return gateway.changeStatus(loanNumber, status);
+    }
+
+    private static LoanInput toInput(Loan loan) {
+        return new LoanInput(
+                BigDecimal.valueOf(loan.principal()).toPlainString(),
+                BigDecimal.valueOf(loan.paymentAmount()).toPlainString(),
+                BigDecimal.valueOf(loan.rateAmount()).toPlainString(),
+                loan.rateType(), loan.rateFrequency(), loan.paymentFrequency(),
+                loan.startDate(), loan.renewalDate());
     }
 
     @Override

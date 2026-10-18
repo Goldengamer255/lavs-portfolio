@@ -122,6 +122,7 @@
       <Label styleClass="section-title" text="Co-borrowers" />
       <fx:include fx:id="coborrowersList" source="EntityListView.fxml" />
       <Label styleClass="section-title" text="Payments" />
+      <Label styleClass="hint-text" text="Payments can only be added while the loan is New or Pending." />
       <fx:include fx:id="paymentsList" source="EntityListView.fxml" />
    </children>
 </VBox>
