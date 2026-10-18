@@ -114,6 +114,8 @@ public final class LoanSummaryController implements LoanContextAware, ScreenLife
         loadingSpinner.visibleProperty().bind(busy);
         retryButton.visibleProperty().bind(errorLabel.visibleProperty());
         retryButton.disableProperty().bind(busy);
+        // Collapse hidden error row so it doesn't leave a gap above the summary card.
+        errorLabel.getParent().managedProperty().bind(errorLabel.visibleProperty());
 
         paymentNumberColumn.setCellValueFactory(cell -> text(String.valueOf(cell.getValue().paymentNumber())));
         dateColumn.setCellValueFactory(cell -> text(cell.getValue().date() == null
