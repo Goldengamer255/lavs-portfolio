@@ -1,6 +1,13 @@
 package lavs.validation;
 
-import lavs.service.*;
+import lavs.service.AddressInput;
+import lavs.service.CustomerInput;
+import lavs.service.EmailInput;
+import lavs.service.EmployerInput;
+import lavs.service.LoanInput;
+import lavs.service.PaymentInput;
+import lavs.service.PhoneInput;
+import lavs.service.ValidationReport;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

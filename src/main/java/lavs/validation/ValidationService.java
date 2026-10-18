@@ -1,6 +1,14 @@
 package lavs.validation;
 
-import lavs.service.*;
+import lavs.service.AddressInput;
+import lavs.service.CustomerInput;
+import lavs.service.EmailInput;
+import lavs.service.EmployerInput;
+import lavs.service.LoanInput;
+import lavs.service.PaymentInput;
+import lavs.service.PhoneInput;
+import lavs.service.ValidationIssue;
+import lavs.service.ValidationReport;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -9,7 +17,14 @@ import java.util.List;
 
 
 
-// AI-assisted: class and method signatures influenced by AI; All bodies and TODO notes written by me.
+// AI-assisted: class and method signatures influenced by AI; All bodies written by me.
+/**
+ * Checks form input before it is sent to the mainframe.
+ *
+ * <p>Each validate method returns a {@link ValidationReport} listing every problem found,
+ * with each issue tied to the field it belongs to so the screen can outline the right box.
+ * An empty report means the input is valid. These methods never call the mainframe.</p>
+ */
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {

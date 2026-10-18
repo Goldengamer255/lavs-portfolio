@@ -10,7 +10,7 @@ public class LoanRules {
     private static final String DEFAULTED = "Defaulted";
     private static final String CANCELLED = "Cancelled";
 
-    // AI-assisted: class and method signatures influenced by AI; bodies and TODO notes written by me.
+    // AI-assisted: class and method signatures influenced by AI; bodies written by me.
     /**
      * Returns the statuses a loan can move to from its current status.
      *

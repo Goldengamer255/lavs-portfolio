@@ -31,11 +31,11 @@ public class RepaymentServiceImpl implements RepaymentService {
         }
 
         if (page < 1) {
-            return  OperationResult.failure(3, "Page must be at least 1", 0);
+            return OperationResult.failure(3, "Page must be at least 1", 0);
         }
 
         if (size < 1) {
-            return  OperationResult.failure(3, "Size must be at least 1", 0);
+            return OperationResult.failure(3, "Size must be at least 1", 0);
         }
 
         return loanGateway.getRepaymentSchedule(loanNumber, page, size);

@@ -9,7 +9,14 @@ import lavs.service.ValidationReport;
 import java.util.ArrayList;
 import java.util.List;
 
-// AI-assisted: class and method signatures influenced by AI; bodies and TODO notes written by me.
+// AI-assisted: class and method signatures influenced by AI; bodies written by me.
+/**
+ * Business rules for a customer's contact details.
+ *
+ * <p>Checks that a customer is ready for a loan (a mailing address plus a phone number or
+ * email) and blocks deleting the last mailing address or the last contact method. Phones
+ * and emails are counted together as contact methods.</p>
+ */
 public class CustomerRules {
     public ValidationReport checkLoanReadiness(List<Address> addresses, List<Phone> phones, List<Email> emails) {
         // Checks at least one mailing address is present and at least one phone or email
