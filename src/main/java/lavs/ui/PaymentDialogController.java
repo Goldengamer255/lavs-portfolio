@@ -18,6 +18,7 @@ import java.util.function.Function;
 /**
  * Controller for the popup used to add a payment to a loan.
  */
+// AI-assisted: adapted from NoteDialogController with AI assistance; payment fields and save logic written by me
 public final class PaymentDialogController {
 
     private final ValidationFeedback feedback = new ValidationFeedback();
