@@ -137,7 +137,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
         message,
         () ->
             new Customer(
-                message.getNumber(),
+                customer.number(),
                 message.getFirstName(),
                 message.getFamilyName(),
                 parseDate(message.getDateOfBirth()),

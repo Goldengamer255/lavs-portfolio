@@ -138,8 +138,8 @@ public class LoanAdapter implements LoanGateway {
         message,
         () ->
             new Loan(
-                message.getLoanNumber(),
-                message.getCustomerNumber(),
+                loan.loanNumber(),
+                loan.customerNumber(),
                 message.getPrincipal(),
                 message.getPaymentAmount(),
                 message.getRateAmount(),
