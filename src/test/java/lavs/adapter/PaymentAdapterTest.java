@@ -139,6 +139,7 @@ class PaymentAdapterTest {
         return new MessageResponse(new Status(transactionId), values);
     }
 
+    // AI-assisted: answer-based IOException test outlined by AI.
     @Test
     void ioFailureIsUnavailableForEveryCall() {
         // Arrange: a connection that always fails with an IOException
