@@ -138,6 +138,31 @@ public class DefaultPaymentServiceTest {
         assertSame(deleted, service.deletePayment("L1", 4));
     }
 
+    @Test
+    public void listPaymentsDelegatesToGateway() {
+        // Arrange
+        OperationResult<Page<PaymentSummary>> expected =
+                OperationResult.success(new Page<>(summaries(1), 1, 50, 1), 1);
+        when(gateway.listPayments("L1", 1, 50)).thenReturn(expected);
+
+        // Act and Assert
+        assertSame(expected, service.listPayments("L1", 1, 50));
+    }
+
+    @Test
+    public void listAllPaymentsStopsOnEmptyPage() {
+        // Arrange: the mainframe claims 5 payments but returns an empty page
+        when(gateway.listPayments("L1", 1, 50)).thenReturn(
+                OperationResult.success(new Page<PaymentSummary>(List.of(), 1, 50, 5), 1));
+
+        // Act
+        OperationResult<List<PaymentSummary>> result = service.listAllPayments("L1");
+
+        // Assert
+        assertTrue(result.isSuccess());
+        assertEquals(0, result.value().size());
+    }
+
     // Helper Methods Influenced by AI
     private static Payment payment(long id) {
         return new Payment(id, "L1", DATE, BigDecimal.valueOf(100), BigDecimal.valueOf(60),
