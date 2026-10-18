@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!-- AI-assisted: laid out in Scene Builder, then adjusted with an error label. -->
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="8" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
-  <padding><Insets top="16" right="16" bottom="16" left="16" /></padding>
+<VBox spacing="8" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+  <padding><Insets bottom="16" left="16" right="16" top="16" /></padding>
   <children>
     <Label text="File name" />
     <TextField fx:id="fileNameField" promptText="proof.pdf" />
@@ -16,6 +18,6 @@
     <TextField fx:id="sizeField" promptText="0" />
     <Label text="Document type" />
     <TextField fx:id="typeField" promptText="Identity" />
-    <Label fx:id="errorLabel" styleClass="field-error" wrapText="true" />
+    <Label fx:id="errorLabel" prefHeight="36.0" prefWidth="147.0" styleClass="field-error" wrapText="true" />
   </children>
 </VBox>
