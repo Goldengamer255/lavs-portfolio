@@ -25,7 +25,7 @@ import java.util.List;
  * network error (IOException) becomes the "unavailable" failure code.
  *
  * <p>The mainframe sends amounts as doubles and dates as text, so amounts are converted to
- * BigDecimal (a missing amount counts as zero) and dates are parsed to LocalDate.
+ * BigDecimal and dates are parsed to LocalDate.
  * Dates are sent back to the mainframe as yyyy-MM-dd.
  *
  * <p>The mainframe has no update message for payments, so only list, retrieve, add and
@@ -87,7 +87,7 @@ public class PaymentAdapter implements PaymentGateway {
                         status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
             }
             Payment payment = new Payment(
-                    message.getId() == null ? 0 : message.getId(),
+                    message.getId(),
                     loanNumber,
                     NoteAdapter.parseDate(message.getDate()),
                     toMoney(message.getAmountPaid()),
@@ -99,8 +99,6 @@ public class PaymentAdapter implements PaymentGateway {
             return OperationResult.failure(
                     StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
         }
-
-
     }
 
     @Override
@@ -128,9 +126,7 @@ public class PaymentAdapter implements PaymentGateway {
         }
     }
 
-    // The mainframe sends amounts as doubles; convert to BigDecimal, treating a missing value as zero.
-    private static BigDecimal toMoney(Double value) {
-        return value == null ? BigDecimal.ZERO : BigDecimal.valueOf(value);
-    }
+    // The mainframe messages hold amounts as primitive doubles, so a value is always present.
+    private static BigDecimal toMoney(Double value) { return BigDecimal.valueOf(value); }
 
 }

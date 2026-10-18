@@ -2,7 +2,11 @@ package lavs.adapter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayDeque;
@@ -133,6 +137,22 @@ class PaymentAdapterTest {
             values.put(entries[i], entries[i + 1]);
         }
         return new MessageResponse(new Status(transactionId), values);
+    }
+
+    @Test
+    void ioFailureIsUnavailableForEveryCall() {
+        // Arrange: a connection that always fails with an IOException
+        Connection broken = mock(Connection.class);
+        when(broken.send(any())).thenAnswer(call -> {
+            throw new IOException("down");
+        });
+        PaymentAdapter brokenAdapter = new PaymentAdapter(broken);
+
+        // Act and Assert
+        assertTrue(brokenAdapter.deletePayment("L1", 8).isUnavailable());
+        assertTrue(brokenAdapter.retrievePayment("L1", 4).isUnavailable());
+        assertTrue(brokenAdapter.addPayment("L1", BigDecimal.valueOf(100), LocalDate.of(2026, 10, 17)).isUnavailable());
+        assertTrue(brokenAdapter.listPayments("L1", 1, 50).isUnavailable());
     }
 
     /** Returns queued replies in order and remembers what was sent. */
