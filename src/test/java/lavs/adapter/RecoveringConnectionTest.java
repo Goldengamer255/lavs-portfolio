@@ -1,7 +1,10 @@
 package lavs.adapter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -14,6 +17,11 @@ import mainframe.client.Status;
 import org.junit.jupiter.api.Test;
 
 class RecoveringConnectionTest {
+
+    @Test
+    void constructorRejectsNullDelegate() {
+        assertThrows(NullPointerException.class, () -> new RecoveringConnection(null));
+    }
 
     private static final MessageRequest REQUEST =
             new MessageRequest("customer", MessageRequest.QUERY);
@@ -80,6 +88,44 @@ class RecoveringConnectionTest {
     }
 
     @Test
+    void preservesOriginalFailureWhenRecoveryLoginThrows() throws IOException {
+        FakeConnection delegate = new FakeConnection();
+        RecoveringConnection connection = loggedIn(delegate);
+        MessageResponse original = invalidTransaction(2);
+        delegate.responses.add(original);
+        delegate.loginFailure = new IOException("Offline");
+
+        assertSame(original, connection.send(REQUEST));
+        assertEquals(2, delegate.loginCalls);
+    }
+
+    @Test
+    void failedInitialLoginDoesNotStoreCredentials() throws IOException {
+        FakeConnection delegate = new FakeConnection();
+        delegate.loginStatus = new Status(3, "Rejected", 1);
+        RecoveringConnection connection = new RecoveringConnection(delegate);
+        connection.Login("Group_4", "wrong");
+        delegate.responses.add(invalidTransaction(2));
+
+        connection.send(REQUEST);
+
+        assertEquals(1, delegate.loginCalls);
+    }
+
+    @Test
+    void invalidTransactionDetectionHandlesMissingResponseData() throws IOException {
+        FakeConnection delegate = new FakeConnection();
+        RecoveringConnection connection = loggedIn(delegate);
+        delegate.returnNull = true;
+        assertNull(connection.send(REQUEST));
+        delegate.returnNull = false;
+
+        MessageResponse noMessage = new MessageResponse(new Status(3, null, 2), new HashMap<>());
+        delegate.responses.add(noMessage);
+        assertSame(noMessage, connection.send(REQUEST));
+    }
+
+    @Test
     void logoutClearsCredentialsUsedForRecovery() throws IOException {
         FakeConnection delegate = new FakeConnection();
         RecoveringConnection connection = loggedIn(delegate);
@@ -93,6 +139,21 @@ class RecoveringConnectionTest {
         assertEquals(1, delegate.loginCalls);
         assertEquals(1, delegate.sendCalls);
         assertEquals(1, delegate.logoutCalls);
+    }
+
+    @Test
+    void delegatesConnectionStateAndCloseClearsCredentials() throws IOException {
+        FakeConnection delegate = new FakeConnection();
+        RecoveringConnection connection = loggedIn(delegate);
+        delegate.connected = false;
+        assertEquals(false, connection.isConnected());
+
+        connection.close();
+        MessageResponse original = invalidTransaction(3);
+        delegate.responses.add(original);
+        assertSame(original, connection.send(REQUEST));
+        assertTrue(delegate.closed);
+        assertEquals(1, delegate.loginCalls);
     }
 
     private RecoveringConnection loggedIn(FakeConnection delegate) throws IOException {
@@ -119,16 +180,22 @@ class RecoveringConnectionTest {
         private int logoutCalls;
         private String lastUsername;
         private String lastPassword;
+        private IOException loginFailure;
+        private boolean connected = true;
+        private boolean closed;
+        private boolean returnNull;
 
         @Override
         public MessageResponse send(MessageRequest request) {
             sendCalls++;
+            if (returnNull) return null;
             return responses.remove();
         }
 
         @Override
-        public Status Login(String username, String password) {
+        public Status Login(String username, String password) throws IOException {
             loginCalls++;
+            if (loginFailure != null) throw loginFailure;
             lastUsername = username;
             lastPassword = password;
             return loginStatus;
@@ -141,11 +208,12 @@ class RecoveringConnectionTest {
 
         @Override
         public boolean isConnected() {
-            return true;
+            return connected;
         }
 
         @Override
         public void close() {
+            closed = true;
         }
     }
 }

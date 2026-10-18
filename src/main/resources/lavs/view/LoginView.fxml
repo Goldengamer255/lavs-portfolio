@@ -24,7 +24,7 @@
                   <Insets top="8.0" />
                </VBox.margin>
                <children>
-                  <Button fx:id="loginButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" styleClass="primary-button" text="Log In" />
+                  <Button minWidth="-Infinity" fx:id="loginButton" defaultButton="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#handleLogin" styleClass="primary-button" text="Log In" />
                   <ProgressIndicator fx:id="loginSpinner" mouseTransparent="true" prefHeight="20.0" prefWidth="20.0" styleClass="button-spinner" visible="false" StackPane.alignment="CENTER_RIGHT">
                      <StackPane.margin>
                         <Insets right="12.0" />

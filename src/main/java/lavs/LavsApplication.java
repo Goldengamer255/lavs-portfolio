@@ -4,10 +4,30 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import lavs.adapter.*;
-import lavs.gateway.CustomerGateway;
+import lavs.adapter.CustomerAdapter;
+import lavs.adapter.LoanAdapter;
+import lavs.adapter.MainframeAuthenticationGateway;
+import lavs.adapter.MainframeCategoryGateway;
+import lavs.adapter.NoteAdapter;
+import lavs.adapter.PaymentAdapter;
+import lavs.adapter.RecoveringConnection;
 import lavs.gateway.LoanGateway;
-import lavs.service.*;
+import lavs.service.AuthenticationService;
+import lavs.service.CategoryService;
+import lavs.service.CustomerService;
+import lavs.service.DefaultAuthenticationService;
+import lavs.service.DefaultCategoryService;
+import lavs.service.DefaultConnectionMonitor;
+import lavs.service.DefaultCustomerService;
+import lavs.service.DefaultLoanService;
+import lavs.service.DefaultNoteService;
+import lavs.service.DefaultPaymentService;
+import lavs.service.DocumentService;
+import lavs.service.LoanService;
+import lavs.service.NoteService;
+import lavs.service.PaymentService;
+import lavs.service.RepaymentService;
+import lavs.service.RepaymentServiceImpl;
 import lavs.validation.CustomerRules;
 import lavs.validation.LoanRules;
 import lavs.validation.ValidationService;
@@ -28,7 +48,8 @@ public class LavsApplication extends Application {
         CategoryService categories = new DefaultCategoryService(
                 new MainframeCategoryGateway(connection));
         NoteService notes = new DefaultNoteService(new NoteAdapter(connection));
-        CustomerGateway customerGateway = new CustomerAdapter(connection);
+        CustomerAdapter customerGateway = new CustomerAdapter(connection);
+        DocumentService documents = new DocumentService(customerGateway);
         LoanGateway loanGateway = new LoanAdapter(connection);
         ValidationService validation = new ValidationService();
         CustomerService customers = new DefaultCustomerService(
@@ -56,6 +77,7 @@ public class LavsApplication extends Application {
                 stage,
                 authentication,
                 customers,
+                documents,
                 loans,
                 categories,
                 notes,

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AI-assisted: laid out in Scene Builder, then adjusted with an error label. -->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="8" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+  <padding><Insets top="16" right="16" bottom="16" left="16" /></padding>
+  <children>
+    <Label text="File name" />
+    <TextField fx:id="fileNameField" promptText="proof.pdf" />
+    <Label text="File type" />
+    <TextField fx:id="fileTypeField" promptText="application/pdf" />
+    <Label text="Size (bytes)" />
+    <TextField fx:id="sizeField" promptText="0" />
+    <Label text="Document type" />
+    <TextField fx:id="typeField" promptText="Identity" />
+    <Label fx:id="errorLabel" styleClass="field-error" wrapText="true" />
+  </children>
+</VBox>

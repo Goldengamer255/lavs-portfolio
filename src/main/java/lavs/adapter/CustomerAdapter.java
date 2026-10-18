@@ -3,10 +3,14 @@ package lavs.adapter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 import lavs.domain.Address;
 import lavs.domain.AddressSummary;
 import lavs.domain.Customer;
+import lavs.domain.CustomerDocument;
+import lavs.domain.CustomerDocumentSummary;
 import lavs.domain.CustomerSummary;
+import lavs.domain.DocumentMetadata;
 import lavs.domain.Email;
 import lavs.domain.EmailSummary;
 import lavs.domain.Employer;
@@ -18,25 +22,42 @@ import lavs.domain.PhoneSummary;
 import lavs.domain.Relationship;
 import lavs.domain.RelationshipSummary;
 import lavs.gateway.CustomerGateway;
+import lavs.gateway.DocumentGateway;
 import lavs.gateway.OperationResult;
+import mainframe.client.Connection;
+import mainframe.client.Message;
 import mainframe.client.Status;
 import mainframe.client.StatusMessage;
 
-public class CustomerAdapter implements CustomerGateway {
+public class CustomerAdapter implements CustomerGateway, DocumentGateway {
 
-  private final mainframe.client.Connection connection;
+  private final Connection connection;
 
-  public CustomerAdapter(mainframe.client.Connection connection) {
+  public CustomerAdapter(Connection connection) {
     this.connection = connection;
   }
 
-  // helpers for dates
-  private LocalDate parseDate(String value) {
+  private static LocalDate parseDate(String value) {
     return (value == null || value.isBlank()) ? null : LocalDate.parse(value);
   }
 
-  private String formatDate(LocalDate value) {
+  private static String formatDate(LocalDate value) {
     return value == null ? null : value.toString();
+  }
+
+  // AI-assisted: share mainframe status and I/O handling across customer operations.
+  private <T> OperationResult<T> send(Message message, Supplier<T> mapResponse) {
+    try {
+      Status status = message.send(connection);
+      if (!status.getWasSuccessful()) {
+        return OperationResult.failure(
+            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
+      }
+      return OperationResult.success(mapResponse.get(), status.getTransactionId());
+    } catch (IOException e) {
+      return OperationResult.failure(
+          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
+    }
   }
 
   // Customer related methods
@@ -51,95 +72,55 @@ public class CustomerAdapter implements CustomerGateway {
             input.organisation(),
             input.title());
 
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-
-      OperationResult<Customer> result =
-          OperationResult.success(
-              new Customer(
-                  message.getNumber(),
-                  message.getFirstName(),
-                  message.getFamilyName(),
-                  parseDate(message.getDateOfBirth()),
-                  message.getNationality(),
-                  message.getTitle(),
-                  message.getStatus()),
-              status.getTransactionId());
-      return result;
-    } catch (IOException e) {
-      return OperationResult.failure(
-          // Ai assisted for StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode()
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Customer(
+                message.getNumber(),
+                message.getFirstName(),
+                message.getFamilyName(),
+                parseDate(message.getDateOfBirth()),
+                message.getNationality(),
+                message.getTitle(),
+                message.getStatus()));
   }
 
   @Override
   public OperationResult<Customer> retrieve(String customerNumber) {
     var message = new mainframe.client.messages.customer.Retrieve(customerNumber);
-
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-
-      Customer customer =
-          new Customer(
-              message.getNumber(),
-              message.getFirstName(),
-              message.getFamilyName(),
-              parseDate(message.getDateOfBirth()),
-              message.getNationality(),
-              message.getTitle(),
-              message.getStatus());
-
-      return OperationResult.success(customer, status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Customer(
+                message.getNumber(),
+                message.getFirstName(),
+                message.getFamilyName(),
+                parseDate(message.getDateOfBirth()),
+                message.getNationality(),
+                message.getTitle(),
+                message.getStatus()));
   }
 
   @Override
   public OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size) {
     var message = new mainframe.client.messages.customer.Search(page, nameQuery, size);
 
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-
-      var customers = new ArrayList<CustomerSummary>();
-      for (var item : message.getItems()) {
-        customers.add(
-            new CustomerSummary(
-                item.getNumber(),
-                item.getFirstName(),
-                item.getFamilyName(),
-                parseDate(item.getDateOfBirth()),
-                item.getTitle(),
-                item.getStatus()));
-      }
-      var result =
-          new Page<CustomerSummary>(customers, message.getPage(), size, message.getTotal());
-
-      return OperationResult.success(result, status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () -> {
+          var customers = new ArrayList<CustomerSummary>();
+          for (var item : message.getItems()) {
+            customers.add(
+                new CustomerSummary(
+                    item.getNumber(),
+                    item.getFirstName(),
+                    item.getFamilyName(),
+                    parseDate(item.getDateOfBirth()),
+                    item.getTitle(),
+                    item.getStatus()));
+          }
+          return new Page<>(customers, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
@@ -152,46 +133,23 @@ public class CustomerAdapter implements CustomerGateway {
             customer.nationality(),
             customer.number(),
             customer.title());
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Customer(
-              message.getNumber(),
-              message.getFirstName(),
-              message.getFamilyName(),
-              parseDate(message.getDateOfBirth()),
-              message.getNationality(),
-              message.getTitle(),
-              message.getStatus()),
-          status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Customer(
+                message.getNumber(),
+                message.getFirstName(),
+                message.getFamilyName(),
+                parseDate(message.getDateOfBirth()),
+                message.getNationality(),
+                message.getTitle(),
+                message.getStatus()));
   }
 
   @Override
   public OperationResult<String> changeStatus(String customerNumber, String status) {
     var message = new mainframe.client.messages.customer.UpdateStatus(customerNumber, status);
-    try {
-      Status result = message.send(connection);
-
-      if (!result.getWasSuccessful()) {
-        return OperationResult.failure(
-            result.getErrorCode(), result.getErrorMessage(), result.getTransactionId());
-      }
-      return OperationResult.success(message.getStatus(), result.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(message, message::getStatus);
   }
 
   // Address related methods
@@ -210,51 +168,28 @@ public class CustomerAdapter implements CustomerGateway {
             address.postCode(),
             address.suburb(),
             address.type());
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Address(
-              message.getId(),
-              message.getCustomer(),
-              message.getLine1(),
-              message.getLine2(),
-              message.getSuburb(),
-              message.getCity(),
-              message.getCountry(),
-              message.getPostCode(),
-              message.getType(),
-              message.getOtherType(),
-              message.getIsMailing(),
-              message.getIsPrimary()),
-          status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Address(
+                message.getId(),
+                message.getCustomer(),
+                message.getLine1(),
+                message.getLine2(),
+                message.getSuburb(),
+                message.getCity(),
+                message.getCountry(),
+                message.getPostCode(),
+                message.getType(),
+                message.getOtherType(),
+                message.getIsMailing(),
+                message.getIsPrimary()));
   }
 
   @Override
   public OperationResult<Boolean> deleteAddress(String customerNumber, long addressId) {
     var message = new mainframe.client.messages.customer.DeleteAddress(customerNumber, addressId);
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(true, status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(message, () -> true);
   }
 
   @Override
@@ -275,33 +210,22 @@ public class CustomerAdapter implements CustomerGateway {
             address.postCode(),
             address.suburb(),
             address.type());
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Address(
-              message.getId(),
-              message.getCustomer(),
-              message.getLine1(),
-              message.getLine2(),
-              message.getSuburb(),
-              message.getCity(),
-              message.getCountry(),
-              message.getPostCode(),
-              message.getType(),
-              message.getOtherType(),
-              message.getIsMailing(),
-              message.getIsPrimary()),
-          status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Address(
+                message.getId(),
+                message.getCustomer(),
+                message.getLine1(),
+                message.getLine2(),
+                message.getSuburb(),
+                message.getCity(),
+                message.getCountry(),
+                message.getPostCode(),
+                message.getType(),
+                message.getOtherType(),
+                message.getIsMailing(),
+                message.getIsPrimary()));
   }
 
   @Override
@@ -309,66 +233,44 @@ public class CustomerAdapter implements CustomerGateway {
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerAddress.List(customerNumber, page, size);
 
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-
-      var addresses = new ArrayList<AddressSummary>();
-      for (var item : message.getItems()) {
-        addresses.add(
-            new AddressSummary(
-                item.getId(),
-                item.getCity(),
-                item.getCountry(),
-                item.getType(),
-                "y".equals(item.getIsMailing()),
-                "y".equals(item.getIsPrimary())));
-      }
-      var result = new Page<AddressSummary>(addresses, message.getPage(), size, message.getTotal());
-
-      return OperationResult.success(result, status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () -> {
+          var addresses = new ArrayList<AddressSummary>();
+          for (var item : message.getItems()) {
+            addresses.add(
+                new AddressSummary(
+                    item.getId(),
+                    item.getCity(),
+                    item.getCountry(),
+                    item.getType(),
+                    "y".equals(item.getIsMailing()),
+                    "y".equals(item.getIsPrimary())));
+          }
+          return new Page<>(addresses, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
   public OperationResult<Address> retrieveAddress(String customerNumber, long addressId) {
     var message = new mainframe.client.messages.customerAddress.Retrieve(addressId, customerNumber);
 
-    try {
-      Status status = message.send(connection);
-
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Address(
-              message.getId(),
-              message.getCustomerNumber(),
-              message.getLine1(),
-              message.getLine2(),
-              message.getSuburb(),
-              message.getCity(),
-              message.getCountry(),
-              message.getPostCode(),
-              message.getType(),
-              message.getOtherType(),
-              message.getIsMailing(),
-              message.getIsPrimary()),
-          status.getTransactionId());
-
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Address(
+                message.getId(),
+                message.getCustomerNumber(),
+                message.getLine1(),
+                message.getLine2(),
+                message.getSuburb(),
+                message.getCity(),
+                message.getCountry(),
+                message.getPostCode(),
+                message.getType(),
+                message.getOtherType(),
+                message.getIsMailing(),
+                message.getIsPrimary()));
   }
 
   // Phone related methods
@@ -383,44 +285,25 @@ public class CustomerAdapter implements CustomerGateway {
             phone.number(),
             phone.otherType(),
             phone.type());
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Phone(
-              message.getId(),
-              message.getCanTxt(),
-              message.getCountryCode(),
-              null,
-              message.getCustomer(),
-              message.getIsPrimary(),
-              message.getNumber(),
-              message.getOtherType(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Phone(
+                message.getId(),
+                message.getCanTxt(),
+                message.getCountryCode(),
+                null,
+                message.getCustomer(),
+                message.getIsPrimary(),
+                message.getNumber(),
+                message.getOtherType(),
+                message.getType()));
   }
 
   @Override
   public OperationResult<Boolean> deletePhone(String customerNumber, long phoneId) {
     var message = new mainframe.client.messages.customer.DeletePhoneNumber(customerNumber, phoneId);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(true, status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(message, () -> true);
   }
 
   @Override
@@ -435,28 +318,19 @@ public class CustomerAdapter implements CustomerGateway {
             phone.number(),
             phone.otherType(),
             phone.type());
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Phone(
-              message.getId(),
-              message.getCanTxt(),
-              message.getCountryCode(),
-              null,
-              message.getCustomer(),
-              message.getIsPrimary(),
-              message.getNumber(),
-              message.getOtherType(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Phone(
+                message.getId(),
+                message.getCanTxt(),
+                message.getCountryCode(),
+                null,
+                message.getCustomer(),
+                message.getIsPrimary(),
+                message.getNumber(),
+                message.getOtherType(),
+                message.getType()));
   }
 
   @Override
@@ -464,58 +338,41 @@ public class CustomerAdapter implements CustomerGateway {
       String customerNumber, long page, long size) {
     var message =
         new mainframe.client.messages.customerPhoneNumber.List(customerNumber, page, size);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      var phones = new ArrayList<PhoneSummary>();
-      for (var item : message.getItems()) {
-        phones.add(
-            new PhoneSummary(
-                item.getId(),
-                item.getCountryCode(),
-                item.getNumber(),
-                item.getType(),
-                "y".equals(item.getCanTxt()),
-                "y".equals(item.getIsPrimary())));
-      }
-      return OperationResult.success(
-          new Page<>(phones, message.getPage(), size, message.getTotal()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () -> {
+          var phones = new ArrayList<PhoneSummary>();
+          for (var item : message.getItems()) {
+            phones.add(
+                new PhoneSummary(
+                    item.getId(),
+                    item.getCountryCode(),
+                    item.getNumber(),
+                    item.getType(),
+                    "y".equals(item.getCanTxt()),
+                    "y".equals(item.getIsPrimary())));
+          }
+          return new Page<>(phones, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
   public OperationResult<Phone> retrievePhone(String customerNumber, long phoneId) {
     var message =
         new mainframe.client.messages.customerPhoneNumber.Retrieve(phoneId, customerNumber);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Phone(
-              message.getId(),
-              message.getCanTxt(),
-              message.getCountryCode(),
-              message.getCustomerName(),
-              message.getCustomerNumber(),
-              message.getIsPrimary(),
-              message.getNumber(),
-              message.getOtherType(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Phone(
+                message.getId(),
+                message.getCanTxt(),
+                message.getCountryCode(),
+                message.getCustomerName(),
+                message.getCustomerNumber(),
+                message.getIsPrimary(),
+                message.getNumber(),
+                message.getOtherType(),
+                message.getType()));
   }
 
   // Email related methods
@@ -528,42 +385,23 @@ public class CustomerAdapter implements CustomerGateway {
             email.isPrimary(),
             email.otherType(),
             email.type());
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Email(
-              message.getId(),
-              null,
-              message.getCustomer(),
-              message.getAddress(),
-              message.getIsPrimary(),
-              message.getOtherType(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Email(
+                message.getId(),
+                null,
+                message.getCustomer(),
+                message.getAddress(),
+                message.getIsPrimary(),
+                message.getOtherType(),
+                message.getType()));
   }
 
   @Override
   public OperationResult<Boolean> deleteEmail(String customerNumber, long emailId) {
     var message = new mainframe.client.messages.customer.DeleteEmail(customerNumber, emailId);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(true, status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(message, () -> true);
   }
 
   @Override
@@ -576,76 +414,53 @@ public class CustomerAdapter implements CustomerGateway {
             email.isPrimary(),
             email.otherType(),
             email.type());
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Email(
-              message.getId(),
-              null,
-              message.getCustomer(),
-              message.getAddress(),
-              message.getIsPrimary(),
-              message.getOtherType(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Email(
+                message.getId(),
+                null,
+                message.getCustomer(),
+                message.getAddress(),
+                message.getIsPrimary(),
+                message.getOtherType(),
+                message.getType()));
   }
 
   @Override
   public OperationResult<Page<EmailSummary>> listEmails(
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerEmail.List(customerNumber, page, size);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      var emails = new ArrayList<EmailSummary>();
-      for (var item : message.getItems()) {
-        emails.add(
-            new EmailSummary(
-                item.getId(), item.getAddress(), "y".equals(item.getIsPrimary()), item.getType()));
-      }
-      return OperationResult.success(
-          new Page<>(emails, message.getPage(), size, message.getTotal()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () -> {
+          var emails = new ArrayList<EmailSummary>();
+          for (var item : message.getItems()) {
+            emails.add(
+                new EmailSummary(
+                    item.getId(),
+                    item.getAddress(),
+                    "y".equals(item.getIsPrimary()),
+                    item.getType()));
+          }
+          return new Page<>(emails, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
   public OperationResult<Email> retrieveEmail(String customerNumber, long emailId) {
     var message = new mainframe.client.messages.customerEmail.Retrieve(emailId, customerNumber);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Email(
-              message.getId(),
-              message.getCustomerName(),
-              message.getCustomerNumber(),
-              message.getAddress(),
-              message.getIsPrimary(),
-              message.getOtherType(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Email(
+                message.getId(),
+                message.getCustomerName(),
+                message.getCustomerNumber(),
+                message.getAddress(),
+                message.getIsPrimary(),
+                message.getOtherType(),
+                message.getType()));
   }
 
   // Employer related methods
@@ -659,42 +474,23 @@ public class CustomerAdapter implements CustomerGateway {
             employer.position(),
             employer.salary(),
             employer.type());
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Employer(
-              message.getId(),
-              null,
-              message.getCustomer(),
-              message.getName(),
-              message.getPosition(),
-              message.getSalary(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Employer(
+                message.getId(),
+                null,
+                message.getCustomer(),
+                message.getName(),
+                message.getPosition(),
+                message.getSalary(),
+                message.getType()));
   }
 
   @Override
   public OperationResult<Boolean> deleteEmployer(String customerNumber, long employerId) {
     var message = new mainframe.client.messages.customer.DeleteEmployer(customerNumber, employerId);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(true, status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(message, () -> true);
   }
 
   @Override
@@ -707,75 +503,111 @@ public class CustomerAdapter implements CustomerGateway {
             employer.position(),
             employer.salary(),
             employer.type());
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Employer(
-              message.getId(),
-              null,
-              message.getCustomer(),
-              message.getName(),
-              message.getPosition(),
-              message.getSalary(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Employer(
+                message.getId(),
+                null,
+                message.getCustomer(),
+                message.getName(),
+                message.getPosition(),
+                message.getSalary(),
+                message.getType()));
   }
 
   @Override
   public OperationResult<Page<EmployerSummary>> listEmployers(
       String customerNumber, long page, long size) {
     var message = new mainframe.client.messages.customerEmployer.List(customerNumber, page, size);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      var employers = new ArrayList<EmployerSummary>();
-      for (var item : message.getItems()) {
-        employers.add(new EmployerSummary(item.getId(), item.getName(), item.getType()));
-      }
-      return OperationResult.success(
-          new Page<>(employers, message.getPage(), size, message.getTotal()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () -> {
+          var employers = new ArrayList<EmployerSummary>();
+          for (var item : message.getItems()) {
+            employers.add(new EmployerSummary(item.getId(), item.getName(), item.getType()));
+          }
+          return new Page<>(employers, message.getPage(), size, message.getTotal());
+        });
   }
 
   @Override
   public OperationResult<Employer> retrieveEmployer(String customerNumber, long employerId) {
     var message =
         new mainframe.client.messages.customerEmployer.Retrieve(employerId, customerNumber);
-    try {
-      Status status = message.send(connection);
-      if (!status.getWasSuccessful()) {
-        return OperationResult.failure(
-            status.getErrorCode(), status.getErrorMessage(), status.getTransactionId());
-      }
-      return OperationResult.success(
-          new Employer(
-              message.getId(),
-              message.getCustomerName(),
-              message.getCustomerNumber(),
-              message.getName(),
-              message.getPosition(),
-              message.getSalary(),
-              message.getType()),
-          status.getTransactionId());
-    } catch (IOException e) {
-      return OperationResult.failure(
-          StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
-    }
+    return send(
+        message,
+        () ->
+            new Employer(
+                message.getId(),
+                message.getCustomerName(),
+                message.getCustomerNumber(),
+                message.getName(),
+                message.getPosition(),
+                message.getSalary(),
+                message.getType()));
+  }
+
+  // Customer document metadata. The mainframe does not provide an update message.
+  @Override
+  public OperationResult<CustomerDocument> addDocument(
+      String customerNumber, DocumentMetadata metadata) {
+    var message =
+        new mainframe.client.messages.customer.AddDocument(
+            customerNumber,
+            metadata.fileName(),
+            metadata.fileType(),
+            metadata.size(),
+            metadata.type());
+    return send(
+        message,
+        () ->
+            new CustomerDocument(
+                message.getId(),
+                message.getCustomer(),
+                message.getFileName(),
+                message.getFileType(),
+                message.getSize(),
+                message.getType()));
+  }
+
+  @Override
+  public OperationResult<Boolean> deleteDocument(String customerNumber, long documentId) {
+    var message = new mainframe.client.messages.customer.DeleteDocument(customerNumber, documentId);
+    return send(message, () -> true);
+  }
+
+  @Override
+  public OperationResult<Page<CustomerDocumentSummary>> listDocuments(
+      String customerNumber, long page, long size) {
+    var message = new mainframe.client.messages.customerDocument.List(customerNumber, page, size);
+    return send(
+        message,
+        () -> {
+          var documents = new ArrayList<CustomerDocumentSummary>();
+          for (var item : message.getItems()) {
+            documents.add(
+                new CustomerDocumentSummary(item.getId(), item.getFileName(), item.getType()));
+          }
+          return new Page<>(documents, message.getPage(), size, message.getTotal());
+        });
+  }
+
+  @Override
+  public OperationResult<CustomerDocument> retrieveDocument(
+      String customerNumber, long documentId) {
+    var message =
+        new mainframe.client.messages.customerDocument.Retrieve(documentId, customerNumber);
+    return send(
+        message,
+        () ->
+            new CustomerDocument(
+                message.getId(),
+                message.getCustomerNumber(),
+                message.getFileName(),
+                message.getFileType(),
+                message.getSize(),
+                message.getType()));
   }
 
   @Override
