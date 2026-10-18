@@ -3,6 +3,7 @@ package lavs.adapter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -89,6 +90,21 @@ class CustomerAdapterTest {
     assertEquals("Auckland", address.city());
     assertFalse(address.isMailing());
     assertTrue(address.isPrimary());
+  }
+
+  @Test
+  void rejectedCustomerRequestPreservesTheMainframeError() {
+    var connection = new StubConnection();
+    connection.setResponse(
+        new MessageResponse(new Status(3, "Customer not found", 43), new HashMap<>()));
+
+    var result = new CustomerAdapter(connection).retrieve("C123");
+
+    assertFalse(result.isSuccess());
+    assertNull(result.value());
+    assertEquals(3, result.errorCode());
+    assertEquals("Customer not found", result.errorMessage());
+    assertEquals(43, result.transactionId());
   }
 
   @Test

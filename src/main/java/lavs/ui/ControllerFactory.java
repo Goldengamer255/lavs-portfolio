@@ -7,8 +7,10 @@ import javafx.util.Callback;
 import lavs.service.AuthenticationService;
 import lavs.service.CategoryService;
 import lavs.service.CustomerService;
+import lavs.service.DocumentService;
 import lavs.service.LoanService;
 import lavs.service.NoteService;
+import lavs.service.PaymentService;
 import lavs.service.RepaymentService;
 import lavs.ui.support.EntityListController;
 
@@ -24,10 +26,12 @@ public final class ControllerFactory implements Callback<Class<?>, Object> {
 
     private final AuthenticationService authentication;
     private final CustomerService customers;
+    private final DocumentService documents;
     private final LoanService loans;
     private final CategoryService categories;
     private final NoteService notes;
     private final RepaymentService repayments;
+    private final PaymentService payments;
     private final Navigator navigator;
     private final Executor worker;
 
@@ -40,16 +44,19 @@ public final class ControllerFactory implements Callback<Class<?>, Object> {
      * @param categories category values used by form controls
      * @param navigator shared screen navigator
      * @param worker executor used for mainframe calls away from the JavaFX thread
+     * @param payments loan payments
      */
     public ControllerFactory(AuthenticationService authentication, CustomerService customers,
-            LoanService loans, CategoryService categories, NoteService notes,
-            RepaymentService repayments, Navigator navigator, Executor worker) {
+     DocumentService documents, LoanService loans, CategoryService categories, NoteService notes,
+     RepaymentService repayments, PaymentService payments, Navigator navigator, Executor worker) {
         this.authentication = Objects.requireNonNull(authentication, "authentication");
         this.customers = Objects.requireNonNull(customers, "customers");
+        this.documents = Objects.requireNonNull(documents, "documents");
         this.loans = Objects.requireNonNull(loans, "loans");
         this.categories = Objects.requireNonNull(categories, "categories");
         this.notes = Objects.requireNonNull(notes, "notes");
         this.repayments = Objects.requireNonNull(repayments, "repayments");
+        this.payments = Objects.requireNonNull(payments, "payments");
         this.navigator = Objects.requireNonNull(navigator, "navigator");
         this.worker = Objects.requireNonNull(worker, "worker");
     }
@@ -75,10 +82,10 @@ public final class ControllerFactory implements Callback<Class<?>, Object> {
         }
         if (controllerType == CustomerDetailsController.class) {
             return new CustomerDetailsController(
-                    customers, categories, notes, navigator, worker);
+                    customers, documents, categories, notes, navigator, worker);
         }
         if (controllerType == LoanDetailsController.class) {
-            return new LoanDetailsController(loans, categories, navigator, worker);
+            return new LoanDetailsController(loans, categories, payments, navigator, worker);
         }
         if (controllerType == LoanSummaryController.class) {
             return new LoanSummaryController(repayments, loans, navigator, worker);

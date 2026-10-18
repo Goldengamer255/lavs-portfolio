@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.function.Supplier;
-
 import lavs.domain.CoBorrower;
 import lavs.domain.Loan;
 import lavs.domain.LoanSummary;
@@ -34,7 +33,7 @@ public class LoanAdapter implements LoanGateway {
     return value == null ? null : value.toString();
   }
 
-  //Ai assisted helper function to send a message and map the response to an OperationResult
+  // Ai assisted helper function to send a message and map the response to an OperationResult
   private <T> OperationResult<T> send(Message message, Supplier<T> mapResponse) {
     try {
       Status status = message.send(connection);

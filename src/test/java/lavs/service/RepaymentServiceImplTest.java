@@ -138,4 +138,15 @@ public class RepaymentServiceImplTest {
         // Assert
         assertTrue(result.isUnavailable());
     }
+
+    @Test
+    public void getScheduleWithNullLoanNumberFails() {
+        // Act
+        OperationResult<Page<RepaymentScheduleItem>> result = service.getSchedule(null, 1, 10);
+
+        // Assert
+        assertFalse(result.isSuccess());
+        assertEquals(3, result.errorCode());
+        verifyNoInteractions(gateway);
+    }
 }
