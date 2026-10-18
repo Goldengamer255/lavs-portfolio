@@ -19,6 +19,7 @@ import lavs.service.CustomerService;
 import lavs.service.DocumentService;
 import lavs.service.LoanService;
 import lavs.service.NoteService;
+import lavs.service.PaymentService;
 import lavs.service.RepaymentService;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,7 @@ class CustomerDetailsFxmlTest {
             mock(CategoryService.class),
             mock(NoteService.class),
             mock(RepaymentService.class),
+            mock(PaymentService.class),
             mock(Navigator.class),
             Runnable::run));
         Parent root = loader.load();
