@@ -28,7 +28,7 @@ import java.util.List;
 public class ValidationService {
 
     public ValidationReport validateCustomer(CustomerInput input, boolean creating) {
-        // Required: first name, family name, nationality, title. Date of birth must not be in the future.
+        // Required: first name, family name, nationality, title, Date of Birth. Date of birth must not be in the future.
         List<ValidationIssue> issues = new ArrayList<>();
 
         if (input.firstName() == null || input.firstName().isBlank()) {
@@ -39,7 +39,9 @@ public class ValidationService {
             issues.add(new ValidationIssue(CustomerField.FAMILY_NAME.key(), "Family Name is required"));
         }
 
-        if (input.dateOfBirth() != null && input.dateOfBirth().isAfter(LocalDate.now())) {
+        if (input.dateOfBirth() == null) {
+            issues.add(new ValidationIssue(CustomerField.DATE_OF_BIRTH.key(), "Date of birth is required"));
+        } else if (input.dateOfBirth().isAfter(LocalDate.now())) {
             issues.add(new ValidationIssue(CustomerField.DATE_OF_BIRTH.key(), "Date of birth cannot be in the future"));
         }
 

@@ -187,6 +187,7 @@ public final class CustomerDetailsController implements CustomerContextAware, Sc
             field.editableProperty().bind(editing.and(saving.not()));
         }
         dobPicker.disableProperty().bind(editing.not().or(saving));
+        dobPicker.setEditable(false);
         editButton.visibleProperty().bind(editing.not());
         editButton.managedProperty().bind(editButton.visibleProperty());
         saveButton.visibleProperty().bind(editing);
