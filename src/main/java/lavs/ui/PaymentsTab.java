@@ -25,7 +25,7 @@ public final class PaymentsTab {
     private static final String DIALOG = "/lavs/view/PaymentDialog.fxml";
     private static final String LOAD_FAILED = "Couldn't load payments. Check your connection and try again.";
     private static final String SAVE_FAILED = "Not saved yet. The mainframe couldn't be reached. Try Save again.";
-    private static final String SAVE_REJECTED = "Not saved. The mainframe said: ";
+    private static final String SAVE_REJECTED = "Not saved. Payments can only be added while the loan is New or Pending.";
     private static final String DELETE_FAILED = "Couldn't delete the payment. Check your connection and try again.";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -88,7 +88,7 @@ public final class PaymentsTab {
                                 Runnable close) {
         if (!result.isSuccess()) {
             if (result.isRejected()) {
-                form.showFormError(SAVE_REJECTED + result.errorMessage());
+                form.showFormError(SAVE_REJECTED);
             } else {
                 form.showFormError(SAVE_FAILED);
             }
