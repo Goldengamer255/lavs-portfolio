@@ -2,13 +2,7 @@ package lavs.ui;
 
 import java.util.concurrent.ExecutorService;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import lavs.service.AuthenticationService;
-import lavs.service.CategoryService;
-import lavs.service.ConnectionMonitor;
-import lavs.service.CustomerService;
-import lavs.service.LoanService;
-import lavs.service.NoteService;
-import lavs.service.RepaymentService;
+import lavs.service.*;
 
 /**
  * Dependencies owned by the application shell. The controller factory passes
@@ -26,6 +20,7 @@ public record ShellDependencies(
         CategoryService categories,
         NoteService notes,
         RepaymentService repayments,
+        PaymentService payments,
         ConnectionMonitor connectionMonitor,
         ExecutorService worker,
         ReadOnlyBooleanProperty online) {}

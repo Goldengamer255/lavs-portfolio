@@ -121,5 +121,7 @@
       </HBox>
       <Label styleClass="section-title" text="Co-borrowers" />
       <fx:include fx:id="coborrowersList" source="EntityListView.fxml" />
+      <Label styleClass="section-title" text="Payments" />
+      <fx:include fx:id="paymentsList" source="EntityListView.fxml" />
    </children>
 </VBox>
