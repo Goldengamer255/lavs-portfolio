@@ -47,7 +47,6 @@ public final class NotesTab {
         list.addColumn("Subject", NoteSummary::type);
         list.addColumn("Author", NoteSummary::author);
         list.addColumn("Date Added", n -> n.dateAdded() == null ? "" : n.dateAdded().format(DATE_FORMAT));
-        list.addColumn("Lines", n -> String.valueOf(n.numberOfLines()));
 
         list.setEmptyText("No notes yet.");
         list.setOnAdd(() -> openDialog(null));
