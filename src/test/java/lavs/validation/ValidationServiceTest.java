@@ -1189,10 +1189,12 @@ class ValidationServiceTest {
     // BRANCH COVERAGE TESTS
     // AI-assisted: blank-value and branch tests outlined with AI help
     @Test
-    void nullDateOfBirthIsAccepted() {
+    void nullDateOfBirthIsRejected() {
         CustomerInput input = new CustomerInput("Ada", "Lovelace", null, "NZ", "Ms");
         ValidationReport report = service.validateCustomer(input, true);
-        assertEquals(0, report.errors().size());
+        assertEquals(1, report.errors().size());
+        assertEquals(CustomerField.DATE_OF_BIRTH.key(), report.errors().get(0).fieldKey());
+        assertEquals("Date of birth is required", report.errors().get(0).message());
     }
 
     @Test
