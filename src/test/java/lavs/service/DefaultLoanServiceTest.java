@@ -134,6 +134,7 @@ class DefaultLoanServiceTest {
         assertEquals(22, result.transactionId());
     }
 
+    // AI-assisted: changeStatus tests outlined by AI; reviewed, adapted and built by me
     @Test
     void changeStatusRejectsStatusThatIsNotAllowed() {
         FakeLoanGateway gateway = new FakeLoanGateway();
