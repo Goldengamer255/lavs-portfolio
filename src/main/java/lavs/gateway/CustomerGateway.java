@@ -15,8 +15,17 @@ import lavs.domain.PhoneSummary;
 import lavs.domain.Relationship;
 import lavs.domain.RelationshipSummary;
 
+/**
+ * Defines persistence operations for customers and their related contact records.
+ *
+ * <p>Search and list methods accept a one-based page number and a positive page
+ * size. Summary records support list views; retrieve methods return full details.
+ * Delete results acknowledge success with true. Inspect {@link OperationResult}
+ * before accessing a returned value.</p>
+ */
 public interface CustomerGateway {
   // Customer related methods
+  /** Creates a customer and returns the saved record with its assigned number. */
   OperationResult<Customer> create(NewCustomer input);
 
   OperationResult<Customer> retrieve(String customerNumber);
@@ -25,6 +34,7 @@ public interface CustomerGateway {
 
   OperationResult<Customer> update(Customer customer);
 
+  /** Returns the status reported after the requested customer status change. */
   OperationResult<String> changeStatus(String customerNumber, String status);
 
   // Address related methods

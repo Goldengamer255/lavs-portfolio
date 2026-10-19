@@ -1,9 +1,17 @@
 package lavs.gateway;
 
+/**
+ * Provides authentication operations for the shared mainframe session.
+ * Results expose application-level status details without mainframe client types.
+ */
 public interface AuthenticationGateway {
-    // this should return true if login is successful, false otherwise. The errorCode and errorMessage should provide more information in case of failure.
+    /**
+     * Authenticates using the supplied credentials.
+     *
+     * @return true on success; failures carry error details and a null value
+     */
     OperationResult<Boolean> login(String username, String password);
 
-    // same as the login
+    /** Ends the current session and returns an acknowledgement on success. */
     OperationResult<Boolean> logout();
 }
