@@ -34,14 +34,29 @@ import lavs.validation.ValidationService;
 import mainframe.client.Connection;
 import mainframe.client.HttpConnection;
 
+/**
+ * JavaFX entry point for the Loan Application and Verification System.
+ *
+ * <p>Assembles the mainframe gateways, business services, and application shell.
+ * The shell manages the shared worker and connection monitor; this application
+ * retains responsibility for closing the mainframe connection.</p>
+ */
 public class LavsApplication extends Application {
 
     private ApplicationShell shell;
     private Connection connection;
 
+    /**
+     * Builds application-wide dependencies and displays the initial login view.
+     * Called by JavaFX on the application thread.
+     *
+     * @param stage primary window supplied by the JavaFX runtime
+     */
     @Override
     public void start(Stage stage) {
         AppConfig config = AppConfig.load();
+        // Share one recoverable session across gateways so authentication and
+        // subsequent mainframe requests use the same connection.
         connection = new RecoveringConnection(new HttpConnection(config.baseUrl()));
         AuthenticationService authentication = new DefaultAuthenticationService(
                 new MainframeAuthenticationGateway(connection));
@@ -64,6 +79,9 @@ public class LavsApplication extends Application {
                 new LoanRules());
         RepaymentService repayments = new RepaymentServiceImpl(loanGateway);
         PaymentService payments = new DefaultPaymentService(new PaymentAdapter(connection), validation);
+        // Serialize service calls and connection probes off the JavaFX thread.
+        // The shell shuts down this worker; daemon status also prevents it from
+        // keeping the JVM alive after the application exits.
         ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor(runnable -> {
             Thread thread = new Thread(runnable, "lavs-mainframe-worker");
             thread.setDaemon(true);
@@ -89,8 +107,15 @@ public class LavsApplication extends Application {
         stage.show();
     }
 
+    /**
+     * Releases shell resources, then closes the shared mainframe connection.
+     *
+     * @throws Exception if resource cleanup fails
+     */
     @Override
     public void stop() throws Exception {
+        // Cancel monitoring and request worker shutdown before closing the
+        // connection used by background tasks.
         if (shell != null) {
             shell.close();
         }
@@ -99,6 +124,11 @@ public class LavsApplication extends Application {
         }
     }
 
+    /**
+     * Launches the JavaFX runtime, which manages the application lifecycle.
+     *
+     * @param args command-line arguments passed to JavaFX
+     */
     public static void main(String[] args) {
         launch(args);
     }
