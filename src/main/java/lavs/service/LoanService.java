@@ -21,9 +21,10 @@ public interface LoanService {
     OperationResult<Boolean> removeCoBorrower(String loanNumber, long id);
 
     /**
-     * Changes a link's type; not an atomic mainframe operation. Implementations
-     * must surface partial failures and refresh links before offering a retry.
-     * The safe add/delete ordering must be agreed with the gateway owner.
+     * Changes a co-borrower association's type. The default implementation retrieves
+     * the existing link, deletes it, adds a replacement, and retrieves the new link.
+     * This sequence is not atomic: a failure may leave the original removed or the
+     * replacement created but not retrieved. Callers should refresh links before retrying.
      */
     OperationResult<CoBorrower> changeCoBorrowerType(String loanNumber, long id, String type);
 }

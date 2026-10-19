@@ -7,6 +7,12 @@ import lavs.gateway.LoanGateway;
 import lavs.gateway.OperationResult;
 
 // AI-assisted: validation checks and gateway delegation structure outlined by AI; code written by me.
+/**
+ * Retrieves mainframe-calculated repayment summaries and schedule pages.
+ * Rejects missing loan identifiers and invalid pagination locally with error
+ * code 3 before invoking the gateway. Gateway calls are synchronous and should
+ * run on the shared background worker.
+ */
 public class RepaymentServiceImpl implements RepaymentService {
 
     private final LoanGateway loanGateway;

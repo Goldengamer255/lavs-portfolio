@@ -4,8 +4,9 @@ import java.util.function.Consumer;
 import lavs.gateway.OperationResult;
 
 /**
- * JavaFX-independent monitoring contract. All probes use the same serial worker
- * as service calls, never concurrent access to the shared mainframe connection.
+ * JavaFX-independent monitoring contract. Scheduled probes use the same serial
+ * worker as service calls; callers must also use that worker for manual probes
+ * to avoid concurrent access to the shared mainframe connection.
  * Callbacks may run on that worker; the shell marshals UI updates to JavaFX.
  */
 public interface ConnectionMonitor extends AutoCloseable {
@@ -13,7 +14,10 @@ public interface ConnectionMonitor extends AutoCloseable {
     void start();
     /** Last known state; false until the first successful probe. No I/O. */
     boolean isOnline();
-    /** Performs a probe on the shared worker; success(false) means unreachable. */
+    /**
+     * Performs a synchronous probe on the calling thread; invoke through the
+     * shared worker. A successful result containing false means unreachable.
+     */
     OperationResult<Boolean> checkNow();
     /** Registers a listener; close the returned subscription to remove it. */
     Subscription subscribe(Consumer<Boolean> listener);
