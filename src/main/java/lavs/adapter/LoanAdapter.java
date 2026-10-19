@@ -18,22 +18,47 @@ import mainframe.client.Message;
 import mainframe.client.Status;
 import mainframe.client.StatusMessage;
 
+/**
+ * Maps loan, repayment, and co-borrower gateway operations to mainframe messages.
+ *
+ * <p>Requests are synchronous and use an externally managed connection. Callers
+ * handle business validation and background scheduling. Successful responses are
+ * converted to domain records, while failures retain the server's error details
+ * and transaction identifier.</p>
+ */
 public class LoanAdapter implements LoanGateway {
   private final Connection connection;
 
+  /**
+   * Creates an adapter using the application's shared mainframe connection.
+   *
+   * @param connection connection used for loan-related requests; closed by its owner
+   */
   public LoanAdapter(Connection connection) {
     this.connection = connection;
   }
 
+  /** Parses an ISO date response, treating null or blank values as absent. */
   private static LocalDate parseDate(String value) {
     return value == null || value.isBlank() ? null : LocalDate.parse(value);
   }
 
+  /** Formats an optional date as ISO text without replacing an absent value. */
   private static String formatDate(LocalDate value) {
     return value == null ? null : value.toString();
   }
 
   // Ai assisted helper function to send a message and map the response to an OperationResult
+  /**
+   * Sends a request and reads its populated response fields only on success.
+   * Response mapping errors propagate to the caller; only I/O failures are
+   * converted to a network-unavailable result.
+   *
+   * @param message mainframe request and response container
+   * @param mapResponse deferred conversion of response fields into a domain value
+   * @param <T> gateway result type
+   * @return mapped response or mainframe/transport failure details
+   */
   private <T> OperationResult<T> send(Message message, Supplier<T> mapResponse) {
     try {
       Status status = message.send(connection);
@@ -43,11 +68,13 @@ public class LoanAdapter implements LoanGateway {
       }
       return OperationResult.success(mapResponse.get(), status.getTransactionId());
     } catch (IOException e) {
+      // A transport failure supplies no confirmed server transaction identifier.
       return OperationResult.failure(
           StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
     }
   }
 
+  /** Creates a loan using the server response for its assigned number and saved terms. */
   @Override
   public OperationResult<Loan> create(NewLoan input) {
     var message =
@@ -98,12 +125,14 @@ public class LoanAdapter implements LoanGateway {
                 message.getStatus()));
   }
 
+  /** Returns the status reported by the mainframe after the requested transition. */
   @Override
   public OperationResult<String> changeStatus(String loanNumber, String newStatus) {
     var message = new mainframe.client.messages.loan.UpdateStatus(loanNumber, newStatus);
     return send(message, message::getStatus);
   }
 
+  /** Retrieves repayment totals supplied by the mainframe without recalculating them locally. */
   @Override
   public OperationResult<LoanSummary> getSummary(String loanNumber) {
     var message = new mainframe.client.messages.loanSummary.Retrieve(loanNumber);
@@ -120,6 +149,7 @@ public class LoanAdapter implements LoanGateway {
                 message.getFinalPaymentAmount()));
   }
 
+  /** Maps updated terms from the response while retaining the supplied loan and customer identifiers. */
   @Override
   public OperationResult<Loan> update(Loan loan) {
     var message =
@@ -151,6 +181,10 @@ public class LoanAdapter implements LoanGateway {
                 message.getStatus()));
   }
 
+  /**
+   * Retrieves a schedule page, preserving the server's page number and total
+   * count alongside the requested page size for UI navigation.
+   */
   @Override
   public OperationResult<Page<RepaymentScheduleItem>> getRepaymentSchedule(
       String loanNumber, long page, long size) {
@@ -181,6 +215,7 @@ public class LoanAdapter implements LoanGateway {
         message,
         () -> {
           var items = new ArrayList<LoanSummaryItem>();
+          // The loan list exposes principal as text; domain summaries store it numerically.
           for (var item : message.getItems()) {
             items.add(
                 new LoanSummaryItem(
@@ -193,6 +228,7 @@ public class LoanAdapter implements LoanGateway {
         });
   }
 
+  /** Returns the new co-borrower association identifier, not the customer's number. */
   @Override
   public OperationResult<Long> addCoborrower(
       String loanNumber, String coborrowerNumber, String type) {
@@ -201,6 +237,7 @@ public class LoanAdapter implements LoanGateway {
     return send(message, message::getId);
   }
 
+  /** Deletes the association; a true result acknowledges a successful mainframe status. */
   @Override
   public OperationResult<Boolean> deleteCoborrower(String loanNumber, long id) {
     var message = new mainframe.client.messages.loan.DeleteCoborrower(id, loanNumber);
