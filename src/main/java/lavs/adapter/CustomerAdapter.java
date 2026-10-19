@@ -29,23 +29,48 @@ import mainframe.client.Message;
 import mainframe.client.Status;
 import mainframe.client.StatusMessage;
 
+/**
+ * Translates customer and document gateway operations into mainframe messages
+ * and maps successful responses to application domain records.
+ *
+ * <p>Calls are synchronous and use the supplied connection. Callers are responsible
+ * for scheduling work off the UI thread and validating business rules before
+ * submission. Mainframe error details and transaction identifiers are preserved
+ * in {@link OperationResult}; I/O failures use the network-unavailable status.</p>
+ */
 public class CustomerAdapter implements CustomerGateway, DocumentGateway {
 
   private final Connection connection;
 
+  /**
+   * Creates an adapter using an externally managed mainframe connection.
+   *
+   * @param connection shared connection used to send customer-related messages
+   */
   public CustomerAdapter(Connection connection) {
     this.connection = connection;
   }
 
+  /** Converts an ISO date response, treating missing or blank values as absent. */
   private static LocalDate parseDate(String value) {
     return (value == null || value.isBlank()) ? null : LocalDate.parse(value);
   }
 
+  /** Formats an optional date as ISO text while preserving an absent value. */
   private static String formatDate(LocalDate value) {
     return value == null ? null : value.toString();
   }
 
   // AI-assisted: share mainframe status and I/O handling across customer operations.
+  /**
+   * Sends a message and maps its populated response only after a successful status.
+   * Delete operations supply {@code true} as an acknowledgement of that status.
+   *
+   * @param message request whose response fields are populated by sending it
+   * @param mapResponse deferred conversion of response fields into a domain value
+   * @param <T> gateway result type
+   * @return mapped value or failure details from the mainframe or transport
+   */
   private <T> OperationResult<T> send(Message message, Supplier<T> mapResponse) {
     try {
       Status status = message.send(connection);
@@ -55,12 +80,13 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
       }
       return OperationResult.success(mapResponse.get(), status.getTransactionId());
     } catch (IOException e) {
+      // No confirmed server transaction is available for this transport failure.
       return OperationResult.failure(
           StatusMessage.NETWORK_FAILURE_UNAVAILABLE.getCode(), e.getMessage(), 0);
     }
   }
 
-  // Customer related methods
+  // Customer identity, search, and status operations.
   @Override
   public OperationResult<Customer> create(NewCustomer input) {
     final var message =
@@ -101,6 +127,10 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getStatus()));
   }
 
+  /**
+   * Searches using the requested page and size, preserving the server's page
+   * number and total count for subsequent navigation.
+   */
   @Override
   public OperationResult<Page<CustomerSummary>> search(String nameQuery, long page, long size) {
     var message = new mainframe.client.messages.customer.Search(page, nameQuery, size);
@@ -152,7 +182,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
     return send(message, message::getStatus);
   }
 
-  // Address related methods
+  // Address operations map full records for editing and summaries for list views.
   @Override
   public OperationResult<Address> addAddress(Address address) {
     var message =
@@ -194,8 +224,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
 
   @Override
   public OperationResult<Address> updateAddress(Address address) {
-    // id must not be null for an update, so make sure there is logic in the service to prevent this
-    // from reaching here
+    // The service must supply an existing address identifier before requesting an update.
     var message =
         new mainframe.client.messages.customer.UpdateAddress(
             address.city(),
@@ -237,6 +266,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
         message,
         () -> {
           var addresses = new ArrayList<AddressSummary>();
+          // List responses encode boolean flags as text; only "y" maps to true.
           for (var item : message.getItems()) {
             addresses.add(
                 new AddressSummary(
@@ -273,7 +303,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getIsPrimary()));
   }
 
-  // Phone related methods
+  // Phone operations preserve contact details and text-message preferences.
   @Override
   public OperationResult<Phone> addPhone(Phone phone) {
     var message =
@@ -375,7 +405,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getType()));
   }
 
-  // Email related methods
+  // Email operations use summaries for listing and full records for retrieval.
   @Override
   public OperationResult<Email> addEmail(Email email) {
     var message =
@@ -463,7 +493,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getType()));
   }
 
-  // Employer related methods
+  // Employer operations map employment details separately from customer identity.
 
   @Override
   public OperationResult<Employer> addEmployer(Employer employer) {
@@ -548,7 +578,8 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getType()));
   }
 
-  // Customer document metadata. The mainframe does not provide an update message.
+  // Document operations transfer metadata only. With no update message available,
+  // the service coordinates replacement through separate add and delete requests.
   @Override
   public OperationResult<CustomerDocument> addDocument(
       String customerNumber, DocumentMetadata metadata) {
@@ -610,6 +641,10 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
                 message.getType()));
   }
 
+  /**
+   * Adds a relationship and returns its assigned identifier and relationship details.
+   * Customer display names are left unset in this mutation response mapping.
+   */
   @Override
   public OperationResult<Relationship> addRelationship(Relationship relationship) {
     var message =
@@ -659,6 +694,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
     }
   }
 
+  /** Updates relationship details while leaving display names unset in the returned record. */
   @Override
   public OperationResult<Relationship> updateRelationship(Relationship relationship) {
     var message =
@@ -716,6 +752,7 @@ public class CustomerAdapter implements CustomerGateway, DocumentGateway {
     }
   }
 
+  /** Retrieves relationship details, including both customer display names. */
   @Override
   public OperationResult<Relationship> retrieveRelationship(
       String customerNumber, long relationshipId) {

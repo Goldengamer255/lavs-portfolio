@@ -14,7 +14,14 @@ import lavs.ui.support.ValidationFeedback;
 import lavs.validation.FieldKey;
 import lavs.validation.RelationshipField;
 
-/** Controller for the add/edit customer relationship dialog. */
+/**
+ * Manages form values and validation feedback for adding or editing a customer
+ * relationship.
+ *
+ * <p>Validation is supplied by the caller, while persistence is coordinated by
+ * {@link RelationshipsTab}. Methods accessing form controls must run on the
+ * JavaFX application thread after FXML initialization.</p>
+ */
 public final class RelationshipDialogController {
 
     private final ValidationFeedback feedback = new ValidationFeedback();
@@ -37,6 +44,13 @@ public final class RelationshipDialogController {
     @FXML
     private Label formErrorLabel;
 
+    /**
+     * Supplies the dialog data before the FXML loader injects its controls.
+     *
+     * @param types available relationship types, copied to isolate dialog options
+     * @param existing relationship to edit, or {@code null} for a new relationship
+     * @param validator synchronous validation function invoked when a field loses focus
+     */
     public RelationshipDialogController(List<String> types, Relationship existing,
             Function<RelationshipInput, ValidationReport> validator) {
         this.types = List.copyOf(types);
@@ -47,6 +61,8 @@ public final class RelationshipDialogController {
     @FXML
     private void initialize() {
         typeCombo.getItems().setAll(types);
+        // A custom description is editable only for "Other"; disabling the field
+        // preserves its contents if the user switches between relationship types.
         otherTypeField.disableProperty().bind(typeCombo.valueProperty().isNotEqualTo("Other"));
 
         feedback.register(RelationshipField.SECONDARY_CUSTOMER_NUMBER.key(),
@@ -54,6 +70,8 @@ public final class RelationshipDialogController {
         feedback.register(RelationshipField.TYPE.key(), typeCombo, typeError);
         feedback.register(RelationshipField.OTHER_TYPE.key(), otherTypeField, otherTypeError);
         feedback.setFormErrorLabel(formErrorLabel);
+        // Validate the full input on focus loss, while feedback limits initial
+        // error display to fields the user has already left.
         feedback.setOnFieldLeft(() -> feedback.showErrors(validator.apply(read())));
 
         if (existing != null) {
@@ -63,6 +81,12 @@ public final class RelationshipDialogController {
         }
     }
 
+    /**
+     * Captures the current input, trimming surrounding whitespace from text fields.
+     * This method does not validate or persist the values.
+     *
+     * @return input containing the customer number, selected type, and custom description
+     */
     public RelationshipInput read() {
         return new RelationshipInput(
                 secondaryCustomerNumberField.getText().trim(),
@@ -70,10 +94,20 @@ public final class RelationshipDialogController {
                 otherTypeField.getText().trim());
     }
 
+    /**
+     * Displays all reported validation errors and focuses the first invalid field.
+     *
+     * @param report validation result returned by the save workflow
+     */
     public void showErrors(ValidationReport report) {
         feedback.showAllErrors(report);
     }
 
+    /**
+     * Displays an operation failure that is not associated with a specific field.
+     *
+     * @param message user-facing error to display at form level
+     */
     public void showFormError(String message) {
         feedback.showAllErrors(new ValidationReport(
                 List.of(new ValidationIssue(FieldKey.GLOBAL, message))));

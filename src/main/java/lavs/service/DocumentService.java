@@ -8,6 +8,11 @@ import lavs.domain.Page;
 import lavs.gateway.DocumentGateway;
 import lavs.gateway.OperationResult;
 
+/**
+ * Delegates customer document metadata operations and coordinates replacement.
+ * Calls are synchronous and should run on the shared background worker.
+ * Metadata validation is the caller's responsibility; file contents are not transferred.
+ */
 public final class DocumentService {
   private final DocumentGateway gateway;
 
@@ -32,7 +37,13 @@ public final class DocumentService {
     return gateway.deleteDocument(customerNumber, documentId);
   }
 
-  /** Add before delete; if a reply is lost, refresh before retrying. */
+  /**
+   * Adds replacement metadata before attempting to delete the original record.
+   * A confirmed add followed by an unconfirmed delete returns a partial result
+   * containing the replacement. No rollback or automatic retry is attempted.
+   * Refresh the document list before retrying an unconfirmed operation, since
+   * the server may have applied a request whose response was lost.
+   */
   public DocumentReplacementResult replace(
       String customerNumber, long oldId, DocumentMetadata metadata) {
     OperationResult<CustomerDocument> added = gateway.addDocument(customerNumber, metadata);

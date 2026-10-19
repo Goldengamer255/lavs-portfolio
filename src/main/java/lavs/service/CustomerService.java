@@ -4,8 +4,9 @@ import lavs.domain.*;
 import lavs.gateway.OperationResult;
 
 /**
- * Customer operations. Implementations validate with Tanush's rules before
- * writing through Jim's gateways. Page numbers are one-based; sizes are positive.
+ * Customer operations with form validation and cross-record business rules
+ * applied by the service layer before the relevant gateway writes.
+ * Page numbers are one-based; sizes are positive.
  * Validation methods do not save and return all issues for field-blur feedback.
  * Network operations must run on the shared worker.
  */

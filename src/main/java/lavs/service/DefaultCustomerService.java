@@ -119,6 +119,7 @@ public final class DefaultCustomerService implements CustomerService {
 
     @Override
     public OperationResult<ValidationReport> checkLoanReadiness(String customerNumber) {
+        // Readiness depends on the full contact set, not just the visible UI page.
         OperationResult<List<Address>> addresses = loadAll(this::listAddresses, customerNumber);
         if (!addresses.isSuccess()) {
             return copyFailure(addresses);
@@ -174,6 +175,7 @@ public final class DefaultCustomerService implements CustomerService {
 
     @Override
     public OperationResult<Boolean> deleteAddress(String customerNumber, long id) {
+        // Evaluate deletion rules against all addresses before removing a record.
         OperationResult<List<Address>> addresses = loadAll(this::listAddresses, customerNumber);
         if (!addresses.isSuccess()) {
             return copyFailure(addresses);
@@ -221,6 +223,7 @@ public final class DefaultCustomerService implements CustomerService {
 
     @Override
     public OperationResult<Boolean> deletePhone(String customerNumber, long id) {
+        // Phone deletion rules also inspect email contacts to assess remaining contact options.
         OperationResult<List<Phone>> phones = loadAll(this::listPhones, customerNumber);
         if (!phones.isSuccess()) {
             return copyFailure(phones);
@@ -272,6 +275,7 @@ public final class DefaultCustomerService implements CustomerService {
 
     @Override
     public OperationResult<Boolean> deleteEmail(String customerNumber, long id) {
+        // Email deletion rules also inspect phone contacts to assess remaining contact options.
         OperationResult<List<Phone>> phones = loadAll(this::listPhones, customerNumber);
         if (!phones.isSuccess()) {
             return copyFailure(phones);
@@ -473,6 +477,11 @@ public final class DefaultCustomerService implements CustomerService {
         return OperationResult.failure(REJECTED, message, 0);
     }
 
+    /**
+     * Retrieves full records for each summary while preserving pagination metadata.
+     * Any failed retrieval fails the whole operation rather than returning an
+     * incomplete page; success carries the last retrieval's transaction identifier.
+     */
     private <S, T> OperationResult<Page<T>> expandPage(
             OperationResult<Page<S>> summaries,
             Function<S, OperationResult<T>> retrieve) {
@@ -496,6 +505,11 @@ public final class DefaultCustomerService implements CustomerService {
                 new Page<>(details, source.page(), source.size(), source.total()), transactionId);
     }
 
+    /**
+     * Collects pages for cross-record checks until the reported total is reached
+     * or an empty page is returned. A failed page aborts the operation without
+     * exposing a partial collection as a successful result.
+     */
     private <T> OperationResult<List<T>> loadAll(
             PageLoader<T> loader, String customerNumber) {
         List<T> all = new ArrayList<>();
