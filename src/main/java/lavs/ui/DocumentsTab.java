@@ -13,6 +13,7 @@ import lavs.ui.support.EntityListController;
 import lavs.ui.support.FormDialog;
 import lavs.ui.support.TaskRunner;
 
+// AI-assisted: adapted the team's list-and-dialog pattern for document metadata and replacement outcomes.
 /**
  * Coordinates listing, adding, replacing, and deleting customer document metadata.
  * No file contents are uploaded by this tab.
