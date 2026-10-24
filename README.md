@@ -6,11 +6,10 @@ A JavaFX desktop application that gives bank staff a clean, validated front end 
 
 ## Demo
 
-[![Watch the 4-minute LAVS demo](docs/demo/poster.jpg)](docs/demo/LAVS-demo.mp4)
+[![Watch the 4-minute LAVS demo on YouTube](docs/demo/poster.jpg)](https://youtu.be/eYy1QFQaWfQ)
 
-A silent 4:11 walkthrough of the full loan process: log in, find a customer, add a relationship, create a new customer with live validation, add an address, phone number and note, record a document, create a loan, link a co-borrower and change them to a guarantor, view the repayment summary and schedule, add a payment, move the loan to Pending, and log out.
+A silent, captioned 4:11 walkthrough of the full loan process: log in, find a customer, add a relationship, create a new customer with live validation, add an address, phone number and note, record a document, create a loan, link a co-borrower and change them to a guarantor, view the repayment summary and schedule, add a payment, move the loan to Pending, and log out.
 
-<!-- For inline playback on GitHub: edit this file on github.com, drag docs/demo/LAVS-demo.mp4 into the editor, and paste the generated user-attachments link on its own line here. -->
 
 ## Screenshots
 
